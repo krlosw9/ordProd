@@ -79,37 +79,22 @@ $map->get('logout', '/curso/logout', [
         'controller' => 'App\Controllers\AuthController',
         'action' => 'getLogout'
 ]);
-$map->get('vistaOrd', '/curso/base', [
-        'controller' => 'App\Controllers\OrdController',
-        'action' => 'ordAction'
+$map->get('noRoute', '/curso/noRoute', [
+        'controller' => 'App\Controllers\NoRouteController',
+        'action' => 'getNoRoute'
 ]);
+
 
 $matcher = $routerContainer->getMatcher();
 $route = $matcher->match($request);
 
-
-function printElement($job){
-
-//  if($job->visible == false){
-//   return;
-// }
-
-  echo '<li class="work-position">';
-  echo '<h5>'.$job->title.'</h5>';
-  echo '<p>'.$job->description.'</p>';
-  echo '<p>'.$job->getDurationAsString().'</p>';
-  echo '<strong>Achievements:</strong>';
-  echo '<ul>';
-  echo '<li>Lorem ipsum dolor sit amet, 80% consectetuer adipiscing elit.</li>';
-  echo '<li>Lorem ipsum dolor sit amet, 80% consectetuer adipiscing elit.</li>';
-  echo '<li>Lorem ipsum dolor sit amet, 80% consectetuer adipiscing elit.</li>';
-  echo '</ul>';
-  echo '</li>'; 
-}
-
-
 if(!$route){
-    echo "No route<br>";
+    $controllerName = 'App\Controllers\NoRouteController';
+    $actionName = 'getNoRoute';
+
+    $controller = new $controllerName;
+    $response = $controller->$actionName($request);
+    echo $response->getBody();
 }else{
     $handlerData = $route->handler;
     $controllerName = $handlerData['controller'];
@@ -134,5 +119,7 @@ if(!$route){
 
     echo $response->getBody();
 }
+
+
 
 ?>
