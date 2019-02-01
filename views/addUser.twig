@@ -2,14 +2,14 @@
 
 {% block content %}
 	<h1>Add User</h1>
-	<div class="alert alert-primary" role="alert">
-		{{ responseMessage }}
-	</div>
-	<form action="add" method="post">
+	<form action="./usersadd" method="post">
 		<label>Email: </label>
 		<input type="email" name="email"><br>
 		<label>Password: </label>
 		<input type="password" name="pass"><br>
 		<button type="submit">Save</button>
+		<div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+            {{ responseMessage }}
+          </div>
 	</form>
 {% endblock %}

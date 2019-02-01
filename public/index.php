@@ -44,23 +44,48 @@ $routerContainer = new RouterContainer();
 $map = $routerContainer->getMap();
 $map->get('index', '/curso/', [
         'controller' => 'App\Controllers\IndexController',
-        'action' => 'indexAction'
+        'action' => 'indexAction',
+        'auth' => true
 ]);
 $map->get('addJobs', '/curso/jobsadd', [
         'controller' => 'App\Controllers\JobsController',
-        'action' => 'getAddJobAction'
+        'action' => 'getAddJobAction',
+        'auth' => true
 ]);
 $map->post('saveJobs', '/curso/jobsadd', [
         'controller' => 'App\Controllers\JobsController',
-        'action' => 'getAddJobAction'
+        'action' => 'getAddJobAction',
+        'auth' => true
+]);
+$map->get('listActOpe', '/curso/actopelist', [
+        'controller' => 'App\Controllers\JobsController',
+        'action' => 'getListActOperario',
+        'auth' => true
+]);
+$map->get('updateActivity', '/curso/updateActivity', [
+        'controller' => 'App\Controllers\JobsController',
+        'action' => 'getUpdateActivity',
+        'auth' => true
+]);
+$map->post('postUpdateActivity', '/curso/updateActivity', [
+        'controller' => 'App\Controllers\JobsController',
+        'action' => 'getUpdateActivity',
+        'auth' => true
+]);
+$map->post('activitydel', '/curso/activitydel', [
+        'controller' => 'App\Controllers\JobsController',
+        'action' => 'postUpdDelActOperario',
+        'auth' => true
 ]);
 $map->get('addUsers', '/curso/usersadd', [
         'controller' => 'App\Controllers\UsersController',
-        'action' => 'getAddUserAction'
+        'action' => 'getAddUserAction',
+        'auth' => true
 ]);
 $map->post('saveUsers', '/curso/usersadd', [
         'controller' => 'App\Controllers\UsersController',
-        'action' => 'postSaveUser'
+        'action' => 'postSaveUser',
+        'auth' => true
 ]);
 $map->get('loginForm', '/curso/login', [
         'controller' => 'App\Controllers\AuthController',
@@ -89,9 +114,9 @@ $matcher = $routerContainer->getMatcher();
 $route = $matcher->match($request);
 
 if(!$route){
+    //si no se encuentra una ruta lo redirecciona dediante la variable $controllerName para que guarde la ruta de una pagina con diseño 404
     $controllerName = 'App\Controllers\NoRouteController';
     $actionName = 'getNoRoute';
-
     $controller = new $controllerName;
     $response = $controller->$actionName($request);
     echo $response->getBody();
@@ -103,6 +128,7 @@ if(!$route){
 
     $sessionUserId = $_SESSION['userId'] ?? null;
     if ($needsAuth && !$sessionUserId) {
+      //si la pagina que quiere acceder solo pueden ingresar usuarios logeados y ademas No hay una session activa entonces lo redirecciona al login
       $controllerName = 'App\Controllers\AuthController';
       $actionName = 'getLogout';
     }

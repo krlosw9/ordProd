@@ -26,12 +26,11 @@ class UsersController extends BaseController{
 				
 				
 				$user = new User();
-				$user->email = $postData['email'];
-				//$user->password = $postData['pass'];
-				$user->password = password_hash($postData['pass'],PASSWORD_DEFAULT);
+				$user->nombre = $postData['email'];
+				$user->contrasena = password_hash($postData['pass'],PASSWORD_DEFAULT);
 				$user->save();
 				
-				$responseMessage = 'Saved';
+				$responseMessage = 'Usuario registrado.';
 			}catch(\Exception $e){
 				$responseMessage = $e->getMessage();
 			}
