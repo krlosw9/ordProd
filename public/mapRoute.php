@@ -25,34 +25,34 @@ $map->get('index', '/curso/', [
 ]);
 
 //Rutas Actividad Tarea
-$map->get('addJobs', '/curso/jobsadd', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'getAddJobAction',
+$map->get('addActividadTarea', '/curso/activityadd', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'getAddActividadTareaAction',
         'auth' => true
 ]);
-$map->post('saveJobs', '/curso/jobsadd', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'getAddJobAction',
+$map->post('saveActividadTarea', '/curso/activityadd', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'postAddActividadTareaAction',
         'auth' => true
 ]);
-$map->get('listActOpe', '/curso/actopelist', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'getListActOperario',
+$map->get('listActividadTarea', '/curso/activitylist', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'getListActividadTarea',
         'auth' => true
 ]);
-$map->get('updateActivity', '/curso/updateActivity', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'getUpdateActivity',
+$map->get('updateActividadTarea', '/curso/activityupdate', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'getUpdateActividadTarea',
         'auth' => true
 ]);
-$map->post('postUpdateActivity', '/curso/updateActivity', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'getUpdateActivity',
+$map->post('postUpdateActividadTarea', '/curso/activityupdate', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'getUpdateActividadTarea',
         'auth' => true
 ]);
-$map->post('activitydel', '/curso/activitydel', [
-        'controller' => 'App\Controllers\JobsController',
-        'action' => 'postUpdDelActOperario',
+$map->post('delActividadTarea', '/curso/activitydel', [
+        'controller' => 'App\Controllers\ActividadTareaController',
+        'action' => 'postUpdDelActividadTarea',
         'auth' => true
 ]);
 

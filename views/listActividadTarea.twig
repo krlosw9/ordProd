@@ -1,0 +1,66 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+  <h1>
+    Actividad
+    <small>Operario</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./activitylist">Actividad</a></li>
+    <li class="active">Operario</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-md-9">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Listado de las profesiones/operarios</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="activitydel" method="post" role="form">
+        <table class="table table-bordered">
+          <tr>
+            <th style="width: 40px">#</th>
+            <th style="width: 100px">Actividad</th>
+            <th style="width: 100px">Valor/Por/Par</th>
+            <th style="width: 100px">Posicion</th>
+            <th style="width: 150px">Observacion</th>
+          </tr>
+          {% for actOpe in actOpes %}
+          <tr>
+              <td>
+                <input type="radio" name="id" value="{{ actOpe.id }}">
+              </td>
+              <td>{{ actOpe.nombre }}</td>
+              <td>{{ actOpe.valorPorPar }}</td>
+              <td>{{ actOpe.posicion }}</td>
+              <td>{{ actOpe.observacion }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        <div class="box-footer">
+          <button type="submit" name="boton" value="del" class="btn btn-primary">Eliminar</button>
+          <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
+        </div>
+       </form>
+       <div class="box-footer">
+       <form action="activityadd" method="get">
+        <button type="submit" class="btn btn-primary">Nuevo</button>
+       </form>
+       
+       </div>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+
+    
+
+{% endblock %}

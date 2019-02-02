@@ -7,7 +7,7 @@
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./actopelist">Actividad</a></li>
+    <li><a href="./activitylist">Actividad</a></li>
     <li class="active">Operario</li>
   </ol>
 </section>
@@ -22,26 +22,26 @@
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="./updateActivity" method="post" role="form">
+        <form action="./activityupdate" method="post" role="form">
           <div class="box-body">
             <div class="form-group">
-              <input type="hidden" name="id" value="{{ jobs.id }}" class="form-control" placeholder="" required>
+              <input type="hidden" name="id" value="{{ actOpes.id }}" class="form-control" placeholder="" required>
             </div>
             <div class="form-group">
               <label>Nombre:</label>
-              <input type="text" name="nombre" value="{{ jobs.nombre }}" class="form-control" placeholder="" required>
+              <input type="text" name="nombre" value="{{ actOpes.nombre }}" class="form-control" placeholder="" required>
             </div>
             <div class="form-group">
               <label>Valor por par:</label>
-              <input type="number" name="valorPorPar" value="{{ jobs.valorPorPar }}" class="form-control" placeholder="" required>
+              <input type="number" name="valorPorPar" value="{{ actOpes.valorPorPar }}" class="form-control" placeholder="" required>
           </div>
           <div class="form-group">
               <label>Posicion:</label>
-              <input type="number" name="posicion" value="{{ jobs.posicion }}" class="form-control" placeholder="" required>
+              <input type="number" name="posicion" value="{{ actOpes.posicion }}" class="form-control" placeholder="" required>
           </div>
             <div class="form-group">
               <label>Observacion:</label>
-              <input type="text" name="observacion" value="{{ jobs.observacion }}" class="form-control" placeholder="">
+              <input type="text" name="observacion" value="{{ actOpes.observacion }}" class="form-control" placeholder="">
           </div>
           </div>
           <!-- /.box-body -->
