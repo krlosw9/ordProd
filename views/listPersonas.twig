@@ -1,0 +1,74 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+  <h1>
+    Operarios
+    <small>Registro</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./peoplelist">Operarios</a></li>
+    <li class="active">Registro</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-md-10">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Listado de los operarios</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="peopledel" method="post" role="form">
+        <table class="table table-bordered" >
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 100px">Cedula</th>
+            <th style="width: 150px">Nombre</th>
+            <th style="width: 100px">Apellido</th>
+            <th style="width: 100px">Telefono</th>
+            <th style="width: 50px">Activo</th>
+            <th style="width: 150px">Observacion</th>
+          </tr>
+          {% for people in peoples %}
+          <tr>
+              <td>
+                <input type="radio" name="id" value="{{ people.id }}">
+              </td>
+              <td>{{ people.cedula }}</td>
+              <td>{{ people.nombre }}</td>
+              <td>{{ people.apellido }}</td>
+              <td>{{ people.telefono }}</td>
+              <td><center>
+                    <input type="checkbox" name="activoCheck" {% if people.activoCheck == 1 %}checked{% endif %}>
+                  </center>
+              </td>
+              <td>{{ people.observacion }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        <div class="box-footer">
+          <button type="submit" name="boton" value="del" class="btn btn-primary">Eliminar</button>
+          <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
+        </div>
+       </form>
+       <div class="box-footer">
+       <form action="peopleadd" method="get">
+        <button type="submit" class="btn btn-primary">Nuevo</button>
+       </form>
+       
+       </div>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+
+    
+
+{% endblock %}

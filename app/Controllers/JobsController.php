@@ -14,7 +14,7 @@ class JobsController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$jobValidator = v::key('nombre', v::stringType()->notEmpty())
+			$jobValidator = v::key('nombre', v::stringType()->length(1, 30)->notEmpty())
 					->key('valorPorPar', v::numeric()->positive()->between(0, 100000))
 					->key('posicion', v::numeric()->positive()->between(1, 20));
 			if($_SESSION['userId']){
