@@ -11,7 +11,7 @@ class PiezaController extends BaseController{
 		return $this->renderHTML('addPieza.twig');
 	}
 
-	//Registra la Persona
+	//Registra la Pieza
 	public function postAddPiezaAction($request){
 		$responseMessage = null;
 		
@@ -27,6 +27,7 @@ class PiezaController extends BaseController{
 					
 					$part = new Pieza();
 					$part->nombre = $postData['nombre'];
+					$part->observacion = $postData['observacion'];
 					$part->idUserRegister = $_SESSION['userId'];
 					$part->idUserUpdate = $_SESSION['userId'];
 					$part->save();
@@ -115,6 +116,7 @@ class PiezaController extends BaseController{
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 					$part = Pieza::find($postData['id']);
 					$part->nombre = $postData['nombre'];
+					$part->observacion = $postData['observacion'];
 					$part->idUserUpdate = $_SESSION['userId'];
 					$part->save();
 					$responseMessage = 'Actualizado';

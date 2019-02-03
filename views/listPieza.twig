@@ -3,37 +3,39 @@
 {% block content %}
 
 <h1>
-    Ciudades
+    Piezas
     <small>Listado</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./citylist">Ciudades</a></li>
+    <li><a href="./partlist">Piezas</a></li>
     <li class="active">Listado</li>
   </ol>
 </section>
 <section class="content">
   <div class="row">
     <!-- left column -->
-    <div class="col-md-6">
+    <div class="col-md-8">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Listado de las ciudades</h3>
+        <h3 class="box-title">Listado de los tipos de piezas del modelo</h3>
       </div>
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="citydel" method="post" role="form">
+       <form action="partdel" method="post" role="form">
         <table class="table table-bordered" >
           <tr>
             <th style="width: 10px">#</th>
-            <th style="width: 150px">Nombre</th>
+            <th style="width: 100px">Nombre</th>
+            <th style="width: 150px">Observacion</th>
           </tr>
-          {% for city in cities %}
+          {% for part in parts %}
           <tr>
               <td>
-                <input type="radio" name="id" value="{{ city.id }}">
+                <input type="radio" name="id" value="{{ part.id }}">
               </td>
-              <td>{{ city.nombre }}</td>
+              <td>{{ part.nombre }}</td>
+              <td>{{ part.observacion }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -46,7 +48,7 @@
         </div>
        </form>
        <div class="box-footer">
-       <form action="cityadd" method="get">
+       <form action="partadd" method="get">
         <button type="submit" class="btn btn-primary">Nuevo</button>
        </form>
        
