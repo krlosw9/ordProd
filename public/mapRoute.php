@@ -100,6 +100,136 @@ $map->post('postPeopleUpdate', '/curso/peopleupdate', [
         'auth' => true
 ]);
 
+//Rutas Ciudades
+$map->get('getAddCiudades', '/curso/cityadd', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'getAddCiudadAction',
+        'auth' => true
+]);
+$map->post('postAddCiudades', '/curso/cityadd', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'postAddCiudadAction',
+        'auth' => true
+]);
+$map->get('getListCiudades', '/curso/citylist', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'getListCiudad',
+        'auth' => true
+]);
+$map->post('postDelCiudades', '/curso/citydel', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'postUpdDelCiudad',
+        'auth' => true
+]);
+$map->get('getCiudadUpdate', '/curso/cityupdate', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'getUpdateCiudad',
+        'auth' => true
+]);
+$map->post('postCiudadUpdate', '/curso/cityupdate', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'getUpdateCiudad',
+        'auth' => true
+]);
+
+//Rutas Clientes
+$map->get('getAddClientes', '/curso/customeradd', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'getAddClientesAction',
+        'auth' => true
+]);
+$map->post('postAddClientes', '/curso/customeradd', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'postAddClientesAction',
+        'auth' => true
+]);
+$map->get('getListClientes', '/curso/customerlist', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'getListClientes',
+        'auth' => true
+]);
+$map->post('postDelClientes', '/curso/customerdel', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'postUpdDelClientes',
+        'auth' => true
+]);
+$map->get('getClientesUpdate', '/curso/customerupdate', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'getUpdateClientes',
+        'auth' => true
+]);
+$map->post('postClientesUpdate', '/curso/customerupdate', [
+        'controller' => 'App\Controllers\ClientesController',
+        'action' => 'getUpdateClientes',
+        'auth' => true
+]);
+
+//Rutas Proveedores
+$map->get('getAddProveedores', '/curso/provideradd', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'getAddProveedoresAction',
+        'auth' => true
+]);
+$map->post('postAddProveedores', '/curso/provideradd', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'postAddProveedoresAction',
+        'auth' => true
+]);
+$map->get('getListProveedores', '/curso/providerlist', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'getListProveedores',
+        'auth' => true
+]);
+$map->post('postDelProveedores', '/curso/providerdel', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'postUpdDelProveedores',
+        'auth' => true
+]);
+$map->get('getProveedoresUpdate', '/curso/providerupdate', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'getUpdateProveedores',
+        'auth' => true
+]);
+$map->post('postProveedoresUpdate', '/curso/providerupdate', [
+        'controller' => 'App\Controllers\ProveedoresController',
+        'action' => 'getUpdateProveedores',
+        'auth' => true
+]);
+
+//Rutas Pieza
+$map->get('getAddPieza', '/curso/partadd', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'getAddPiezaAction',
+        'auth' => true
+]);
+$map->post('postAddPieza', '/curso/partadd', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'postAddPiezaAction',
+        'auth' => true
+]);
+$map->get('getListPieza', '/curso/partlist', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'getListPieza',
+        'auth' => true
+]);
+$map->post('postDelPieza', '/curso/partdel', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'postUpdDelPieza',
+        'auth' => true
+]);
+$map->get('getPiezaUpdate', '/curso/partupdate', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'getUpdatePieza',
+        'auth' => true
+]);
+$map->post('postPiezaUpdate', '/curso/partupdate', [
+        'controller' => 'App\Controllers\PiezaController',
+        'action' => 'getUpdatePieza',
+        'auth' => true
+]);
+
+
+
 
 
 //Rutas que validan el login, dan acceso o denega acceso

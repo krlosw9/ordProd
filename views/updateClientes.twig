@@ -1,0 +1,61 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<h1>
+    Clientes
+    <small>Actualizacion</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./customerlist">Clientes</a></li>
+    <li class="active">Actualizacion</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-md-6">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Actualice el cliente</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="./customerupdate" method="post" role="form">
+          <div class="box-body">
+            <div class="form-group">
+              <input type="hidden" name="id" value="{{ customers.id }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group">
+              <label>Nombre:</label>
+              <input type="text" name="nombre" value="{{ customers.nombre }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group">
+              <label>Apellido:</label>
+              <input type="text" name="apellido" value="{{ customers.apellido }}" class="form-control" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+              <label>Telefono:</label>
+              <input type="number" name="telefono" value="{{ customers.telefono }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group">
+              <label>Direccion:</label>
+              <input type="text" name="direccion" value="{{ customers.direccion }}" class="form-control" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+              <label>Observacion:</label>
+              <input type="text" name="observacion" value="{{ customers.observacion }}" class="form-control" placeholder="Opcional">
+            </div>
+            </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+            {{ responseMessage }}
+          </div>
+        </form>
+      </div>
+{% endblock %}
