@@ -38,9 +38,10 @@
                 <input type="radio" name="id" value="{{ shape.id }}">
               </td>
               <td>{{ shape.referencia }}</td>
-              <td>{{ shape.genero }}</td>
+              <td>{% if shape.genero == 1 %}Caballero{% elseif shape.genero == 2 %}Dama{% elseif shape.genero == 3 %}Niño{% elseif shape.genero == 4 %}Bebe{% else %}Sin Definir{% endif %}
+              </td>
               <td>{{ shape.color }}</td>
-              <td>{{ shape.idProveedor }}</td>
+              <td>{{ shape.nombre }}</td>
               <td>{{ shape.observacion }}</td>
           </tr>
           {% endfor %}

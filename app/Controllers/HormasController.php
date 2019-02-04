@@ -2,13 +2,17 @@
 
 namespace App\Controllers;
 
-use App\Models\Hormas;
+use App\Models\{Hormas, Proveedores};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class HormasController extends BaseController{
 	public function getAddHormasAction($request){
-		return $this->renderHTML('addHormas.twig');
+		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
+
+		return $this->renderHTML('addHormas.twig',[
+				'providers' => $provider
+		]);
 	}
 
 	//Registra la Persona
@@ -47,10 +51,12 @@ class HormasController extends BaseController{
 				}
 			}
 		}
+		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
 
 		//Retorna a la pagina de registro con un mensaje $responseMessage
 		return $this->renderHTML('addHormas.twig',[
-				'responseMessage' => $responseMessage
+				'responseMessage' => $responseMessage,
+				'providers' => $provider
 		]);
 	}
 
@@ -58,7 +64,9 @@ class HormasController extends BaseController{
 	public function getListHormas(){
 		$responseMessage = null;
 		
-		$shape = Hormas::orderBy('referencia')->get();
+		$shape = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
+		->select('hormas.*', 'clientesProvedores.nombre')
+		->get();
 
 		return $this->renderHTML('listHormas.twig', [
 			'shapes' => $shape
@@ -73,6 +81,7 @@ class HormasController extends BaseController{
 	public function postUpdDelHormas($request){
 		$responseMessage = null;
 		$quiereActualizar = false;
+		$provider = null;
 		$ruta='listHormas.twig';
 
 		if($request->getMethod()=='POST'){
@@ -95,6 +104,7 @@ class HormasController extends BaseController{
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
 			$shapes = Hormas::find($id);
+			$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
 			$ruta='updateHormas.twig';
 		}else{
 			$shapes = Hormas::orderBy('referencia')->get();
@@ -102,6 +112,7 @@ class HormasController extends BaseController{
 		return $this->renderHTML($ruta, [
 			'shapes' => $shapes,
 			'idUpdate' => $id,
+			'providers' => $provider,
 			'responseMessage' => $responseMessage
 		]);
 	}
