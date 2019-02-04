@@ -1,0 +1,73 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+<h1>
+    Hormas
+    <small>Actualizacion</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./shapelist">Hormas</a></li>
+    <li class="active">Actualizacion</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-md-6">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Actualice la horma</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="./shapeupdate" method="post" role="form">
+          <div class="box-body">
+            <div class="form-group">
+              <input type="hidden" name="id" value="{{ shapes.id }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group">
+              <label>Referencia:</label>
+              <input type="text" name="referencia" value="{{ shapes.referencia }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group">
+              <label>Linea:</label>
+              <select class="form-control select-picker" id="genero" name="genero" required>
+                <option value="1">Caballero: 37 - 44</option>
+                <option value="2" selected="selected">Dama: 33 - 41</option>
+                <option value="3">Niño: 27 - 33</option>
+                <option value="4">Niño: 21 - 26</option>
+                <option value="5">Bebe: 15 - 20</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Color:</label>
+              <input type="text" name="color" value="{{ shapes.color }}" class="form-control" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+              <label>Proveedor:</label>
+              <select class="form-control select-picker" name="idProveedor" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Observacion:</label>
+              <input type="text" name="observacion" value="{{ shapes.observacion }}" class="form-control" placeholder="Opcional">
+          </div>
+          </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+            {{ responseMessage }}
+          </div>
+        </form>
+      </div>
+{% endblock %}

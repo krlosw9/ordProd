@@ -228,6 +228,38 @@ $map->post('postPiezaUpdate', '/curso/partupdate', [
         'auth' => true
 ]);
 
+//Rutas Hormas
+$map->get('getAddHormas', '/curso/shapeadd', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'getAddHormasAction',
+        'auth' => true
+]);
+$map->post('postAddHormas', '/curso/shapeadd', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'postAddHormasAction',
+        'auth' => true
+]);
+$map->get('getListHormas', '/curso/shapelist', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'getListHormas',
+        'auth' => true
+]);
+$map->post('postDelHormas', '/curso/shapedel', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'postUpdDelHormas',
+        'auth' => true
+]);
+$map->get('getHormasUpdate', '/curso/shapeupdate', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'getUpdateHormas',
+        'auth' => true
+]);
+$map->post('postHormasUpdate', '/curso/shapeupdate', [
+        'controller' => 'App\Controllers\HormasController',
+        'action' => 'getUpdateHormas',
+        'auth' => true
+]);
+
 
 
 
