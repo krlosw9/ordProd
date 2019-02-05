@@ -259,6 +259,37 @@ $map->post('postHormasUpdate', '/curso/shapeupdate', [
         'action' => 'getUpdateHormas',
         'auth' => true
 ]);
+//Rutas Modelos
+$map->get('getAddModelo', '/curso/modeladd', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'getAddModeloAction',
+        'auth' => true
+]);
+$map->post('postAddModelo', '/curso/modeladd', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'postAddModeloAction',
+        'auth' => true
+]);
+$map->get('getListModelo', '/curso/modellist', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'getListModelo',
+        'auth' => true
+]);
+$map->post('postDelModelo', '/curso/modeldel', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'postUpdDelModelo',
+        'auth' => true
+]);
+$map->get('getModeloUpdate', '/curso/modelupdate', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'getUpdateModelo',
+        'auth' => true
+]);
+$map->post('postModeloUpdate', '/curso/modelupdate', [
+        'controller' => 'App\Controllers\ModeloController',
+        'action' => 'getUpdateModelo',
+        'auth' => true
+]);
 
 
 

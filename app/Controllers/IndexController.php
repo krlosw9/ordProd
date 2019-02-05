@@ -9,6 +9,9 @@ class IndexController extends BaseController{
 
 		$jobs = ActividadTarea::all();
 
+		//last() trae el ultimo row de la consulta y de esa forma podemos ver el ultimo id
+		$ultimo = $jobs->last();
+
 		$nombre = 'Carlos Waldo';
 		$limitsMonths = 2000;
 
