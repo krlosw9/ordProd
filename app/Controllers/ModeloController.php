@@ -2,19 +2,24 @@
 
 namespace App\Controllers;
 
-use App\Models\{ModelosInfo, MaterialModelos, Tallas};
+use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ModeloController extends BaseController{
-	public function getAddModeloAction($request){
-		$provider = null;
-		//$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
+	public function getAddModeloAction(){
+		$shape = null; $part=null; $inventory=null;
+
+		$shape = Hormas::orderBy('referencia')->get();
+		$part = Pieza::orderBy('nombre')->get();
+		$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
 
 		return $this->renderHTML('addModelo.twig',[
-				'providers' => $provider,
+				'shapes' => $shape,
+				'parts' => $part,
+				'inventorys' => $inventory,
 				'cantPiezas' => $cantPiezas
 		]);
 	}
@@ -47,30 +52,32 @@ class ModeloController extends BaseController{
 					}
 
 					$idModelo = ModelosInfo::all();
-					$modelUltimo = $idModelo->last();
-					$modelUltimoId = $modelUltimo->id+1;
+					$modeloUltimo = $idModelo->last();
+					$modeloUltimoId = $modeloUltimo->id+1;
 					
-					$model = new ModelosInfo();
-					$model->id = $modelUltimoId;
-					$model->referenciaMod=$postData['referenciaMod'];
-					$model->idHorma = $postData['idHorma'];
-					$model->tallas = $postData['tallas'];
-					$model->linea = $postData['linea'];
-					$model->imagenUrl = $imgName;
-					$model->idUserRegister = $_SESSION['userId'];
-					$model->idUserUpdate = $_SESSION['userId'];
-					$model->save();
+					$modelo = new ModelosInfo();
+					$modelo->id = $modeloUltimoId;
+					$modelo->referenciaMod=$postData['referenciaMod'];
+					$modelo->idHorma = $postData['idHorma'];
+					$modelo->tallas = $postData['tallas'];
+					$modelo->linea = $postData['linea'];
+					$modelo->imagenUrl = $imgName;
+					$modelo->idUserRegister = $_SESSION['userId'];
+					$modelo->idUserUpdate = $_SESSION['userId'];
+					$modelo->save();
 
-					$material = new MaterialModelos();
-					$material->idModeloInfo=$modelUltimoId;
-					$material->idPieza = $postData['idPieza'];
-					$material->idInventarioMaterial = $postData['idInventarioMaterial'];
-					$material->consumoPorPar = $postData['consumoPorPar'];
-					$material->observacion = $postData['observacion'];
-					$material->idUserRegister = $_SESSION['userId'];
-					$material->idUserUpdate = $_SESSION['userId'];
-					$material->save();
 					
+					for ($i=1; $i <= $postData['cantPiezas']; $i++) { 
+						$material = new MaterialModelos();
+						$material->idModeloInfo=$modeloUltimoId;
+						$material->idPieza = $postData['idPieza'.$i];
+						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
+						$material->consumoPorPar = $postData['consumoPorPar'.$i];
+						$material->observacion = $postData['observacion'.$i];
+						$material->idUserRegister = $_SESSION['userId'];
+						$material->idUserUpdate = $_SESSION['userId'];
+						$material->save();
+					}
 
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
@@ -79,18 +86,15 @@ class ModeloController extends BaseController{
 					if ($prevMessage =="All of the requ") {
 						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
 					}else{
-						$responseMessage = $e->getMessage();
-						//$responseMessage = substr($e->getMessage(), 0, 50);
+						//$responseMessage = $e->getMessage();
+						$responseMessage = substr($e->getMessage(), 0, 50);
 					}
 				}
 			}
 		}
-		//$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
 
-		//Retorna a la pagina de registro con un mensaje $responseMessage
-		return $this->renderHTML('addModelo.twig',[
+		return $this->renderHTML('listModelo.twig',[
 				'responseMessage' => $responseMessage,
-				'providers' => $provider,
 				'cantPiezas' => $cantPiezas
 		]);
 	}
@@ -99,14 +103,14 @@ class ModeloController extends BaseController{
 	public function getListModelo(){
 		$responseMessage = null;
 		
-		//$model = ModelosInfo::orderBy('referencia')->get();
+		//$modelo = ModelosInfo::orderBy('referencia')->get();
 
-		$model = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
+		$modelo = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
 		->select('modelosInfo.*', 'hormas.referencia')
 		->get();
 
 		return $this->renderHTML('listModelo.twig', [
-			'models' => $model
+			'modelos' => $modelo
 		]);
 		
 
@@ -116,9 +120,10 @@ class ModeloController extends BaseController{
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelModelo($request){
+		$shape = null; $part=null; $inventory=null; $material=null;
 		$responseMessage = null;
 		$quiereActualizar = false;
-		$provider = null;
+		$modelos = null;
 		$ruta='listModelo.twig';
 
 		if($request->getMethod()=='POST'){
@@ -127,8 +132,8 @@ class ModeloController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
-					$shape = new ModelosInfo();
-					$shape->destroy($id);
+					$modelo = new ModelosInfo();
+					$modelo->destroy($id);
 					$responseMessage = "Se elimino el modelo";
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
@@ -140,29 +145,36 @@ class ModeloController extends BaseController{
 		
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$shapes = ModelosInfo::find($id);
-			$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
+			$modelos = ModelosInfo::find($id);
+			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
+
+			$shape = Hormas::orderBy('referencia')->get();
+			$part = Pieza::orderBy('nombre')->get();
+			$inventory = InventarioMaterial::orderBy('nombre')->get();
 			$ruta='updateModelo.twig';
 		}else{
-			$shapes = ModelosInfo::orderBy('referenciaMod')->get();
+			$modelos = ModelosInfo::orderBy('referenciaMod')->get();
 		}
 		return $this->renderHTML($ruta, [
-			'shapes' => $shapes,
+			'modelos' => $modelos,
+			'materiales' => $material,
 			'idUpdate' => $id,
-			'providers' => $provider,
+			'shapes' => $shape,
+			'parts' => $part,
+			'inventorys' => $inventory,
 			'responseMessage' => $responseMessage
 		]);
 	}
 
-	//en esta accion se registra las modificaciones del registro
+	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function getUpdateModelo($request){
-
+		$imgName = null;
 		$responseMessage = null;
 				
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$modeloValidator = v::key('referencia', v::stringType()->length(1, 12)->notEmpty());
+			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 12)->notEmpty());
 
 			
 			if($_SESSION['userId']){
@@ -170,15 +182,41 @@ class ModeloController extends BaseController{
 					$modeloValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
+					$files = $request->getUploadedFiles();
+					$fileImg = $files['fileImg'];
+					
+					if($fileImg->getError() == UPLOAD_ERR_OK){
+						$fileName = $fileImg->getClientFilename();
+						$imgName = $postData['referenciaMod'].$fileName;
+						$fileImg->moveTo("uploads/$imgName");
+					}
+
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$shape = ModelosInfo::find($postData['id']);
-					$shape->referencia = $postData['referencia'];
-					$shape->genero = $postData['genero'];
-					$shape->color = $postData['color'];
-					$shape->idProveedor = $postData['idProveedor'];
-					$shape->observacion = $postData['observacion'];
-					$shape->idUserUpdate = $_SESSION['userId'];
-					$shape->save();
+					$idModelo = $postData['id'];
+					$modelo = ModelosInfo::find($idModelo);
+					
+					$modelo->referenciaMod=$postData['referenciaMod'];
+					$modelo->idHorma = $postData['idHorma'];
+					$modelo->tallas = $postData['tallas'];
+					$modelo->linea = $postData['linea'];
+					if ($imgName) {
+						$modelo->imagenUrl = $imgName;
+					}
+					$modelo->idUserUpdate = $_SESSION['userId'];
+					$modelo->save();
+
+					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
+						$material = MaterialModelos::find($postData['idMaterial'.$i]);
+						$material->idModeloInfo=$idModelo;
+						$material->idPieza = $postData['idPieza'.$i];
+						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
+						$material->consumoPorPar = $postData['consumoPorPar'.$i];
+						$material->observacion = $postData['observacion'.$i];
+						$material->idUserRegister = $_SESSION['userId'];
+						$material->idUserUpdate = $_SESSION['userId'];
+						$material->save();
+					}
+
 					$responseMessage = 'Actualizado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
@@ -192,9 +230,11 @@ class ModeloController extends BaseController{
 			}
 		}
 
-		$shapes = ModelosInfo::orderBy('referencia')->get();
+		$modelos = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
+		->select('modelosInfo.*', 'hormas.referencia')
+		->get();
 		return $this->renderHTML('listModelo.twig',[
-				'shapes' => $shapes,
+				'modelos' => $modelos,
 				'responseMessage' => $responseMessage
 		]);
 	}

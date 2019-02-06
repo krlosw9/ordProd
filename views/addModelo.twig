@@ -27,33 +27,45 @@
           <div class="box-body">
             <div class="form-group col-xs-6">
               <label>Referencia:</label>
-              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" required>
+              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" maxlength="12" required>
             </div>
             <div class="form-group col-xs-6">
-              <label>Horma:</label>
-              <select class="form-control select-picker" id="idHorma" name="idHorma">
-                <option value="1" selected="selected">Horma1</option>
+              <label>Hormas:</label>
+              <select class="form-control select-picker" name="idHorma" required>
+                {% for shape in shapes %}
+                  <option value="{{ shape.id }}">{{ shape.referencia }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
               <label>Linea:</label>
               <select class="form-control select-picker" id="linea" name="linea">
-                <option value="Botin" selected="selected">Botin</option>
+                <option value="Bota">Bota</option>
+                <option value="Botin">Botin</option>
+                <option value="Deportivo">Deportivo</option>
+                <option value="Mocasin">Mocasin</option>
+                <option value="Oxfords">Oxfords</option>
+                <option value="Sandalia">Sandalia</option>
+                <option value="Tubular">Tubular</option>
+                <option value="Zapatilla">Tubular</option>
+                <option value="Zuecos">Zuecos</option>
               </select>
             </div>
             <div class="form-group col-xs-6">
               <label>Tallas:</label>
               <select class="form-control select-picker" id="tallas" name="tallas">
                 <option value="1" selected="selected">37-44</option>
+                <option value="2">33-41</option>
+                <option value="3">27-33</option>
+                <option value="4">21-26</option>
+                <option value="5">15-20</option>
               </select>
             </div>
             <div class="form-group col-xs-12">
               <label>Imagen:</label>
               <input type="file" name="fileImg" class="form-control">
             </div>
-            
-            
-            
+
             <div class="box-body">
               
                 
@@ -68,42 +80,51 @@
               <div class="row" style="padding-top: 10px;">
                 <div class="col-xs-3">
                   <label>Pieza:</label>
-                  <select class="form-control select-picker" id="idPieza" name="idPieza">
-                  <option value="1" selected="selected">Pieza1</option>
+                  <select class="form-control select-picker" id="idPieza" name="idPieza1">
+                  {% for part in parts %}
+                    <option value="{{ part.id }}">{{ part.nombre }}</option>
+                  {% endfor %}
                 </select>
                 </div>
                 <div class="col-xs-3">
                   <label>Material:</label>
-                  <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial">
-                  <option value="1" selected="selected">Material1</option>
+                  <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial1">
+                  {% for inventory in inventorys %}
+                    <option value="{{ inventory.id }}">{{ inventory.nombre }}</option>
+                  {% endfor %}
                 </select>
                 </div>
                 <div class="col-xs-3">
                   <label>Consumo/x/Par:</label>
-                  <input type="number" class="form-control" name="consumoPorPar" required>
+                  <input type="number" class="form-control" name="consumoPorPar1" min="0" required>
                 </div>
                 <div class="col-xs-3">
                   <label>Observacion:</label>
-                  <input type="text" name="observacion" class="form-control" placeholder="Opcional">
+                  <input type="text" name="observacion1" class="form-control" placeholder="Opcional">
                 </div>
               </div>
+              <input type="hidden" name="cantPiezas" value="{{cantPiezas}}">
             {% for i in 2..cantPiezas %}
               <div class="row" style="padding-top: 10px;">
                 <div class="col-xs-3">
-                  <select class="form-control select-picker" id="idPieza" name="idPieza2">
-                  <option value="1" selected="selected">Pieza1</option>
+                  <select class="form-control select-picker" id="idPieza" name="idPieza{{i}}">
+                  {% for part in parts %}
+                    <option value="{{ part.id }}">{{ part.nombre }}</option>
+                  {% endfor %}
                 </select>
                 </div>
                 <div class="col-xs-3">
-                  <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial2">
-                  <option value="1" selected="selected">Material1</option>
+                  <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial{{i}}">
+                  {% for inventory in inventorys %}
+                    <option value="{{ inventory.id }}">{{ inventory.nombre }}</option>
+                  {% endfor %}
                 </select>
                 </div>
                 <div class="col-xs-3">
-                  <input type="number" class="form-control" name="consumoPorPar2">
+                  <input type="number" class="form-control" name="consumoPorPar{{i}}" min="0" required>
                 </div>
                 <div class="col-xs-3">
-                  <input type="text" name="observacion2" class="form-control" placeholder="name{{i}}">
+                  <input type="text" name="observacion{{i}}" class="form-control" placeholder="Opcional">
                 </div>
               </div>
             {% endfor %}

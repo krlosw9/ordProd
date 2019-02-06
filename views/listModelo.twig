@@ -30,14 +30,14 @@
             <th style="width: 100px">Horma</th>
             <th style="width: 100px">Linea</th>
           </tr>
-          {% for model in models %}
+          {% for modelo in modelos %}
           <tr>
               <td>
-                <input type="radio" name="id" value="{{ model.id }}">
+                <input type="radio" name="id" value="{{ modelo.id }}">
               </td>
-              <td>{{ model.referenciaMod }}</td>
-              <td>{{ model.referencia }}</td>
-              <td>{{ model.linea }}</td>
+              <td>{{ modelo.referenciaMod }}</td>
+              <td>{{ modelo.referencia }}</td>
+              <td>{{ modelo.linea }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -51,8 +51,8 @@
        </form>
        <div class="box-footer">
        <form action="modeladd" method="get">
-        <div class="form-group col-xs-4">
-          <input type="text" name="numPart" class="form-control" placeholder="Cantidad de piezas del modelo:" required>
+        <div class="form-group col-xs-5">
+          <input type="number" name="numPart" class="form-control" placeholder="Cantidad de piezas del modelo:" min="3" max="10" required>
         </div>
         <button type="submit" class="btn btn-primary">Nuevo</button>
        </form>
