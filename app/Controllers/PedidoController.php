@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos};
+use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos,fpdf};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -176,6 +176,18 @@ class PedidoController extends BaseController{
 		return $this->renderHTML('listPedido.twig',[
 				'responseMessage' => $responseMessage
 		]);
+	}
+
+	public function getPdf(){
+		
+		//require('./fpdf/fpdf.php');
+
+		$pdf = new FPDF();
+		$pdf->AddPage();
+		$pdf->SetFont('Arial','B',16);
+		$pdf->Cell(40,10,'¡Hola, Mundo!');
+		$pdf->Output();
+
 	}
 
 	//Lista todas la pedido Ordenando por posicion

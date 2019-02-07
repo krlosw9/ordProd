@@ -355,6 +355,12 @@ $map->post('postPedidoUpdate', '/curso/pedidoupdate', [
 ]);
 
 
+$map->get('getPdf', '/curso/pdf', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getPdf',
+        'auth' => true
+]);
+
 
 
 //Rutas que validan el login, dan acceso o denega acceso
