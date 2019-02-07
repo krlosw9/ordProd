@@ -322,6 +322,37 @@ $map->post('postCompraUpdate', '/curso/buyupdate', [
         'action' => 'postUpdateCompra',
         'auth' => true
 ]);
+//Rutas Pedido
+$map->get('getAddPedido', '/curso/pedidoadd', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getAddPedidoAction',
+        'auth' => true
+]);
+$map->post('postAddPedido', '/curso/pedidoadd', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'postAddPedidoAction',
+        'auth' => true
+]);
+$map->get('getListPedido', '/curso/pedidolist', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getListPedido',
+        'auth' => true
+]);
+$map->post('postDelPedido', '/curso/pedidodel', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'postUpdDelPedido',
+        'auth' => true
+]);
+$map->get('getPedidoUpdate', '/curso/pedidoupdate', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getUpdatePedido',
+        'auth' => true
+]);
+$map->post('postPedidoUpdate', '/curso/pedidoupdate', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'postUpdatePedido',
+        'auth' => true
+]);
 
 
 

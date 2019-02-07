@@ -1,0 +1,79 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+  <h1>
+    Pedido
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./pedidolist">Pedido</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Listado de pedidos</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="pedidodel" method="post" role="form">
+        <table class="table table-bordered" >
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 70px">Referencia</th>
+            <th style="width: 70px">Cliente</th>
+            <th style="width: 70px">Modelo</th>
+            <th style="width: 70px">Cantidad</th>
+            <th style="width: 70px">FechaPedido</th>
+            <th style="width: 70px">FechaEntrega</th>
+          </tr>
+          {% for pedido in pedidos %}
+          <tr>
+              <td>
+                <input type="radio" name="id" value="{{ pedido.id }}">
+              </td>
+              <td>{{ pedido.referencia }}</td>
+              <td>{{ pedido.nombre }}</td>
+              <td>{{ pedido.referenciaMod }}</td>
+              <td>{{ pedido.cantidad }}</td>
+              <td>{{ pedido.fechaPedido }}</td>
+              <td>{{ pedido.fechaEntrega }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        <div class="box-footer">
+          <button type="submit" name="boton" value="del" class="btn btn-primary" disabled>Eliminar</button>
+          <button type="submit" name="boton" value="upd" class="btn btn-primary" disabled>Actualizar</button>
+        </div>
+       </form>
+       <div class="box-footer">
+       <form action="pedidoadd" method="get">
+        <div class="form-group col-xs-5">
+          <select class="form-control select-picker" name="?" required>
+            <option value="">Seleccione el modelo del pedido a registrar</option>
+            {% for model in models %}
+              <option value="{{ model.id }}">{{ model.referenciaMod }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Nuevo</button>
+       </form>
+       
+       </div>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+
+    
+
+{% endblock %}
