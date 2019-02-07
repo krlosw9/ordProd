@@ -291,6 +291,37 @@ $map->post('postModeloUpdate', '/curso/modelupdate', [
         'auth' => true
 ]);
 
+//Rutas Compras
+$map->get('getAddCompra', '/curso/buyadd', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'getAddCompraAction',
+        'auth' => true
+]);
+$map->post('postAddCompra', '/curso/buyadd', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'postAddCompraAction',
+        'auth' => true
+]);
+$map->get('getListCompra', '/curso/buylist', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'getListCompra',
+        'auth' => true
+]);
+$map->post('postDelCompra', '/curso/buydel', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'postUpdDelCompra',
+        'auth' => true
+]);
+$map->get('getCompraUpdate', '/curso/buyupdate', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'getUpdateCompra',
+        'auth' => true
+]);
+$map->post('postCompraUpdate', '/curso/buyupdate', [
+        'controller' => 'App\Controllers\CompraController',
+        'action' => 'postUpdateCompra',
+        'auth' => true
+]);
 
 
 

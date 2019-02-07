@@ -1,0 +1,71 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+<h1>
+    Compras
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./buylist">Compras</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Listado de compras</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="buydel" method="post" role="form">
+        <table class="table table-bordered" >
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 70px">N-Factura</th>
+            <th style="width: 70px">Fecha</th>
+            <th style="width: 70px">Proveedor</th>
+            <th style="width: 70px">Total</th>
+            <th style="width: 100px">Observacion</th>
+          </tr>
+          {% for compra in compras %}
+          <tr>
+              <td>
+                <input type="radio" name="id" value="{{ compra.id }}">
+              </td>
+              <td>{{ compra.refFactura }}</td>
+              <td>{{ compra.fechaCompra }}</td>
+              <td>{{ compra.nombre }}</td>
+              <td>{{ compra.total }}</td>
+              <td>{{ compra.observacion }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        <div class="box-footer">
+          <button type="submit" name="boton" value="del" class="btn btn-primary" disabled>Eliminar</button>
+          <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
+        </div>
+       </form>
+       <div class="box-footer">
+       <form action="buyadd" method="get">
+        <div class="form-group col-xs-5">
+          <input type="number" name="numPart" class="form-control" placeholder="Cantidad de articulos comprados:" min="1" max="10" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Nuevo</button>
+       </form>
+       
+       </div>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}
