@@ -26,6 +26,7 @@ class PedidoController extends BaseController{
 	//Registra la Persona
 	public function postAddPedidoAction($request){
 		$sumatoria=0;
+		$registro=false;
 		$responseMessage = null;
 		$responseMessage2 = null;
 		
@@ -59,7 +60,7 @@ class PedidoController extends BaseController{
 				  		$tallas->t44 = $postData['44'];
 				  		$tallas->idUserRegister=$_SESSION['userId'];
 						$tallas->idUserUpdate=$_SESSION['userId'];
-						//$tallas->save();
+						$tallas->save();
 						$sumatoria= $postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41']+$postData['42']+$postData['43']+$postData['44'];
 					}elseif ($postData['tipoTallas']==2) {
 						$tallas = new Tallas();
@@ -115,7 +116,6 @@ class PedidoController extends BaseController{
 					}elseif ($postData['tipoTallas']==5) {
 						$tallas = new Tallas();
 				  		$tallas->id = $tallasUltimoId;  
-				  		$tallas->t14 = $postData['14'];	
 				  		$tallas->t15 = $postData['15'];
 				  		$tallas->t16 = $postData['16'];
 				  		$tallas->t17 = $postData['17'];
@@ -125,10 +125,11 @@ class PedidoController extends BaseController{
 				  		$tallas->t21 = $postData['21'];
 				  		$tallas->t22 = $postData['22'];
 				  		$tallas->t23 = $postData['23'];
+				  		$tallas->t24 = $postData['24'];
 				  		$tallas->idUserRegister=$_SESSION['userId'];
 						$tallas->idUserUpdate=$_SESSION['userId'];
 						$tallas->save();
-						$sumatoria= $postData['14']+$postData['15']+$postData['16']+$postData['17']+$postData['18']+$postData['19']+$postData['20']+$postData['21']+$postData['22']+$postData['23'];
+						$sumatoria= $postData['15']+$postData['16']+$postData['17']+$postData['18']+$postData['19']+$postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24'];
 					}else{
 						$responseMessage2=' Tallas NO registradas';
 					}
@@ -145,17 +146,50 @@ class PedidoController extends BaseController{
 					$pedido->observacion = $postData['observacion'];
 					$pedido->idUserRegister = $_SESSION['userId'];
 					$pedido->idUserUpdate = $_SESSION['userId'];
-					//$pedido->save();
+					$pedido->save();
 
 					//***informe de consumo de material***
 					$informes = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
 						->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'inventarioMaterial.existencia')
 						->where("materialModelos.idModeloInfo","=",11)
 						->get();
+
+
+					$pdf = new FPDF();
+					$numero=$postData['referencia'];
+					$pdf->AliasNbPages();
+					$pdf->AddPage();
+					$pdf->SetFont('Arial','B',15);
+					//Movernos a la derecha
+					$pdf->Cell(50);
+					//Título
+					$pdf->Cell(80,10,'Consumo pedido #'.$numero,1,0,'C');
+					//Salto de línea
+					$pdf->Ln(20);
+					    
+					$header=array('Material','Consumo','Existencia','Medida','Por Comprar');
+					$pdf->SetY(36);
+					$pdf->SetFont('Arial','',12);
 					
+					foreach($header as $titulo){
+					   $pdf->Cell(36,7,$titulo,1);
+					}
+					$pdf->Ln();
+
 					foreach ($informes as $informe => $value) {
 						$consumo=$value->consumoPorPar*$sumatoria;
+						$porComprar = $consumo - $value->existencia;
+						$pdf->Cell(36,5,$value->nombre,1);
+						$pdf->Cell(36,5,$consumo,1);
+						$pdf->Cell(36,5,$value->existencia,1);
+						$pdf->Cell(36,5,$value->unidadMedida,1);
+						$pdf->Cell(36,5,$porComprar,1);
+						$pdf->Ln();
 					}
+
+					$pdf->Output();
+
+					$registro=true;
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
@@ -164,7 +198,8 @@ class PedidoController extends BaseController{
 					if ($prevMessage =="All of the requ") {
 						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
 					}else{
-						$responseMessage = substr($e->getMessage(), 0, 50);
+						//$responseMessage = substr($e->getMessage(), 0, 50);
+						$responseMessage = $e->getMessage();
 					}
 				}
 			}
@@ -173,20 +208,18 @@ class PedidoController extends BaseController{
 			$responseMessage .= $responseMessage2;
 		}
 		//Retorna a la pagina de registro con un mensaje $responseMessage
-		return $this->renderHTML('listPedido.twig',[
+		if ($registro==false) {
+			return $this->renderHTML('listPedido.twig',[
 				'responseMessage' => $responseMessage
-		]);
+			]);
+		}
 	}
 
 	public function getPdf(){
 		
 		//require('./fpdf/fpdf.php');
 
-		$pdf = new FPDF();
-		$pdf->AddPage();
-		$pdf->SetFont('Arial','B',16);
-		$pdf->Cell(40,10,'¡Hola, Mundo!');
-		$pdf->Output();
+		
 
 	}
 
