@@ -353,11 +353,35 @@ $map->post('postPedidoUpdate', '/curso/pedidoupdate', [
         'action' => 'postUpdatePedido',
         'auth' => true
 ]);
-
-
-$map->get('getPdf', '/curso/pdf', [
-        'controller' => 'App\Controllers\PedidoController',
-        'action' => 'getPdf',
+//Rutas OrdenProduccion
+$map->get('getAddOrden', '/curso/orderadd', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'getAddOrdenAction',
+        'auth' => true
+]);
+$map->post('postAddOrden', '/curso/orderadd', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'postAddOrdenAction',
+        'auth' => true
+]);
+$map->get('getListOrden', '/curso/orderlist', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'getListOrden',
+        'auth' => true
+]);
+$map->post('postDelOrden', '/curso/orderdel', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'postUpdDelOrden',
+        'auth' => true
+]);
+$map->get('getOrdenUpdate', '/curso/orderupdate', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'getUpdateOrden',
+        'auth' => true
+]);
+$map->post('postOrdenUpdate', '/curso/orderupdate', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'postUpdateOrden',
         'auth' => true
 ]);
 

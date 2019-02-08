@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos,fpdf};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class PedidoController extends BaseController{
 	public function getAddPedidoAction($request){
@@ -154,6 +155,9 @@ class PedidoController extends BaseController{
 						->where("materialModelos.idModeloInfo","=",11)
 						->get();
 
+					//$Bar = new BarcodeGeneratorHTML();
+					//$code = $Bar->getBarcode("123456",$Bar::TYPE_CODE_128);
+					//echo $code;
 
 					$pdf = new FPDF();
 					$numero=$postData['referencia'];
@@ -177,12 +181,15 @@ class PedidoController extends BaseController{
 					$pdf->Ln();
 
 					foreach ($informes as $informe => $value) {
+						$nombre=$value->nombre;
 						$consumo=$value->consumoPorPar*$sumatoria;
+						$existencia=$value->existencia;
+						$unidadMedida=$value->unidadMedida;
 						$porComprar = $consumo - $value->existencia;
-						$pdf->Cell(36,5,$value->nombre,1);
+						$pdf->Cell(36,5,$nombre,1);
 						$pdf->Cell(36,5,$consumo,1);
-						$pdf->Cell(36,5,$value->existencia,1);
-						$pdf->Cell(36,5,$value->unidadMedida,1);
+						$pdf->Cell(36,5,$existencia,1);
+						$pdf->Cell(36,5,$unidadMedida,1);
 						$pdf->Cell(36,5,$porComprar,1);
 						$pdf->Ln();
 					}

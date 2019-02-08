@@ -34,7 +34,6 @@ $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
 
-
 if(!$route){
     //si no se encuentra una ruta lo redirecciona dediante la variable $controllerName para que guarde la ruta de una pagina con diseño 404
     $controllerName = 'App\Controllers\NoRouteController';
