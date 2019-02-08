@@ -3,41 +3,43 @@
 {% block content %}
 
 <h1>
-    Modelos
+    Orden de produccion
     <small>Listado</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./modellist">Modelos</a></li>
+    <li><a href="./orderlist">Orden/produccion</a></li>
     <li class="active">Listado</li>
   </ol>
 </section>
 <section class="content">
   <div class="row">
     <!-- left column -->
-    <div class="col-xs-8">
+    <div class="col-xs-10">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Listado de modelos</h3>
+        <h3 class="box-title">Listado orden de produccion</h3>
       </div>
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="modeldel" method="post" role="form">
+       <form action="orderdel" method="post" role="form">
         <table class="table table-bordered" >
           <tr>
             <th style="width: 10px">#</th>
             <th style="width: 100px">Referencia</th>
-            <th style="width: 100px">Horma</th>
-            <th style="width: 100px">Linea</th>
+            <th style="width: 100px">Pedido</th>
+            <th style="width: 100px">Fecha/registro</th>
+            <th style="width: 100px">Fecha/entrega</th>
           </tr>
-          {% for modelo in modelos %}
+          {% for orden in ordens %}
           <tr>
               <td>
-                <input type="radio" name="id" value="{{ modelo.id }}">
+                <input type="radio" name="id" value="{{ orden.id }}">
               </td>
-              <td>{{ modelo.referenciaMod }}</td>
-              <td>{{ modelo.referencia }}</td>
-              <td>{{ modelo.linea }}</td>
+              <td>{{ orden.referenciaOrd }}</td>
+              <td>{{ orden.referencia }}</td>
+              <td>{{ orden.fechaRegistro }}</td>
+              <td>{{ orden.fechaEntrega }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -46,13 +48,18 @@
         </div>
         <div class="box-footer">
           <button type="submit" name="boton" value="del" class="btn btn-primary" disabled>Eliminar</button>
-          <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
+          <button type="submit" name="boton" value="upd" class="btn btn-primary" disabled>Actualizar</button>
         </div>
        </form>
        <div class="box-footer">
-       <form action="modeladd" method="get">
+       <form action="orderadd" target="_blank" method="get">
         <div class="form-group col-xs-5">
-          <input type="number" name="numPart" class="form-control" placeholder="Cantidad de piezas del modelo:" min="3" max="10" required>
+          <select class="form-control select-picker" name="?" required>
+            <option value="">Seleccione el pedido de la orden a registrar</option>
+            {% for pedido in pedidos %}
+              <option value="{{ pedido.id }}">{{ pedido.referencia }}</option>
+            {% endfor %}
+          </select>
         </div>
         <button type="submit" class="btn btn-primary">Nuevo</button>
        </form>

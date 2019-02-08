@@ -142,6 +142,7 @@ class PedidoController extends BaseController{
 					$pedido->idModeloInfo=$postData['idModeloInfo'];
 					$pedido->idTallas=$tallasUltimoId;
 					$pedido->cantidad=$sumatoria;
+					$pedido->cantRestante=$sumatoria;
 					$pedido->fechaPedido=$postData['fechaPedido'];
 					$pedido->fechaEntrega=$postData['fechaEntrega'];
 					$pedido->observacion = $postData['observacion'];
@@ -205,8 +206,7 @@ class PedidoController extends BaseController{
 					if ($prevMessage =="All of the requ") {
 						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
 					}else{
-						//$responseMessage = substr($e->getMessage(), 0, 50);
-						$responseMessage = $e->getMessage();
+						$responseMessage = substr($e->getMessage(), 0, 50);
 					}
 				}
 			}

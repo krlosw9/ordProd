@@ -100,6 +100,14 @@ $map->post('postPeopleUpdate', '/curso/peopleupdate', [
         'auth' => true
 ]);
 
+
+$map->get('getUrl', '/curso/url', [
+        'controller' => 'App\Controllers\CiudadController',
+        'action' => 'getUrl',
+        'auth' => true
+]);
+
+
 //Rutas Ciudades
 $map->get('getAddCiudades', '/curso/cityadd', [
         'controller' => 'App\Controllers\CiudadController',
