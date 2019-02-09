@@ -11,7 +11,7 @@ class ModeloController extends BaseController{
 		$shape = null; $part=null; $inventory=null;
 
 		$shape = Hormas::orderBy('referencia')->get();
-		$part = Pieza::orderBy('nombre')->get();
+		$part = Pieza::orderBy('piezaNombre')->get();
 		$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
@@ -149,7 +149,7 @@ class ModeloController extends BaseController{
 			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
 
 			$shape = Hormas::orderBy('referencia')->get();
-			$part = Pieza::orderBy('nombre')->get();
+			$part = Pieza::orderBy('piezaNombre')->get();
 			$inventory = InventarioMaterial::orderBy('nombre')->get();
 			$ruta='updateModelo.twig';
 		}else{

@@ -2,9 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario};
+use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
+use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class OrdenProduccionController extends BaseController{
 	public function getAddOrdenAction(){
@@ -17,7 +18,7 @@ class OrdenProduccionController extends BaseController{
 		$idPedido=$_GET['?'] ?? null;
 		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
 		->Join("modelosInfo","pedido.idModeloInfo","=","modelosInfo.id")
-		->select('pedido.*', 'clientesProvedores.nombre', 'modelosInfo.referenciaMod')
+		->select('pedido.*', 'clientesProvedores.nombre', 'modelosInfo.referenciaMod', 'modelosInfo.imagenUrl')
 		->where("pedido.id","=",$idPedido)
 		->get();
 
@@ -36,6 +37,9 @@ class OrdenProduccionController extends BaseController{
 
 	//Registra la Persona
 	public function postAddOrdenAction($request){
+		$registroExitoso=false;
+		$tallaInicio=0;
+		$tallaFin=0;
 		$responseMessage = null;
 		$provider = null;
 		$imgName = null;
@@ -58,8 +62,10 @@ class OrdenProduccionController extends BaseController{
 
 
 					if ($postData['tipoTallas']==1) {
+						$tallaInicio=35;
+						$tallaFin=44;
 						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;  
+				  		$tallas->id = $tallasUltimoId;
 				  		$tallas->t35 = $postData['35'];	
 				  		$tallas->t36 = $postData['36'];
 				  		$tallas->t37 = $postData['37'];
@@ -75,6 +81,8 @@ class OrdenProduccionController extends BaseController{
 						$tallas->save();
 						$sumatoria= $postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41']+$postData['42']+$postData['43']+$postData['44'];
 					}elseif ($postData['tipoTallas']==2) {
+						$tallaInicio=32;
+						$tallaFin=41;
 						$tallas = new Tallas();
 				  		$tallas->id = $tallasUltimoId;  
 				  		$tallas->t32 = $postData['32'];	
@@ -92,6 +100,8 @@ class OrdenProduccionController extends BaseController{
 						$tallas->save();
 						$sumatoria= $postData['32']+$postData['33']+$postData['34']+$postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41'];
 					}elseif ($postData['tipoTallas']==3) {
+						$tallaInicio=26;
+						$tallaFin=35;
 						$tallas = new Tallas();
 				  		$tallas->id = $tallasUltimoId;  
 				  		$tallas->t26 = $postData['26'];	
@@ -109,6 +119,8 @@ class OrdenProduccionController extends BaseController{
 						$tallas->save();
 						$sumatoria= $postData['26']+$postData['27']+$postData['28']+$postData['29']+$postData['30']+$postData['31']+$postData['32']+$postData['33']+$postData['34']+$postData['35'];
 					}elseif ($postData['tipoTallas']==4) {
+						$tallaInicio=20;
+						$tallaFin=29;
 						$tallas = new Tallas();
 				  		$tallas->id = $tallasUltimoId;  
 				  		$tallas->t20 = $postData['20'];	
@@ -126,6 +138,8 @@ class OrdenProduccionController extends BaseController{
 						$tallas->save();
 						$sumatoria= $postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24']+$postData['25']+$postData['26']+$postData['27']+$postData['28']+$postData['29'];
 					}elseif ($postData['tipoTallas']==5) {
+						$tallaInicio=15;
+						$tallaFin=24;
 						$tallas = new Tallas();
 				  		$tallas->id = $tallasUltimoId;  
 				  		$tallas->t15 = $postData['15'];
@@ -146,17 +160,25 @@ class OrdenProduccionController extends BaseController{
 						$responseMessage2=' Tallas NO registradas';
 					}
 
-					$queryorden = Tallas::all();
+					$queryorden = InfoOrdenProduccion::all();
 					$ordenUltimo = $queryorden->last();
 					$ordenUltimoId = $ordenUltimo->id+1;
 
+					$referenciaOrd=$postData['referenciaOrd'];
+					$fechaRegistro=$postData['fechaRegistro'];
+					$fechaEntrega=$postData['fechaEntrega'];
+					$modeloRef=$postData['modelo'];
+					$modeloImg=$postData['modeloImg'];
+					$cliente=$postData['cliente'];
+
+
 					$order = new InfoOrdenProduccion();
 					$order->id=$ordenUltimoId;
-					$order->referenciaOrd=$postData['referenciaOrd'];
+					$order->referenciaOrd=$referenciaOrd;
 					$order->idPedido = $postData['idPedido'];
 					$order->idTallas=$tallasUltimoId;
-					$order->fechaRegistro=$postData['fechaRegistro'];
-					$order->fechaEntrega=$postData['fechaEntrega'];
+					$order->fechaRegistro=$fechaRegistro;
+					$order->fechaEntrega=$fechaEntrega;
 					$order->idUserRegister = $_SESSION['userId'];
 					$order->idUserUpdate = $_SESSION['userId'];
 					$order->save();
@@ -178,24 +200,220 @@ class OrdenProduccionController extends BaseController{
 					$pedido->cantRestante=$cantRestante;
 					$pedido->save();
 
+					$registroExitoso=true;
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
 						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+					}if ($prevMessage =="SQLSTATE[23000]") {
+						$responseMessage = 'Error, esa referencia ya existe.';
 					}else{
 						//$responseMessage = $e->getMessage();
-						$responseMessage = substr($e->getMessage(), 0, 50);
+						$responseMessage = 'Error, '.substr($e->getMessage(), 0, 50);
 					}
 				}
 			}
 		}
+		if ($registroExitoso==true) {
+			$idModelo=null;
+			$Bar = new BarcodeGeneratorHTML();
+		
+			$modelo = ModelosInfo::where("referenciaMod","=",$modeloRef)->select('id')->get();
 
-		return $this->renderHTML('listOrden.twig',[
-				'responseMessage' => $responseMessage,
-				'cantPiezas' => $cantPiezas
-		]);
+			foreach ($modelo as $key => $value) {
+				$idModelo=$value->id;
+			}
+
+			$materiales = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
+			->Join("piezaModeloMaterial","materialModelos.idPieza","=","piezaModeloMaterial.id")
+			->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'piezaModeloMaterial.piezaNombre')
+			->where("materialModelos.idModeloInfo","=",$idModelo)
+			->get();
+			
+			$tareas = TareaOperario::Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
+			->select('tareaOperario.*', 'actividadTarea.nombre', 'actividadTarea.posicion')
+			->where("idInfoOrdenProduccion","=",$ordenUltimoId)
+			->latest('posicion')->get();
+			
+
+echo 
+"<!DOCTYPE html>
+<html>
+<head>
+	<title>Orden/Produccion</title>
+	
+
+	<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
+</head>
+<body onload='window.print();'>
+<div class='wrapper'>
+  <!-- Main content -->
+  <section class='invoice'>
+    <!-- title row -->
+    <div class='row'>
+      <div class='col-xs-12'>
+        <h2 class='page-header'>
+          <i class='fa fa-globe'></i>..Verde Menta,
+          <small class='pull-right'>Orden: #$referenciaOrd</small>
+        </h2>
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- info row -->
+    <div class='row invoice-info'>
+      <div class='col-sm-4 invoice-col'>
+        
+        <address>
+          <strong>Cliente: $cliente</strong><br>
+          Registro: $fechaRegistro<br>
+          Entrega: $fechaEntrega<br>
+          Modelo: $modeloRef<br>
+        </address>
+      </div>
+      <!-- /.col -->
+      <div class='col-sm-4 invoice-col'>
+        
+        <address>
+          <strong>Tallas</strong><br>
+          <table border='1'>
+  <thead>
+    <tr>";
+for ($i=$tallaInicio; $i <= $tallaFin ; $i++) { 
+	echo "
+
+      <th> $i </th>
+      ";	
+}
+
+    echo "
+    <th> : </th>
+  	<th> T </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>"; 
+
+for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
+	echo "<td>";
+	echo $postData[$i];
+	echo "</td>";
+}
+    echo "
+      <td> : </td>
+      <td> $sumatoria </td>
+    </tr>
+  </tbody>
+</table>
+          
+        </address>
+      </div>
+      <!-- /.col -->
+      <div class='col-sm-4 invoice-col'>     
+        <img src='./uploads/$modeloImg' alt='Imagen/modelo' width='120' height='120'>
+      </div>
+      <!-- /.col -->
+    </div>
+    
+    <!-- /.row -->
+
+    <!-- Table row -->
+    <div class='row'>
+      <div class='col-xs-12 table-responsive'>
+        <table class='table table-striped'>
+          <thead>
+          <tr>
+            <th></th>
+            <th>Pieza</th>
+            <th>Material #</th>
+            <th>Consumo</th>
+            <th>Medida</th>
+          </tr>
+          </thead>
+          <tbody>
+          "; 
+
+foreach ($materiales as $key => $val) {
+echo "
+          <tr>
+            <td></td>
+            <td>$val->piezaNombre</td>
+            <td>$val->nombre</td>
+            <td>$val->consumoPorPar</td>
+            <td>$val->unidadMedida</td>
+          </tr>
+          "; 
+}
+
+echo"
+          </tbody>
+        </table>
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+<h3>Tareas</h3>
+    <!-- Segunda tabla -->
+    <!-- Table row -->
+    <div class='row'>
+      <div class='col-xs-12 table-responsive'>
+        <table class='table table-striped'>
+          <thead>
+          <tr>
+          	<th></th>
+            <th>Orden</th>
+            <th>Modelo</th>
+            <th>Actividad</th>
+            <th>Codigo</th>
+            <th>Costo</th>
+          </tr>
+          </thead>
+          <tbody>
+          "; 
+
+foreach ($tareas as $tarea => $value) {
+	$code = $Bar->getBarcode($value->id,$Bar::TYPE_CODE_128);
+	$sumaTarea = $value->valorTarea * $sumatoria;
+	echo "
+            <tr>
+          	<td></td>
+            <td>$referenciaOrd</td>
+            <td>$modeloRef</td>
+            <td>$value->nombre</td>
+            <td>$code</td>
+            <td>$sumatoria x $value->valorTarea = $ $sumaTarea</td>
+            </tr>
+          "; 
+	
+}
+          echo "
+          </tbody>
+        </table>
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+  </section>
+  <!-- /.content -->
+</div>
+<!-- ./wrapper -->
+</body>
+
+</body>
+</html>";
+
+				return $this->renderHTML('codeBar.php');
+
+
+
+			}else{
+				return $this->renderHTML('listOrden.twig',[
+					'responseMessage' => $responseMessage,
+					'cantPiezas' => $cantPiezas
+				]);
+			}
 	}
 
 	//Lista todas los modelos Ordenando por posicion
@@ -217,119 +435,12 @@ class OrdenProduccionController extends BaseController{
 		//return $this->renderHTML('listHormas.twig');
 	}
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelOrden($request){
-		$shape = null; $part=null; $inventory=null; $material=null;
-		$responseMessage = null;
-		$quiereActualizar = false;
-		$ordens = null;
-		$ruta='listOrden.twig';
+	
 
-		if($request->getMethod()=='POST'){
-			$postData = $request->getParsedBody();
-			
-			$id = $postData['id'] ?? false;
-			if ($id) {
-				if($postData['boton']=='del'){
-					$orden = new ModelosInfo();
-					$orden->destroy($id);
-					$responseMessage = "Se elimino el modelo";
-				}elseif ($postData['boton']=='upd') {
-					$quiereActualizar=true;
-				}
-			}else{
-				$responseMessage = 'Debe Seleccionar un modelo';
-			}
-		}
+	
+	public function getCode(){
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$ordens = ModelosInfo::find($id);
-			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
-
-			$shape = Hormas::orderBy('referencia')->get();
-			$part = Pieza::orderBy('nombre')->get();
-			$inventory = InventarioMaterial::orderBy('nombre')->get();
-			$ruta='updateOrden.twig';
-		}else{
-			$ordens = ModelosInfo::orderBy('referenciaMod')->get();
-		}
-		return $this->renderHTML($ruta, [
-			'ordens' => $ordens,
-			'materiales' => $material,
-			'idUpdate' => $id,
-			'shapes' => $shape,
-			'parts' => $part,
-			'inventorys' => $inventory,
-			'responseMessage' => $responseMessage
-		]);
-	}
-
-	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
-	public function getUpdateOrden($request){
-		$imgName = null;
-		$responseMessage = null;
-				
-		if($request->getMethod()=='POST'){
-			$postData = $request->getParsedBody();
-
-			$ordenValidator = v::key('referenciaMod', v::stringType()->length(1, 12)->notEmpty());
-
-			
-			if($_SESSION['userId']){
-				try{
-					$ordenValidator->assert($postData);
-					$postData = $request->getParsedBody();
-
-					
-
-					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$idOrden = $postData['id'];
-					$orden = ModelosInfo::find($idOrden);
-					
-					$orden->referenciaMod=$postData['referenciaMod'];
-					$orden->idHorma = $postData['idHorma'];
-					$orden->tallas = $postData['tallas'];
-					$orden->linea = $postData['linea'];
-					if ($imgName) {
-						$orden->imagenUrl = $imgName;
-					}
-					$orden->idUserUpdate = $_SESSION['userId'];
-					$orden->save();
-
-					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
-						$material = MaterialModelos::find($postData['idMaterial'.$i]);
-						$material->idModeloInfo=$idOrden;
-						$material->idPieza = $postData['idPieza'.$i];
-						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
-						$material->consumoPorPar = $postData['consumoPorPar'.$i];
-						$material->observacion = $postData['observacion'.$i];
-						$material->idUserRegister = $_SESSION['userId'];
-						$material->idUserUpdate = $_SESSION['userId'];
-						$material->save();
-					}
-
-					$responseMessage = 'Actualizado';
-				}catch(\Exception $e){
-					$prevMessage = substr($e->getMessage(), 0, 15);
-					
-					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
-					}else{
-						$responseMessage = substr($e->getMessage(), 0, 50);
-					}
-				}
-			}
-		}
-
-		$ordens = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
-		->select('modelosInfo.*', 'hormas.referencia')
-		->get();
-		return $this->renderHTML('listOrden.twig',[
-				'ordens' => $ordens,
-				'responseMessage' => $responseMessage
-		]);
+		
 	}
 }
 

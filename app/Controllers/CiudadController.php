@@ -133,13 +133,6 @@ class CiudadController extends BaseController{
 				'responseMessage' => $responseMessage
 		]);
 	}
-
-
-	public function getUrl($request){
-		return $this->renderHTML('url.php');
-	}
-
-
 }
 
 ?>

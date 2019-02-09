@@ -100,14 +100,6 @@ $map->post('postPeopleUpdate', '/curso/peopleupdate', [
         'auth' => true
 ]);
 
-
-$map->get('getUrl', '/curso/url', [
-        'controller' => 'App\Controllers\CiudadController',
-        'action' => 'getUrl',
-        'auth' => true
-]);
-
-
 //Rutas Ciudades
 $map->get('getAddCiudades', '/curso/cityadd', [
         'controller' => 'App\Controllers\CiudadController',
@@ -267,6 +259,38 @@ $map->post('postHormasUpdate', '/curso/shapeupdate', [
         'action' => 'getUpdateHormas',
         'auth' => true
 ]);
+//Rutas InventarioMaterial
+$map->get('getAddInventarioMaterial', '/curso/inventoryadd', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'getAddInventarioAction',
+        'auth' => true
+]);
+$map->post('postAddInventarioMaterial', '/curso/inventoryadd', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'postAddInventarioAction',
+        'auth' => true
+]);
+$map->get('getListInventarioMaterial', '/curso/inventorylist', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'getListInventario',
+        'auth' => true
+]);
+$map->post('postDelInventarioMaterial', '/curso/inventorydel', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'postUpdDelInventario',
+        'auth' => true
+]);
+$map->get('getHormasInventarioMaterial', '/curso/inventoryupdate', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'getUpdateInventario',
+        'auth' => true
+]);
+$map->post('postInventarioMaterialUpdate', '/curso/inventoryupdate', [
+        'controller' => 'App\Controllers\InventarioMaterialController',
+        'action' => 'getUpdateInventario',
+        'auth' => true
+]);
+
 //Rutas Modelos
 $map->get('getAddModelo', '/curso/modeladd', [
         'controller' => 'App\Controllers\ModeloController',
@@ -377,21 +401,11 @@ $map->get('getListOrden', '/curso/orderlist', [
         'action' => 'getListOrden',
         'auth' => true
 ]);
-$map->post('postDelOrden', '/curso/orderdel', [
+/*$map->get('getCode', '/curso/code', [
         'controller' => 'App\Controllers\OrdenProduccionController',
-        'action' => 'postUpdDelOrden',
+        'action' => 'getCode',
         'auth' => true
-]);
-$map->get('getOrdenUpdate', '/curso/orderupdate', [
-        'controller' => 'App\Controllers\OrdenProduccionController',
-        'action' => 'getUpdateOrden',
-        'auth' => true
-]);
-$map->post('postOrdenUpdate', '/curso/orderupdate', [
-        'controller' => 'App\Controllers\OrdenProduccionController',
-        'action' => 'postUpdateOrden',
-        'auth' => true
-]);
+]);*/
 
 
 

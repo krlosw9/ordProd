@@ -82,7 +82,7 @@
                   <label>Pieza:</label>
                   <select class="form-control select-picker" id="idPieza" name="idPieza1">
                   {% for part in parts %}
-                    <option value="{{ part.id }}">{{ part.nombre }}</option>
+                    <option value="{{ part.id }}">{{ part.piezaNombre }}</option>
                   {% endfor %}
                 </select>
                 </div>
@@ -109,7 +109,7 @@
                 <div class="col-xs-3">
                   <select class="form-control select-picker" id="idPieza" name="idPieza{{i}}">
                   {% for part in parts %}
-                    <option value="{{ part.id }}">{{ part.nombre }}</option>
+                    <option value="{{ part.id }}">{{ part.piezaNombre }}</option>
                   {% endfor %}
                 </select>
                 </div>

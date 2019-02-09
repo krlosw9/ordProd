@@ -2,40 +2,47 @@
 
 {% block content %}
 
-<h1>
-    Piezas
+  <h1>
+    Hormas
     <small>Listado</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./partlist">Piezas</a></li>
+    <li><a href="./shapelist">Hormas</a></li>
     <li class="active">Listado</li>
   </ol>
 </section>
 <section class="content">
   <div class="row">
     <!-- left column -->
-    <div class="col-md-8">
+    <div class="col-xs-10">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Listado de los tipos de piezas del modelo</h3>
+        <h3 class="box-title">Listado de hormas</h3>
       </div>
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="partdel" method="post" role="form">
+       <form action="shapedel" method="post" role="form">
         <table class="table table-bordered" >
           <tr>
             <th style="width: 10px">#</th>
-            <th style="width: 100px">Nombre</th>
+            <th style="width: 100px">Referencia</th>
+            <th style="width: 100px">Linea</th>
+            <th style="width: 100px">Color</th>
+            <th style="width: 100px">Proveedor</th>
             <th style="width: 150px">Observacion</th>
           </tr>
-          {% for part in parts %}
+          {% for shape in shapes %}
           <tr>
               <td>
-                <input type="radio" name="id" value="{{ part.id }}">
+                <input type="radio" name="id" value="{{ shape.id }}">
               </td>
-              <td>{{ part.piezaNombre }}</td>
-              <td>{{ part.observacion }}</td>
+              <td>{{ shape.referencia }}</td>
+              <td>{% if shape.genero == 1 %}Caballero{% elseif shape.genero == 2 %}Dama{% elseif shape.genero == 3 %}Niño{% elseif shape.genero == 4 %}Bebe{% else %}Sin Definir{% endif %}
+              </td>
+              <td>{{ shape.color }}</td>
+              <td>{{ shape.nombre }}</td>
+              <td>{{ shape.observacion }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -48,7 +55,7 @@
         </div>
        </form>
        <div class="box-footer">
-       <form action="partadd" method="get">
+       <form action="shapeadd" method="get">
         <button type="submit" class="btn btn-primary">Nuevo</button>
        </form>
        

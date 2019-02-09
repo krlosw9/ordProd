@@ -26,7 +26,7 @@ class PiezaController extends BaseController{
 					$postData = $request->getParsedBody();
 					
 					$part = new Pieza();
-					$part->nombre = $postData['nombre'];
+					$part->piezaNombre = $postData['nombre'];
 					$part->observacion = $postData['observacion'];
 					$part->idUserRegister = $_SESSION['userId'];
 					$part->idUserUpdate = $_SESSION['userId'];
@@ -52,7 +52,7 @@ class PiezaController extends BaseController{
 	public function getListPieza(){
 		$responseMessage = null;
 		
-		$part = Pieza::orderBy('nombre')->get();
+		$part = Pieza::orderBy('piezaNombre')->get();
 
 		return $this->renderHTML('listPieza.twig', [
 			'parts' => $part
@@ -115,7 +115,7 @@ class PiezaController extends BaseController{
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 					$part = Pieza::find($postData['id']);
-					$part->nombre = $postData['nombre'];
+					$part->piezaNombre = $postData['nombre'];
 					$part->observacion = $postData['observacion'];
 					$part->idUserUpdate = $_SESSION['userId'];
 					$part->save();
