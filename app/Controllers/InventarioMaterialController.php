@@ -7,82 +7,71 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class InventarioMaterialController extends BaseController{
-	public function getAddHormasAction($request){
-		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
+	public function getAddInventarioAction($request){
 
-		return $this->renderHTML('addHormas.twig',[
-				'providers' => $provider
-		]);
+		return $this->renderHTML('addInventarioMaterial.twig');
 	}
 
 	//Registra la Persona
-	public function postAddHormasAction($request){
+	public function postAddInventarioAction($request){
 		$responseMessage = null;
 		
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$hormasValidator = v::key('referencia', v::stringType()->length(1, 12)->notEmpty());
+			$inventarioValidator = v::key('nombre', v::stringType()->length(1, 40)->notEmpty());
 			
 			if($_SESSION['userId']){
 				try{
-					$hormasValidator->assert($postData);
+					$inventarioValidator->assert($postData);
 					$postData = $request->getParsedBody();
 					
-					$shape = new Hormas();
-					$shape->referencia = $postData['referencia'];
-					$shape->genero = $postData['genero'];
-					$shape->color = $postData['color'];
-					$shape->idProveedor = $postData['idProveedor'];
-					$shape->observacion = $postData['observacion'];
-					$shape->idUserRegister = $_SESSION['userId'];
-					$shape->idUserUpdate = $_SESSION['userId'];
-					$shape->save();
+					$inventory = new InventarioMaterial();
+					$inventory->nombre = $postData['nombre'];
+					$inventory->unidadMedida = $postData['uMedida'];
+					$inventory->existencia = $postData['existencia'];
+					$inventory->observacion=$postData['observacion'];
+					$inventory->idUserRegister = $_SESSION['userId'];
+					$inventory->idUserUpdate = $_SESSION['userId'];
+					$inventory->save();
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+						$responseMessage = 'Error, el nombre debe tener de 1 a 40 digitos.';
 					}else{
 						$responseMessage = substr($e->getMessage(), 0, 50);
 					}
 				}
 			}
 		}
-		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
-
+		
 		//Retorna a la pagina de registro con un mensaje $responseMessage
-		return $this->renderHTML('addHormas.twig',[
-				'responseMessage' => $responseMessage,
-				'providers' => $provider
+		return $this->renderHTML('addInventarioMaterial.twig',[
+				'responseMessage' => $responseMessage
 		]);
 	}
 
-	//Lista todas la Hormas Ordenando por posicion
-	public function getListHormas(){
-		$responseMessage = null;
+	//Lista todas los materiales Ordenando por posicion
+	public function getListInventario(){
+		$inventory=null;
 		
-		$shape = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
-		->select('hormas.*', 'clientesProvedores.nombre')
-		->get();
-
-		return $this->renderHTML('listHormas.twig', [
-			'shapes' => $shape
+		$inventory = InventarioMaterial::orderBy('nombre')->get();
+		
+		return $this->renderHTML('listInventarioMaterial.twig', [
+			'inventorys' => $inventory
 		]);
-		
-
-		//return $this->renderHTML('listHormas.twig');
 	}
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelHormas($request){
+	public function postUpdDelInventario($request){
 		$responseMessage = null;
 		$quiereActualizar = false;
-		$provider = null;
-		$ruta='listHormas.twig';
+		
+		$ruta='listInventarioMaterial.twig';
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -90,64 +79,60 @@ class InventarioMaterialController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
-					$shape = new Hormas();
-					$shape->destroy($id);
-					$responseMessage = "Se elimino la horma";
+					$inventory = new InventarioMaterial();
+					$inventory->destroy($id);
+					$responseMessage = "Se elimino el material";
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar una horma';
+				$responseMessage = 'Debe Seleccionar un modelo';
 			}
 		}
 		
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$shapes = Hormas::find($id);
-			$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
-			$ruta='updateHormas.twig';
+			$inventorys = InventarioMaterial::find($id);
+			$ruta='updateInventarioMaterial.twig';
 		}else{
-			$shapes = Hormas::orderBy('referencia')->get();
+			$inventorys = InventarioMaterial::orderBy('nombre')->get();
 		}
 		return $this->renderHTML($ruta, [
-			'shapes' => $shapes,
+			'inventorys' => $inventorys,
 			'idUpdate' => $id,
-			'providers' => $provider,
 			'responseMessage' => $responseMessage
 		]);
 	}
 
 	//en esta accion se registra las modificaciones del registro
-	public function getUpdateHormas($request){
-
+	public function getUpdateInventario($request){
 		$responseMessage = null;
 				
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$hormasValidator = v::key('referencia', v::stringType()->length(1, 12)->notEmpty());
+			$inventarioValidator = v::key('nombre', v::stringType()->length(1, 40)->notEmpty());
 
 			
 			if($_SESSION['userId']){
 				try{
-					$hormasValidator->assert($postData);
+					$inventarioValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$shape = Hormas::find($postData['id']);
-					$shape->referencia = $postData['referencia'];
-					$shape->genero = $postData['genero'];
-					$shape->color = $postData['color'];
-					$shape->idProveedor = $postData['idProveedor'];
-					$shape->observacion = $postData['observacion'];
-					$shape->idUserUpdate = $_SESSION['userId'];
-					$shape->save();
+					$inventory = InventarioMaterial::find($postData['id']);
+					$inventory->nombre = $postData['nombre'];
+					$inventory->unidadMedida = $postData['unidadMedida'];
+					$inventory->existencia = $postData['existencia'];
+					$inventory->observacion = $postData['observacion'];
+					$inventory->idUserUpdate = $_SESSION['userId'];
+					$inventory->save();
 					$responseMessage = 'Actualizado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+						$responseMessage = 'Error, el referencia debe tener de 1 a 40 digitos.';
 					}else{
 						$responseMessage = substr($e->getMessage(), 0, 50);
 					}
@@ -155,9 +140,9 @@ class InventarioMaterialController extends BaseController{
 			}
 		}
 
-		$shapes = Hormas::orderBy('referencia')->get();
-		return $this->renderHTML('listHormas.twig',[
-				'shapes' => $shapes,
+		$inventorys = InventarioMaterial::orderBy('nombre')->get();
+		return $this->renderHTML('listInventarioMaterial.twig',[
+				'inventorys' => $inventorys,
 				'responseMessage' => $responseMessage
 		]);
 	}

@@ -1,13 +1,16 @@
 {% extends "layout.twig" %}
 
 {% block content %}
+
+
+
 <h1>
-    Hormas
+    Material
     <small>Actualizacion</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./shapelist">Hormas</a></li>
+    <li><a href="./inventorylist">Material</a></li>
     <li class="active">Actualizacion</li>
   </ol>
 </section>
@@ -18,47 +21,35 @@
       <!-- general form elements -->
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Actualice la horma</h3>
+          <h3 class="box-title">Actualice el material</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="./shapeupdate" method="post" role="form">
+        <form action="./inventoryupdate" method="post" role="form">
           <div class="box-body">
             <div class="form-group">
-              <input type="hidden" name="id" value="{{ shapes.id }}" class="form-control" placeholder="" required>
+              <input type="hidden" name="id" value="{{ inventorys.id }}" class="form-control" placeholder="" required>
             </div>
             <div class="form-group">
-              <label>Referencia:</label>
-              <input type="text" name="referencia" value="{{ shapes.referencia }}" class="form-control" placeholder="" required>
+              <label>Nombre:</label>
+              <input type="text" name="nombre" value="{{ inventorys.nombre }}" class="form-control" required>
             </div>
             <div class="form-group">
-              <label>Linea:</label>
-              <select class="form-control select-picker" id="genero" name="genero" required>
-                <option value="1"{% if shapes.genero == 1 %}selected="selected"{% endif %}>Caballero</option>
-                <option value="2"{% if shapes.genero == 2 %}selected="selected"{% endif %}>Dama</option>
-                <option value="3"{% if shapes.genero == 3 %}selected="selected"{% endif %}>Niño</option>
-                <option value="4"{% if shapes.genero == 4 %}selected="selected"{% endif %}>Bebe</option>
+              <label>Unidad de medida:</label>
+              <select class="form-control select-picker" name="unidadMedida" required>
+                <option value="Metro"{% if inventorys.unidadMedida == "Metro" %}selected="selected"{% endif %}>Metro</option>
+                <option value="Unidad"{% if inventorys.unidadMedida == "Unidad" %}selected="selected"{% endif %}>Unidad</option>
+                <option value="Litro"{% if inventorys.unidadMedida == "Litro" %}selected="selected"{% endif %}>Litro</option>
+                <option value="Galon"{% if inventorys.unidadMedida == "Galon" %}selected="selected"{% endif %}>Galon</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Color:</label>
-              <input type="text" name="color" value="{{ shapes.color }}" class="form-control" placeholder="Opcional">
-            </div>
-            <div class="form-group">
-              <label>Proveedor:</label>
-              <select class="form-control select-picker" name="idProveedor">
-                {% for provider in providers %}
-                  {% if shapes.idProveedor == provider.id %} 
-                    <option value="{{ provider.id }}" selected="selected">{{ provider.nombre }}{{ idProveedorUpdate }}</option>
-                  {% else %}
-                    <option value="{{ provider.id }}">{{ provider.nombre }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
+              <label>Existencia:</label>
+              <input type="text" name="existencia" value="{{ inventorys.existencia }}" class="form-control">
             </div>
             <div class="form-group">
               <label>Observacion:</label>
-              <input type="text" name="observacion" value="{{ shapes.observacion }}" class="form-control" placeholder="Opcional">
+              <input type="text" name="observacion" value="{{ inventorys.observacion }}" class="form-control" placeholder="Opcional">
           </div>
           </div>
           <!-- /.box-body -->
@@ -71,4 +62,8 @@
           </div>
         </form>
       </div>
+
+
+
+
 {% endblock %}
