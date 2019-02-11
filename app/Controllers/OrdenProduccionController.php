@@ -425,6 +425,7 @@ foreach ($tareas as $tarea => $value) {
 
 		$orden = InfoOrdenProduccion::Join("pedido","infoOrdenProduccion.idPedido","=","pedido.id")
 		->select('infoOrdenProduccion.*', 'pedido.referencia')
+		->latest('id')
 		->get();
 
 		return $this->renderHTML('listOrden.twig', [

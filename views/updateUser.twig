@@ -3,12 +3,12 @@
 {% block content %}
 	  <h1>
     Usuario
-    <small>Registro</small>
+    <small>Actualización</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./usersadd">Usuario</a></li>
-    <li class="active">Registro</li>
+    <li><a href="./usersupdate">Usuario</a></li>
+    <li class="active">Actualización</li>
   </ol>
 </section>
 <section class="content">
@@ -18,19 +18,19 @@
       <!-- general form elements -->
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Registre un nuevo usuario</h3>
+          <h3 class="box-title">Actualice su contraseña</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="./usersadd" method="post">
+        <form action="./usersupdate" method="post">
           <div class="box-body">
             <div class="form-group">
-              <label>Email:</label>
-              <input type="email" name="email" class="form-control" placeholder="" required>
+              <label>Contraseña anterior:</label>
+              <input type="password" name="passOld" class="form-control" placeholder="" required>
             </div>
             <div class="form-group">
-              <label>Contraseña:</label>
-              <input type="password" name="pass" class="form-control" placeholder="" minlength="6" required>
+              <label>Nueva contraseña:</label>
+              <input type="password" name="passNew" class="form-control" placeholder="" minlength="6" required>
             </div>
           </div>
           <!-- /.box-body -->

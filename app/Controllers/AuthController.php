@@ -21,7 +21,7 @@ class AuthController extends BaseController{
 		$user = User::where('nombre',$postData['email'])->first();
 		if ($user) {
 			if(\password_verify($postData['pass'], $user->contrasena)){
-				$_SESSION['userId'] = $user->idCedula;
+				$_SESSION['userId'] = $user->id;
 				return new RedirectResponse('admin');
 			}else{
 				$responseMessage = 'Usuario y Contraseña incorrecto';

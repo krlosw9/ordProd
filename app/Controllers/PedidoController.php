@@ -236,6 +236,7 @@ class PedidoController extends BaseController{
 		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
 		->Join("modelosInfo","pedido.idModeloInfo","=","modelosInfo.id")
 		->select('pedido.*', 'clientesProvedores.nombre', 'modelosInfo.referenciaMod')
+		->latest('id')
 		->get();
 		
 		$model = ModelosInfo::orderBy('referenciaMod')->get();

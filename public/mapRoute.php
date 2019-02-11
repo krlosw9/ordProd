@@ -67,6 +67,16 @@ $map->post('saveUsers', '/curso/usersadd', [
         'action' => 'postSaveUser',
         'auth' => true
 ]);
+$map->get('updateUsers', '/curso/usersupdate', [
+        'controller' => 'App\Controllers\UsersController',
+        'action' => 'getUpdateUserAction',
+        'auth' => true
+]);
+$map->post('passUsers', '/curso/usersupdate', [
+        'controller' => 'App\Controllers\UsersController',
+        'action' => 'postUpdateUser',
+        'auth' => true
+]);
 
 //Rutas Personas
 $map->get('getAddPersonas', '/curso/peopleadd', [

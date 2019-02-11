@@ -107,6 +107,7 @@ class ModeloController extends BaseController{
 
 		$modelo = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
 		->select('modelosInfo.*', 'hormas.referencia')
+		->latest('id')
 		->get();
 
 		return $this->renderHTML('listModelo.twig', [

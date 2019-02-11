@@ -57,7 +57,7 @@ class ActividadTareaController extends BaseController{
 
 	//Lista todas la Actividad-Tarea Ordenando por posicion
 	public function getListActividadTarea(){
-		$actOpes = ActividadTarea::orderBy('posicion')->get();
+		$actOpes = ActividadTarea::orderBy('posicion')->latest('posicion')->get();
 
 		return $this->renderHTML('listActividadTarea.twig', [
 			'actOpes' => $actOpes
