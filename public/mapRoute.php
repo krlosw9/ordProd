@@ -407,6 +407,32 @@ $map->get('getListOrden', '/curso/orderlist', [
         'auth' => true
 ]);*/
 
+//Rutas TareaOperario
+$map->get('getListTareaOperario', '/curso/tarealist', [
+        'controller' => 'App\Controllers\TareaOperarioController',
+        'action' => 'getListTareaOperario',
+        'auth' => true
+]);
+$map->post('postDelTareaOperario', '/curso/tareadel', [
+        'controller' => 'App\Controllers\TareaOperarioController',
+        'action' => 'postUpdDelTareaOperario',
+        'auth' => true
+]);
+$map->get('getTareaOperarioUpdate', '/curso/tareaupdate', [
+        'controller' => 'App\Controllers\TareaOperarioController',
+        'action' => 'getUpdateTareaOperario',
+        'auth' => true
+]);
+$map->post('postTareaOperarioUpdate', '/curso/tareaupdate', [
+        'controller' => 'App\Controllers\TareaOperarioController',
+        'action' => 'getUpdateTareaOperario',
+        'auth' => true
+]);
+
+
+
+
+
 
 
 //Rutas que validan el login, dan acceso o denega acceso

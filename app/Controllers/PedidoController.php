@@ -153,7 +153,7 @@ class PedidoController extends BaseController{
 					//***informe de consumo de material***
 					$informes = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
 						->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'inventarioMaterial.existencia')
-						->where("materialModelos.idModeloInfo","=",11)
+						->where("materialModelos.idModeloInfo","=",$postData['idModeloInfo'])
 						->get();
 
 					//$Bar = new BarcodeGeneratorHTML();

@@ -1,13 +1,16 @@
 {% extends "layout.twig" %}
 
 {% block content %}
+
+
+
 <h1>
-    Operarios
+    Tarea
     <small>Actualizacion</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./actopelist">Operarios</a></li>
+    <li><a href="./tarealist">Tarea</a></li>
     <li class="active">Actualizacion</li>
   </ol>
 </section>
@@ -18,45 +21,43 @@
       <!-- general form elements -->
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Actualice el registro del operario</h3>
+          <h3 class="box-title">Asígnele el operario a la actividad de esta tarea</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="./peopleupdate" method="post" role="form">
+        <form action="./tareaupdate" method="post" role="form">
           <div class="box-body">
             <div class="form-group">
-              <input type="hidden" name="id" value="{{ peoples.id }}" class="form-control" placeholder="" required>
+              {% for tarea in tareas %}
+              	<input type="hidden" name="id" value="{{ tarea.id }}" class="form-control" placeholder="" required>
+              {% endfor %}
+            </div>
+            <div class="form-group ">
+              <label>Referencia Orden Produccion:</label>
+              {% for tarea in tareas %}
+              	<input type="text" name="refOrden" value="{{ tarea.referenciaOrd }}" class="form-control" disabled>
+              {% endfor %}
             </div>
             <div class="form-group">
-              <label>Cedula:</label>
-              <input type="number" name="cedula" value="{{ peoples.cedula }}" class="form-control" placeholder="" required>
+              <label>Actividad:</label>
+              {% for tarea in tareas %}
+              	<input type="text" name="nombreActTarea" value="{{ tarea.nombre }}" class="form-control" required disabled>
+              {% endfor %}
             </div>
             <div class="form-group">
-              <label>Nombre:</label>
-              <input type="text" name="nombre" value="{{ peoples.nombre }}" class="form-control" placeholder="" required>
+              <label>Operario: </label>
+              <select class="form-control select-picker" name="idOperario" required>
+                <option value="">Seleccione el operario</option>
+                {% for people in peoples %}
+                  <option value="{{ people.id }}">{{ people.nombre }} {{ people.apellido }}</option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="form-group">
-              <label>Apellido:</label>
-              <input type="text" name="apellido" value="{{ peoples.apellido }}" class="form-control" placeholder="Opcional">
-          </div>
-          <div class="form-group">
-              <label>Telefono:</label>
-              <input type="number" name="telefono" value="{{ peoples.telefono }}" class="form-control" placeholder="" required>
-          </div>
-            <div class="form-group">
-              <label>Activo:</label>
-              <center>
-                <input type="checkbox" name="activoCheck" {% if peoples.activoCheck == 1 %}checked{% endif %}>
-              </center>
-            </div>
-            <div class="form-group">
-              <label>Observacion:</label>
-              <input type="text" name="observacion" value="{{ peoples.observacion }}" class="form-control" placeholder="Opcional">
-          </div>
+            <input type="hidden" name="multiple" value="0">
           </div>
           <!-- /.box-body -->
           <div class="box-footer">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <button type="submit" name="boton" value="btnCode" class="btn btn-primary">Registrar</button>
           </div>
 
           <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
@@ -64,4 +65,9 @@
           </div>
         </form>
       </div>
+
+
+
+
+
 {% endblock %}
