@@ -68,15 +68,20 @@ class ModeloController extends BaseController{
 
 					
 					for ($i=1; $i <= $postData['cantPiezas']; $i++) { 
-						$material = new MaterialModelos();
-						$material->idModeloInfo=$modeloUltimoId;
-						$material->idPieza = $postData['idPieza'.$i];
-						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
-						$material->consumoPorPar = $postData['consumoPorPar'.$i];
-						$material->observacion = $postData['observacion'.$i];
-						$material->idUserRegister = $_SESSION['userId'];
-						$material->idUserUpdate = $_SESSION['userId'];
-						$material->save();
+						
+						$consumoPorPar=$postData['consumoPorPar'.$i] ?? null;
+
+						if ($consumoPorPar) {
+							$material = new MaterialModelos();
+							$material->idModeloInfo=$modeloUltimoId;
+							$material->idPieza = $postData['idPieza'.$i];
+							$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
+							$material->consumoPorPar = $consumoPorPar;
+							$material->observacion = $postData['observacion'.$i];
+							$material->idUserRegister = $_SESSION['userId'];
+							$material->idUserUpdate = $_SESSION['userId'];
+							$material->save();
+						}
 					}
 
 					$responseMessage = 'Registrado';

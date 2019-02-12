@@ -49,7 +49,7 @@ class PiezaController extends BaseController{
 	}
 
 	//Lista todas la Pieza Ordenando por posicion
-	public function getListPieza(){
+	public function getListPieza(){ 
 		$responseMessage = null;
 		
 		$part = Pieza::orderBy('piezaNombre')->get();
@@ -88,7 +88,7 @@ class PiezaController extends BaseController{
 			$parts = Pieza::find($id);
 			$ruta='updatePieza.twig';
 		}else{
-			$parts = Pieza::orderBy('nombre')->get();
+			$parts = Pieza::orderBy('piezaNombre')->get();
 		}
 		return $this->renderHTML($ruta, [
 			'parts' => $parts,
@@ -129,7 +129,7 @@ class PiezaController extends BaseController{
 			}
 		}
 
-		$parts = Pieza::orderBy('nombre')->get();
+		$parts = Pieza::orderBy('piezaNombre')->get();
 		return $this->renderHTML('listPieza.twig',[
 				'parts' => $parts,
 				'responseMessage' => $responseMessage

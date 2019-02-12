@@ -107,7 +107,9 @@ class HormasController extends BaseController{
 			$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
 			$ruta='updateHormas.twig';
 		}else{
-			$shapes = Hormas::orderBy('referencia')->get();
+			$shapes = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
+			->select('hormas.*', 'clientesProvedores.nombre')
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'shapes' => $shapes,
@@ -155,7 +157,12 @@ class HormasController extends BaseController{
 			}
 		}
 
-		$shapes = Hormas::orderBy('referencia')->get();
+		$shapes = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
+		->select('hormas.*', 'clientesProvedores.nombre')
+		->get();
+
+
+
 		return $this->renderHTML('listHormas.twig',[
 				'shapes' => $shapes,
 				'responseMessage' => $responseMessage
