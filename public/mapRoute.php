@@ -395,6 +395,10 @@ $map->post('postPedidoUpdate', '/curso/pedidoupdate', [
         'action' => 'postUpdatePedido',
         'auth' => true
 ]);
+
+
+
+
 //Rutas OrdenProduccion
 $map->get('getAddOrden', '/curso/orderadd', [
         'controller' => 'App\Controllers\OrdenProduccionController',

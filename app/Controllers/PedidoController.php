@@ -27,7 +27,8 @@ class PedidoController extends BaseController{
 	//Registra la Persona
 	public function postAddPedidoAction($request){
 		$sumatoria=0;
-		$registro=false;
+		$ruta = 'listPedido.twig';
+		
 		$responseMessage = null;
 		$responseMessage2 = null;
 		
@@ -150,6 +151,8 @@ class PedidoController extends BaseController{
 					$pedido->idUserUpdate = $_SESSION['userId'];
 					$pedido->save();
 
+					$refPedido = $postData['referencia'];
+
 					//***informe de consumo de material***
 					$informes = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
 						->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'inventarioMaterial.existencia')
@@ -159,45 +162,8 @@ class PedidoController extends BaseController{
 					//$Bar = new BarcodeGeneratorHTML();
 					//$code = $Bar->getBarcode("123456",$Bar::TYPE_CODE_128);
 					//echo $code;
-
-					$pdf = new FPDF();
-					$numero=$postData['referencia'];
-					$pdf->AliasNbPages();
-					$pdf->AddPage();
-					$pdf->SetFont('Arial','B',15);
-					//Movernos a la derecha
-					$pdf->Cell(50);
-					//Título
-					$pdf->Cell(80,10,'Consumo pedido #'.$numero,1,0,'C');
-					//Salto de línea
-					$pdf->Ln(20);
-					    
-					$header=array('Material','Consumo','Existencia','Medida','Por Comprar');
-					$pdf->SetY(36);
-					$pdf->SetFont('Arial','',12);
-					
-					foreach($header as $titulo){
-					   $pdf->Cell(36,7,$titulo,1);
-					}
-					$pdf->Ln();
-
-					foreach ($informes as $informe => $value) {
-						$nombre=$value->nombre;
-						$consumo=$value->consumoPorPar*$sumatoria;
-						$existencia=$value->existencia;
-						$unidadMedida=$value->unidadMedida;
-						$porComprar = $consumo - $value->existencia;
-						$pdf->Cell(36,5,$nombre,1);
-						$pdf->Cell(36,5,$consumo,1);
-						$pdf->Cell(36,5,$existencia,1);
-						$pdf->Cell(36,5,$unidadMedida,1);
-						$pdf->Cell(36,5,$porComprar,1);
-						$pdf->Ln();
-					}
-
-					$pdf->Output();
-
-					$registro=true;
+						
+					$ruta = 'pdfpedido.twig';
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
@@ -215,20 +181,16 @@ class PedidoController extends BaseController{
 			$responseMessage .= $responseMessage2;
 		}
 		//Retorna a la pagina de registro con un mensaje $responseMessage
-		if ($registro==false) {
-			return $this->renderHTML('listPedido.twig',[
-				'responseMessage' => $responseMessage
+		
+			return $this->renderHTML($ruta ,[
+				'responseMessage' => $responseMessage,
+				'informes' => $informes,
+				'refPedido' => $refPedido,
+				'cantPares' => $sumatoria
 			]);
-		}
+		
 	}
 
-	public function getPdf(){
-		
-		//require('./fpdf/fpdf.php');
-
-		
-
-	}
 
 	//Lista todas la pedido Ordenando por posicion
 	public function getListPedido(){
@@ -332,6 +294,7 @@ class PedidoController extends BaseController{
 				'responseMessage' => $responseMessage
 		]);
 	}
+
 }
 
 ?>
