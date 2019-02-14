@@ -326,7 +326,6 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
           <thead>
           <tr>
             <th></th>
-            <th>Pieza</th>
             <th>Material #</th>
             <th>Consumo</th>
             <th>Medida</th>
@@ -339,7 +338,6 @@ foreach ($materiales as $key => $val) {
 echo "
           <tr>
             <td></td>
-            <td>$val->piezaNombre</td>
             <td>$val->nombre</td>
             <td>$val->consumoPorPar</td>
             <td>$val->unidadMedida</td>

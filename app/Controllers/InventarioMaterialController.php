@@ -29,7 +29,6 @@ class InventarioMaterialController extends BaseController{
 					$inventory = new InventarioMaterial();
 					$inventory->nombre = $postData['nombre'];
 					$inventory->unidadMedida = $postData['uMedida'];
-					$inventory->existencia = $postData['existencia'];
 					$inventory->observacion=$postData['observacion'];
 					$inventory->idUserRegister = $_SESSION['userId'];
 					$inventory->idUserUpdate = $_SESSION['userId'];
@@ -123,7 +122,6 @@ class InventarioMaterialController extends BaseController{
 					$inventory = InventarioMaterial::find($postData['id']);
 					$inventory->nombre = $postData['nombre'];
 					$inventory->unidadMedida = $postData['unidadMedida'];
-					$inventory->existencia = $postData['existencia'];
 					$inventory->observacion = $postData['observacion'];
 					$inventory->idUserUpdate = $_SESSION['userId'];
 					$inventory->save();

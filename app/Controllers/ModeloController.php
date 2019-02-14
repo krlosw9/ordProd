@@ -8,17 +8,15 @@ use Zend\Diactoros\Response\RedirectResponse;
 
 class ModeloController extends BaseController{
 	public function getAddModeloAction(){
-		$shape = null; $part=null; $inventory=null;
+		$shape = null; $inventory=null;
 
 		$shape = Hormas::orderBy('referencia')->get();
-		$part = Pieza::orderBy('piezaNombre')->get();
 		$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
 
 		return $this->renderHTML('addModelo.twig',[
 				'shapes' => $shape,
-				'parts' => $part,
 				'inventorys' => $inventory,
 				'cantPiezas' => $cantPiezas
 		]);
@@ -74,7 +72,7 @@ class ModeloController extends BaseController{
 						if ($consumoPorPar) {
 							$material = new MaterialModelos();
 							$material->idModeloInfo=$modeloUltimoId;
-							$material->idPieza = $postData['idPieza'.$i];
+							$material->idPieza = 5;
 							$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
 							$material->consumoPorPar = $consumoPorPar;
 							$material->observacion = $postData['observacion'.$i];
@@ -155,7 +153,6 @@ class ModeloController extends BaseController{
 			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
 
 			$shape = Hormas::orderBy('referencia')->get();
-			$part = Pieza::orderBy('piezaNombre')->get();
 			$inventory = InventarioMaterial::orderBy('nombre')->get();
 			$ruta='updateModelo.twig';
 		}else{
@@ -166,7 +163,6 @@ class ModeloController extends BaseController{
 			'materiales' => $material,
 			'idUpdate' => $id,
 			'shapes' => $shape,
-			'parts' => $part,
 			'inventorys' => $inventory,
 			'responseMessage' => $responseMessage
 		]);
@@ -214,7 +210,6 @@ class ModeloController extends BaseController{
 					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
 						$material = MaterialModelos::find($postData['idMaterial'.$i]);
 						$material->idModeloInfo=$idModelo;
-						$material->idPieza = $postData['idPieza'.$i];
 						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
 						$material->consumoPorPar = $postData['consumoPorPar'.$i];
 						$material->observacion = $postData['observacion'.$i];
