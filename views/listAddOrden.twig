@@ -1,0 +1,65 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+
+
+<h1>
+    Orden de produccion
+    <small>Modelos</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./orderlist">Orden/produccion</a></li>
+    <li class="active">Modelos</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-10">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Seleccione el modelo de esta orden de produccion</h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+
+       <form action="orderadd" method="get" role="form">
+        <table class="table table-bordered" >
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 70px">Referencia</th>
+            <th style="width: 70px">Restante</th>
+            <th style="width: 200px">Observacion</th>
+          </tr>
+          {% for model in models %}
+          <tr>
+              <td>
+                <input type="hidden" name="?" value="{{ idpedido }}">
+                <input type="radio" name="i" value="{{ model.id }}">
+              </td>
+              <td>{{ model.referenciaMod }}</td>
+              <td>{{ model.cantRestPedMod }}</td>
+              <td>{{ model.observacion }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        <div class="box-footer">
+          <button type="submit" name="boton" class="btn btn-primary">Nuevo</button>
+        </div>
+       </form>
+       
+
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+
+
+
+
+{% endblock %}

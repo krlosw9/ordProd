@@ -59,19 +59,21 @@
             </div>
             <div class="form-group col-xs-6">
               <label>Modelo:</label>
-              {% for pedido in pedidos %}
-                <input type="text" name="idmodelo" value="{{ pedido.referenciaMod }}" class="form-control" disabled>
-                <input type="hidden" name="modelo" value="{{ pedido.referenciaMod }}" class="form-control">
-                <input type="hidden" name="modeloImg" value="{{ pedido.imagenUrl }}" class="form-control">
+              {% for model in models %}
+                <input type="text" name="idmodelo" value="{{ model.referenciaMod }}" class="form-control" disabled>
+                <input type="hidden" name="modelo" value="{{ model.referenciaMod }}" class="form-control">
+                <input type="hidden" name="idPedidoModelo" value="{{ model.id }}" class="form-control">
+                <input type="hidden" name="modeloImg" value="{{ model.imagenUrl }}" class="form-control">
               {% endfor %}
             </div>
             <div class="form-group col-xs-6">
               <label>Restantes:</label>
-              {% for pedido in pedidos %}
-                <input type="text" name="cantRestante" value="{{ pedido.cantRestante }}" class="form-control" disabled>
+              {% for model in models %}
+                <input type="text" name="cant" value="{{ model.cantRestPedMod }}" class="form-control" disabled>
+                <input type="hidden" name="cantRestantePedModelo" value="{{ model.cantRestPedMod }}" class="form-control">
               {% endfor %}
             </div>
-            {% for talla in tallas %}
+            {% for talla in models %}
               {% if talla.tallas == 1 %}
                 <input type="hidden" name="tipoTallas" value="1">
                 <div class="box-body">

@@ -32,16 +32,18 @@
             <th style="width: 10px">Material</th>
             <th style="width: 100px">Consumo</th>
             <th style="width: 100px">Medida</th>
+            <th style="width: 100px">Valor estimado</th>
           </tr>
           
-          {% for informe in informes %}
-          <tr>
-              
-              <td>{{ informe.nombre }}</td>
-              <td>{{ informe.consumoPorPar * cantPares }}</td>
-              <td>{{ informe.unidadMedida }}</td>
-          </tr>
-          
+          {% for material in materiales %}
+            {% for informe in material %}
+              <tr>
+                  <td>{{ informe.nombre }}</td>
+                  <td>{{ informe.consumoPorPar * cantPares }}</td>
+                  <td>{{ informe.unidadMedida }}</td>
+                  <td>{{ (informe.consumoPorPar * cantPares) *informe.precio }}</td>
+              </tr>
+            {% endfor %}
           {% endfor %}
         </table>
         

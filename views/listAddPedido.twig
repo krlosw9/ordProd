@@ -1,0 +1,55 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+
+
+  <h1>
+    Pedido
+    <small>Registro</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./pedidolist">Pedido</a></li>
+    <li class="active">Registro</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-md-6">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Seleccione los {{ cantModelos }} modelos, para crear el pedido</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="pedidolistadd" method="post" role="form">
+          <div class="box-body">
+          <input type="hidden" name="cantModelos" value="{{cantModelos}}">
+            {% for i in 1..cantModelos %}
+            <div class="col-xs-8" style="padding-top: 10px;">
+              <select class="form-control select-picker" name="modelo{{i}}" required>
+              <option value="">Seleccione el Modelo</option>
+              {% for model in models %}
+                <option value="{{ model.id }} {{ model.referenciaMod }} {{ model.tallas }}">{{ model.referenciaMod }}</option>
+              {% endfor %}
+              </select>
+            </div>
+            {% endfor %}
+          </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Nuevo</button>
+          </div>
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        </form>
+      </div>
+
+
+
+
+{% endblock %}

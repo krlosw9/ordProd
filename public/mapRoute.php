@@ -364,10 +364,21 @@ $map->post('postCompraUpdate', '/curso/buyupdate', [
         'action' => 'postUpdateCompra',
         'auth' => true
 ]);
-//Rutas Pedido
+
+//Rutas Pedido 
 $map->get('getAddPedido', '/curso/pedidoadd', [
         'controller' => 'App\Controllers\PedidoController',
         'action' => 'getAddPedidoAction',
+        'auth' => true
+]);
+$map->get('getListAddPedido', '/curso/pedidolistadd', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getListAddPedidoAction',
+        'auth' => true
+]);
+$map->post('postListAddPedido', '/curso/pedidolistadd', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'postListAddPedidoAction',
         'auth' => true
 ]);
 $map->post('postAddPedido', '/curso/pedidoadd', [
@@ -413,6 +424,11 @@ $map->post('postAddOrden', '/curso/orderadd', [
 $map->get('getListOrden', '/curso/orderlist', [
         'controller' => 'App\Controllers\OrdenProduccionController',
         'action' => 'getListOrden',
+        'auth' => true
+]);
+$map->get('getListAddOrden', '/curso/orderlistadd', [
+        'controller' => 'App\Controllers\OrdenProduccionController',
+        'action' => 'getListAddOrdenAction',
         'auth' => true
 ]);
 /*$map->get('getCode', '/curso/code', [

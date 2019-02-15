@@ -2,38 +2,73 @@
 
 namespace App\Controllers;
 
-use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos};
+use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class OrdenProduccionController extends BaseController{
 	public function getAddOrdenAction(){
-		$pedido = null; $refModelo=null; $tallas=null; $actividad=null;
+		$pedido = null; $actividad=null; 
+		$responseMessage = null; $models = null;
+		$ruta = 'addOrden.twig';
 
 		//$shape = Hormas::orderBy('referencia')->get();
 		//$part = Pieza::orderBy('nombre')->get();
 		//$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$idPedido=$_GET['?'] ?? null;
-		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
-		->Join("modelosInfo","pedido.idModeloInfo","=","modelosInfo.id")
-		->select('pedido.*', 'clientesProvedores.nombre', 'modelosInfo.referenciaMod', 'modelosInfo.imagenUrl')
-		->where("pedido.id","=",$idPedido)
-		->get();
+		$idPedidoModelo=$_GET['i'] ?? null;
+		if ($idPedidoModelo) {
 
-		foreach ($pedido as $modelo => $value) {
-			$refModelo = $value->referenciaMod;
+			$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
+			->select('pedido.*', 'clientesProvedores.nombre')
+			->where("pedido.id","=",$idPedido)
+			->get();
+
+			$models = PedidoModelo::Join("modelosInfo","pedidoModelo.idModelo","=","modelosInfo.id")
+			->select('pedidoModelo.*', 'modelosInfo.referenciaMod', 'modelosInfo.tallas', 'modelosInfo.imagenUrl')
+			->where("pedidoModelo.id","=",$idPedidoModelo)
+			->get();
+
+			$actividad = ActividadTarea::latest('posicion')->get();
+		
+		}else{
+			$responseMessage = 'Debe seleccionar un modelo';
+			$ruta = 'listAddOrden.twig';
+
+			$models = PedidoModelo::Join("modelosInfo","pedidoModelo.idModelo","=","modelosInfo.id")
+			->select('pedidoModelo.*', 'modelosInfo.referenciaMod')
+			->where("pedidoModelo.idPedido","=",$idPedido)
+			->get();
 		}
-		$tallas = ModelosInfo::where("referenciaMod","=",$refModelo)->get();
-		$actividad = ActividadTarea::latest('posicion')->get();
+		
 
-		return $this->renderHTML('addOrden.twig',[
+		return $this->renderHTML($ruta ,[
 				'pedidos' => $pedido,
 				'actividads' => $actividad,
-				'tallas' => $tallas
+				'models' => $models,
+				'responseMessage' => $responseMessage
 		]);
 	}
+
+
+
+	public function getListAddOrdenAction($request){
+		$idPedido=$_GET['?'] ?? null;
+
+		$models = PedidoModelo::Join("modelosInfo","pedidoModelo.idModelo","=","modelosInfo.id")
+		->select('pedidoModelo.*', 'modelosInfo.referenciaMod')
+		->where("pedidoModelo.idPedido","=",$idPedido)
+		->get();
+
+		return $this->renderHTML('listAddOrden.twig',[
+				'idpedido' => $idPedido,
+				'models' => $models
+		]);
+	}
+
+
 
 	//Registra la Persona
 	public function postAddOrdenAction($request){
@@ -195,11 +230,19 @@ class OrdenProduccionController extends BaseController{
 						$tarea->save();
 					}
 
-
+					/****Descuenta la cantidad de la orden de produccion 
+					al pedido*/
 					$cantRestante=$postData['cantidadPedido']-$sumatoria;
 					$pedido = Pedido::find($postData['idPedido']);
 					$pedido->cantRestante=$cantRestante;
 					$pedido->save();
+
+					/****Descuenta la cantidad de la orden de produccion 
+					al pedidoModelo*/
+					$cantRestantePedMod=$postData['cantRestantePedModelo']-$sumatoria;
+					$pedidoModelo = PedidoModelo::find($postData['idPedidoModelo']);
+					$pedidoModelo->cantRestPedMod=$cantRestantePedMod;
+					$pedidoModelo->save();
 
 					$registroExitoso=true;
 					$responseMessage = 'Registrado';
@@ -419,7 +462,7 @@ foreach ($tareas as $tarea => $value) {
 	public function getListOrden(){
 		$responseMessage = null;
 		
-		$pedido = Pedido::orderBy('referencia')->get();
+		$pedido = Pedido::latest('id')->get();
 
 		$orden = InfoOrdenProduccion::Join("pedido","infoOrdenProduccion.idPedido","=","pedido.id")
 		->select('infoOrdenProduccion.*', 'pedido.referencia')
