@@ -22,7 +22,7 @@ class OrdenProduccionController extends BaseController{
 		if ($idPedidoModelo) {
 
 			$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
-			->select('pedido.*', 'clientesProvedores.nombre')
+			->select('pedido.*', 'clientesProvedores.nombre' , 'clientesProvedores.apellido')
 			->where("pedido.id","=",$idPedido)
 			->get();
 
@@ -194,24 +194,28 @@ class OrdenProduccionController extends BaseController{
 					}else{
 						$responseMessage2=' Tallas NO registradas';
 					}
-
+					/* Consulta el ultimo id de InfoOrdenProduccion */
 					$queryorden = InfoOrdenProduccion::all();
 					$ordenUltimo = $queryorden->last();
 					$ordenUltimoId = $ordenUltimo->id+1;
 
+					/* registra InfoOrdenProduccion */
 					$referenciaOrd=$postData['referenciaOrd'];
 					$fechaRegistro=$postData['fechaRegistro'];
 					$fechaEntrega=$postData['fechaEntrega'];
 					$modeloRef=$postData['modelo'];
 					$modeloImg=$postData['modeloImg'];
 					$cliente=$postData['cliente'];
-
+					$observacion1 = $postData['observacion1'];
+					$observacion2 = $postData['observacion2'];
 
 					$order = new InfoOrdenProduccion();
 					$order->id=$ordenUltimoId;
 					$order->referenciaOrd=$referenciaOrd;
 					$order->idPedido = $postData['idPedido'];
 					$order->idTallas=$tallasUltimoId;
+					$order->observacion1 = $observacion1;
+					$order->observacion2 = $observacion2;
 					$order->fechaRegistro=$fechaRegistro;
 					$order->fechaEntrega=$fechaEntrega;
 					$order->idUserRegister = $_SESSION['userId'];
@@ -287,12 +291,10 @@ echo
 <html>
 <head>
 	<title>Orden/Produccion</title>
-	
-
 	<link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
 </head>
 <body onload='window.print();'>
-<div class='wrapper'>
+<div class='wrapper' style='margin-left: 20px; margin-top: 5px; margin-right: 10px;'>
   <!-- Main content -->
   <section class='invoice'>
     <!-- title row -->
@@ -359,43 +361,17 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
       </div>
       <!-- /.col -->
     </div>
-    
     <!-- /.row -->
+	<div class='col-xs-12'>
+		<label>Observaciones: </label>
+	</div>
+	<div class='col-xs-12'>
+		<input type='text' name='observacion1' value='".$observacion1."' size='130'>
+	</div>
+	<div class='col-xs-12' style='padding-top: 10px;'>
+		<input type='text' name='observacion2' value='".$observacion2."' size='130'>
+	</div>
 
-    <!-- Table row -->
-    <div class='row'>
-      <div class='col-xs-12 table-responsive'>
-        <table class='table table-striped'>
-          <thead>
-          <tr>
-            <th></th>
-            <th>Material #</th>
-            <th>Consumo</th>
-            <th>Medida</th>
-          </tr>
-          </thead>
-          <tbody>
-          "; 
-
-foreach ($materiales as $key => $val) {
-echo "
-          <tr>
-            <td></td>
-            <td>$val->nombre</td>
-            <td>$val->consumoPorPar</td>
-            <td>$val->unidadMedida</td>
-          </tr>
-          "; 
-}
-
-echo"
-          </tbody>
-        </table>
-      </div>
-      <!-- /.col -->
-    </div>
-    <!-- /.row -->
-<h3>Tareas</h3>
     <!-- Segunda tabla -->
     <!-- Table row -->
     <div class='row'>
@@ -482,8 +458,8 @@ foreach ($tareas as $tarea => $value) {
 
 	
 	public function getCode(){
-		
-		return $this->renderHTML('codeBar.php');
+	
+
 	}
 }
 
