@@ -74,6 +74,7 @@ class PedidoController extends BaseController{
 		$sumatoria=0;
 		$sumatoriaPedido=0;
 		$materiales = array();
+		$cantidades = array();
 		$ruta = 'listPedido.twig';
 		
 		$responseMessage = null;
@@ -224,8 +225,11 @@ class PedidoController extends BaseController{
 
 					
 					$materiales += [
-					    'informes' => $informes,
-					    'cantPares' => $sumatoria
+					    $informes
+					];
+
+					$cantidades +=[
+						$sumatoria
 					];
 
 					/*
@@ -235,7 +239,8 @@ class PedidoController extends BaseController{
 							    'cantPares' => $sumatoria
 					  ]
 					];*/
-					
+
+
 					$idTallas ++;
 					$sumatoriaPedido += $sumatoria;
 
@@ -277,6 +282,7 @@ class PedidoController extends BaseController{
 			return $this->renderHTML($ruta ,[
 				'responseMessage' => $responseMessage,
 				'materiales' => $materiales,
+				'cantidades' => $cantidades,
 				'refPedido' => $refPedido,
 				'cantPares' => $sumatoria
 			]);

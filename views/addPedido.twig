@@ -48,7 +48,7 @@
               <select class="form-control select-picker" name="idCliente" required>
                 <option value="">Seleccione un cliente</option>
                 {% for customer in customers %}
-                  <option value="{{ customer.id }}">{{ customer.nombre }}</option>
+                  <option value="{{ customer.id }}">{{ customer.nombre }} {{ customer.apellido }}</option>
                 {% endfor %}
               </select>
             </div>

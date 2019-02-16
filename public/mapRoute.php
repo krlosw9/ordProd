@@ -431,11 +431,11 @@ $map->get('getListAddOrden', '/curso/orderlistadd', [
         'action' => 'getListAddOrdenAction',
         'auth' => true
 ]);
-/*$map->get('getCode', '/curso/code', [
+$map->get('getCode', '/curso/code', [
         'controller' => 'App\Controllers\OrdenProduccionController',
         'action' => 'getCode',
         'auth' => true
-]);*/
+]);
 
 //Rutas TareaOperario
 $map->get('getListTareaOperario', '/curso/tarealist', [

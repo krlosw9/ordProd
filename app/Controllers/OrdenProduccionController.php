@@ -483,7 +483,7 @@ foreach ($tareas as $tarea => $value) {
 	
 	public function getCode(){
 		
-		
+		return $this->renderHTML('codeBar.php');
 	}
 }
 
