@@ -305,7 +305,10 @@ echo
       </div>
       <!-- /.col -->
     </div>
-    
+    <!-- /.col -->
+    <div class='col-md-12 invoice-col'>     
+      <img src='./uploads/$modeloImg' alt='Imagen/modelo' width='170' height='170'>
+    </div>
     <!-- info row -->
     <div class='row invoice-info'>
       <div class='col-md-12 invoice-col' style='font-size: 20px;'>
@@ -355,10 +358,6 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
         </address>
       </div>
       <!-- /.col -->
-      <!-- /.col -->
-    <div class='col-md-12 invoice-col'>     
-      <img src='./uploads/$modeloImg' alt='Imagen/modelo' width='170' height='170'>
-    </div>
     </div>
     <!-- /.row -->
   <div class='row'>

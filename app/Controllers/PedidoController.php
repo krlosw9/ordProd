@@ -73,7 +73,7 @@ class PedidoController extends BaseController{
 	public function postAddPedidoAction($request){
 		$sumatoria=0;
 		$sumatoriaPedido=0;
-		$materiales = array();
+		$materiales = array(); $j=0;
 		$cantidades = array();
 		$ruta = 'listPedido.twig';
 		
@@ -223,7 +223,12 @@ class PedidoController extends BaseController{
 					->where("materialModelos.idModeloInfo","=",$postData['idModelo'.$iterador])
 					->get();
 
-					
+					$materiales += [
+					    'informes'.$j => $informes,
+					    'cantPares'.$j => $sumatoria
+					];
+
+					/*
 					$materiales += [
 					    $informes
 					];
@@ -231,7 +236,7 @@ class PedidoController extends BaseController{
 					$cantidades +=[
 						$sumatoria
 					];
-
+					*/
 					/*
 					$materiales += [
 					  $iterador => [
@@ -240,7 +245,7 @@ class PedidoController extends BaseController{
 					  ]
 					];*/
 
-
+					$j++;
 					$idTallas ++;
 					$sumatoriaPedido += $sumatoria;
 
@@ -251,12 +256,6 @@ class PedidoController extends BaseController{
 					$updPedido->cantRestante=$sumatoriaPedido;
 					$updPedido->save();
 
-					
-					
-					
-					//$Bar = new BarcodeGeneratorHTML();
-					//$code = $Bar->getBarcode("123456",$Bar::TYPE_CODE_128);
-					//echo $code;
 						
 					$ruta = 'pdfpedido.twig';
 					
