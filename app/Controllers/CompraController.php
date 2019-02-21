@@ -137,9 +137,17 @@ class CompraController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
+				  try{
 					$compra = new ComprasInfo();
 					$compra->destroy($id);
 					$responseMessage = "Se elimino la compra";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, este cliente esta siendo usada.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}

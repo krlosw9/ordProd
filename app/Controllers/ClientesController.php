@@ -80,9 +80,17 @@ class ClientesController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
+				  try{
 					$customer = new Clientes();
 					$customer->destroy($id);
 					$responseMessage = "Se elimino el registro del operario";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, este cliente esta siendo usado.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}

@@ -83,23 +83,16 @@
                 
                 <div class="col-xs-4">
                   <label>Material:</label>
-                  <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial1">
-                  {% for inventory in inventorys %}
-                    <option value="{{ inventory.id }}">{{ inventory.nombre }} (x) {{ inventory.unidadMedida }}</option>
-                  {% endfor %}
-                </select>
                 </div>
                 <div class="col-xs-4">
                   <label>Consumo/x/Par:</label>
-                  <input type="text" class="form-control" name="consumoPorPar1" required>
                 </div>
                 <div class="col-xs-4">
                   <label>Observacion:</label>
-                  <input type="text" name="observacion1" class="form-control" placeholder="Opcional">
                 </div>
               </div>
               <input type="hidden" name="cantPiezas" value="{{cantPiezas}}">
-            {% for i in 2..cantPiezas %}
+            {% for i in 1..cantPiezas %}
               <div class="row" style="padding-top: 10px;">
                 <div class="col-xs-4">
                   <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial{{i}}">

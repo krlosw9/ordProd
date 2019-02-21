@@ -29,6 +29,7 @@ class InventarioMaterialController extends BaseController{
 					$inventory = new InventarioMaterial();
 					$inventory->nombre = $postData['nombre'];
 					$inventory->unidadMedida = $postData['uMedida'];
+					$inventory->precio=$postData['precio'];
 					$inventory->observacion=$postData['observacion'];
 					$inventory->idUserRegister = $_SESSION['userId'];
 					$inventory->idUserUpdate = $_SESSION['userId'];
@@ -78,9 +79,17 @@ class InventarioMaterialController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
+				  try{
 					$inventory = new InventarioMaterial();
 					$inventory->destroy($id);
 					$responseMessage = "Se elimino el material";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, este material esta siendo usado.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}
@@ -122,6 +131,7 @@ class InventarioMaterialController extends BaseController{
 					$inventory = InventarioMaterial::find($postData['id']);
 					$inventory->nombre = $postData['nombre'];
 					$inventory->unidadMedida = $postData['unidadMedida'];
+					$inventory->precio = $postData['precio'];
 					$inventory->observacion = $postData['observacion'];
 					$inventory->idUserUpdate = $_SESSION['userId'];
 					$inventory->save();

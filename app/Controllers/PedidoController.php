@@ -107,16 +107,71 @@ class PedidoController extends BaseController{
 					$pedido->save();
 
 					$refPedido = $postData['referencia'];
-
+					$observacionGeneral = $postData['observacion'];
 
 					$querytallas = Tallas::all();
 					$tallasUltimo = $querytallas->last();
 					$tallasUltimoId = $tallasUltimo->id+1;
 					$idTallas = $tallasUltimoId;
-
+//todo lo que esta al lado izquierdo es de lo que depende el html y el html
+					echo "
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Consumo Pedido #$refPedido </title>
+  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
+</head>
+<body onload='window.print();'>
+<div class='wrapper' style='margin-left: 40px; margin-top: 5px; margin-right: 35px;'>
+  <section>
+<h1>
+    Consumo
+    <small>Pedido Ref# $refPedido</small>
+  </h1>
+  
+</section>
+<section class='content'>
+  <div class='row'>
+    <!-- left column -->
+    <div class='col-md-12'>
+     <div class='box' style='font-size: 25px;'>
+      <div class='box-header with-border'>
+        
+      </div>
+      <!-- /.box-header -->
+      <div class='box-body'>
+        <div class='row'>
+		  <div class='col-md-12' style='word-wrap: break-word;'>
+			<strong>Observacion general: </strong>$observacionGeneral
+		  </div>
+		</div>
+					";
 					
 					for ($iterador=0; $iterador < $postData['iterador']; $iterador++) { 
-					
+
+$refModelo = $postData['refModelo'.$iterador];
+$observacionModelo = $postData['observacion'.$iterador];			
+echo "
+<div class='row'>
+  <div class='col-md-10'>
+	<h3><strong>Modelo $refModelo</strong></h3>
+  </div>
+</div>
+<div class='row'>
+  <div class='col-md-12' style='word-wrap: break-word;'>
+	<strong>Observacion: </strong>$observacionModelo
+  </div>
+</div>
+<br>
+<table class='table table-bordered'>
+  <tr>
+    <th style='width: 10px'>Material</th>
+    <th style='width: 100px'>Medida</th>
+    <th style='width: 100px'>Consumo</th>
+    <th style='width: 100px'>Valor estimado</th>
+  </tr>
+";
+
 					if ($postData['tipoTallas'.$iterador]==1) {
 						$tallas = new Tallas();
 				  		$tallas->id = $idTallas;  
@@ -223,33 +278,27 @@ class PedidoController extends BaseController{
 					->where("materialModelos.idModeloInfo","=",$postData['idModelo'.$iterador])
 					->get();
 
-					$materiales += [
-					    'informes'.$j => $informes,
-					    'cantPares'.$j => $sumatoria
-					];
+$totalValorEstimado=0;
+foreach ($informes as $material ) {
+	$consumoPorMaterial = $material->consumoPorPar *$sumatoria;
+	$valorPorMaterial = $consumoPorMaterial*$material->precio;
+	$totalValorEstimado += $valorPorMaterial;
+	echo "
+<tr>
+  <td> $material->nombre </td>
+  <td> $material->unidadMedida </td>
+  <td> $consumoPorMaterial </td>
+  <td> $valorPorMaterial </td>
+</tr>
+	";
+}
+echo "</table>
+<div>Total estimado: $ $totalValorEstimado</div><br>";
 
-					/*
-					$materiales += [
-					    $informes
-					];
-
-					$cantidades +=[
-						$sumatoria
-					];
-					*/
-					/*
-					$materiales += [
-					  $iterador => [
-							    'informes' => $informes,
-							    'cantPares' => $sumatoria
-					  ]
-					];*/
-
-					$j++;
 					$idTallas ++;
 					$sumatoriaPedido += $sumatoria;
 
-					}
+					}//fin for()
 					
 					$updPedido = Pedido::find($idPedido);
 					$updPedido->cantidad=$sumatoriaPedido;
@@ -259,7 +308,18 @@ class PedidoController extends BaseController{
 						
 					$ruta = 'pdfpedido.twig';
 					
+echo "</div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+</div>
+<!-- ./wrapper -->
+</section>
+</div>
+</body>
 
+</body>
+</html>";
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
@@ -286,6 +346,43 @@ class PedidoController extends BaseController{
 				'cantPares' => $sumatoria
 			]);
 		
+	}
+
+	public function getPdf(){
+		$materiales=array();
+		$sumatoria = 10;
+
+		for ($iterador=4; $iterador <= 6 ; $iterador++) { 
+			$query = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
+			->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'inventarioMaterial.precio')
+			->where("materialModelos.idModeloInfo","=",$iterador)
+			->get();
+			
+			foreach ($query as $value) {
+				$informe[$value->id]['nameMaterial'] = $value->nombre;
+				$informe[$value->id]['idModeloInfo'] = $value->idModeloInfo;
+				$informe[$value->id]['cantidad']= $sumatoria;
+				//$informe[$value->id]['consumo'] = $value->consumoPorPar;
+				
+			}
+
+			/*$informe = [
+				'idModelo' => $iterador,
+				'mate' => 'material'.$iterador,
+				'consumoPorPar' => 'consumo'.$iterador,
+				'unidadMedida' => 'unidadMedida'.$iterador
+			];*/
+
+			$sumatoria++;
+			/*$materiales[$iterador]['varios'] = $informe;
+			$materiales[$iterador]['cantPares'] = $sumatoria;*/
+		}
+
+
+
+		return $this->renderHTML('pdfpedido.twig', [
+			'materiales'=> $informe
+		]);
 	}
 
 
@@ -318,9 +415,17 @@ class PedidoController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
+				  try{
 					$shape = new Pedido();
 					$shape->destroy($id);
 					$responseMessage = "Se elimino el pedido";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, este pedido esta siendo usado.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}

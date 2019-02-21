@@ -90,9 +90,17 @@ class HormasController extends BaseController{
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
+				  try{
 					$shape = new Hormas();
 					$shape->destroy($id);
 					$responseMessage = "Se elimino la horma";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, esta horma esta siendo usada.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}

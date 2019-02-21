@@ -406,9 +406,11 @@ $map->post('postPedidoUpdate', '/curso/pedidoupdate', [
         'action' => 'postUpdatePedido',
         'auth' => true
 ]);
-
-
-
+$map->get('getPdfPedido', '/curso/pedidopdf', [
+        'controller' => 'App\Controllers\PedidoController',
+        'action' => 'getPdf',
+        'auth' => true
+]);
 
 //Rutas OrdenProduccion
 $map->get('getAddOrden', '/curso/orderadd', [
@@ -436,6 +438,18 @@ $map->get('getCode', '/curso/code', [
         'action' => 'getCode',
         'auth' => true
 ]);
+$map->post('postDelOrden', '/curso/orderdel', [
+        'controller' => 'App\Controllers\UpdateOrdenProduccionController',
+        'action' => 'postUpdDelOrden',
+        'auth' => true
+]);
+$map->post('postOrdenUpdate', '/curso/orderupdate', [
+        'controller' => 'App\Controllers\UpdateOrdenProduccionController',
+        'action' => 'postUpdateOrden',
+        'auth' => true
+]);
+
+
 
 //Rutas TareaOperario
 $map->get('getListTareaOperario', '/curso/tarealist', [
@@ -458,6 +472,35 @@ $map->post('postTareaOperarioUpdate', '/curso/tareaupdate', [
         'action' => 'getUpdateTareaOperario',
         'auth' => true
 ]);
+
+//Rutas Nomina
+$map->get('getAddNomina', '/curso/rosteradd', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'getAddNominaAction',
+        'auth' => true
+]);
+$map->post('postAddNomina', '/curso/rosteradd', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'postAddNominaAction',
+        'auth' => true
+]);
+$map->get('getListNomina', '/curso/rosterlist', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'getListNomina',
+        'auth' => true
+]);
+$map->post('postListAddNomina', '/curso/rosterlistadd', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'postListAddNominaAction',
+        'auth' => true
+]);
+$map->post('postQueryNomina', '/curso/rosterquery', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'postQueryNominaAction',
+        'auth' => true
+]);
+
+
 
 
 

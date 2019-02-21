@@ -88,10 +88,11 @@
                     <label>Modelo:</label>
                     <input type="text" name="modelo" value="{{ model.referenciaMod }}" class="form-control" disabled>
                     <input type="hidden" name="idModelo{{iterador}}" value="{{model.idModelo}}" class="form-control">
+                    <input type="hidden" name="refModelo{{iterador}}" value="{{ model.referenciaMod }}" class="form-control">
                 </div>
                 <div class="form-group col-xs-7">
                   <label>Observacion:</label>
-                  <input type="text" class="form-control" name="observacion{{iterador}}" maxlength="130" placeholder="maxima longitud de 130 caracteres">
+                  <input type="text" class="form-control" name="observacion{{iterador}}" maxlength="250" placeholder="Indica el material, los colores, cuantos pisos tiene y si tiene boton, Max 250">
                 </div>
                 </div>
 

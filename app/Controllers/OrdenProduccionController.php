@@ -265,6 +265,7 @@ class OrdenProduccionController extends BaseController{
 		if ($registroExitoso==true) {
 			$idModelo=null;
 			$Bar = new BarcodeGeneratorHTML();
+			$code2 = $Bar->getBarcode(99,$Bar::TYPE_CODE_128);
 		
 			$modelo = ModelosInfo::where("referenciaMod","=",$modeloRef)->select('id')->get();
 
@@ -292,7 +293,7 @@ echo
   <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
 </head>
 <body onload='window.print();'>
-<div class='col-md-6' style='margin-left: 40px; margin-top: 5px; margin-right: 20px;'>
+<div class='col-md-6' style='margin-left: 35px; margin-top: 5px; margin-right: 20px;'>
   <!-- Main content -->
   <section class='invoice'>
     <!-- title row -->
@@ -309,19 +310,26 @@ echo
     <!-- info row -->
     <div class='row invoice-info'>
       <div class='col-md-12 invoice-col' style='font-size: 20px;'>
-        
+        <strong>Cliente:</strong> $cliente<br>
+      </div>
+      <div class='col-md-5 invoice-col' style='font-size: 18px;'>
         <address>
-          <strong>Cliente:</strong> $cliente<br>
           <strong>Registro:</strong> $fechaRegistro<br>
           <strong>Entrega:</strong> $fechaEntrega<br>
           <strong>Modelo:</strong> $modeloRef<br>
         </address>
       </div>
+
+      <div class='col-md-6 invoice-col'>     
+	    <img src='./uploads/$modeloImg' alt='Imagen/modelo' width='220' height='220'>
+	  </div>
+	  <div class='col-md-5 invoice-col' style='font-size: 30px;'>
+        <strong>Tallas:</strong>
+      </div>
       <!-- /.col -->
-      <div class='col-md-12 invoice-col' style='font-size: 25px;'>
-        
+      <div class='col-md-12 invoice-col' style='font-size: 30px;'>
         <address>
-          <strong>Tallas</strong><br>
+          <!--<strong>Tallas</strong><br>-->
           <table border='1'>
   <thead>
     <tr>";
@@ -356,45 +364,61 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
       </div>
       <!-- /.col -->
       <!-- /.col -->
-    <div class='col-md-12 invoice-col'>     
-      <img src='./uploads/$modeloImg' alt='Imagen/modelo' width='170' height='170'>
-    </div>
     </div>
     <!-- /.row -->
   <div class='row'>
-    <div class='col-md-12'>
+    <div class='col-md-6'>
       <label><strong>Observaciones:</strong></label>
     </div>
   </div>
   <div class='row'>
-    <div class='col-md-12' style='border: 1px black solid; word-wrap: break-word;'>$observacion1</div>
+    <div class='col-md-11' style='border: 1px black solid; word-wrap: break-word; height: 120px;'>$observacion1
+    </div>
   </div>
-<div class='row' style='padding-top: 10px;'>
-  <h3>Tickets</h3>
+<div class='col-md-5 invoice-col' style='font-size: 30px;'>
+  <strong>Tickets:</strong>
 </div>
-
 	<!-- Inicio de los Tickets -->
-    <div class='row'>"; 
+    <div class='row'>
+    <div class='col-md-12'>
+  ---------------------------------------------------------------------------------
+  </div>
+  <div class='col-md-12' style='font-size: 22px; height: 100px; padding-top: 10px; padding-left: 7px; padding-right: 10px;'>
+    <div class='row'>
+      <div class='col-md-4'>
+        <strong>Orden:</strong> 0<br>
+        <strong>Mod:</strong> 0
+      </div>
+      <div class='col-md-4' style='padding-top: 20px;'>
+        $code2
+      </div>
+      <div class='col-md-4' style='font-size: 20px;'>
+        <strong>VACIO</strong><br>
+        <p style='font-size: 16px;'>0 x 0 = $ 0 </p>
+      </div>
+    </div>
+  </div>
+    "; 
 
 foreach ($tareas as $tarea => $value) {
 	$code = $Bar->getBarcode($value->id,$Bar::TYPE_CODE_128);
 	$sumaTarea = $value->valorTarea * $sumatoria;
 	echo "
   <div class='col-md-12'>
-  -------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------
   </div>
-  <div class='col-md-12' style='font-size: 20px;'>
+  <div class='col-md-12' style='font-size: 22px; height: 100px; padding-top: 10px; padding-left: 7px; padding-right: 10px;'>
     <div class='row'>
       <div class='col-md-4'>
         <strong>Orden:</strong>$referenciaOrd<br>
         <strong>Mod:</strong>$modeloRef
       </div>
-      <div class='col-md-4'>
+      <div class='col-md-4' style='padding-top: 20px;'>
         $code
       </div>
       <div class='col-md-4' style='font-size: 20px;'>
         <strong>$value->nombre</strong><br>
-        <p style='font-size: 14px;'>$sumatoria x $value->valorTarea = $ $sumaTarea </p>
+        <p style='font-size: 16px;'>$sumatoria x $value->valorTarea = $ $sumaTarea </p>
       </div>
     </div>
   </div>"; 

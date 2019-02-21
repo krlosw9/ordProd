@@ -41,16 +41,17 @@
                 <option value="Unidad"{% if inventorys.unidadMedida == "Unidad" %}selected="selected"{% endif %}>Unidad</option>
                 <option value="Litro"{% if inventorys.unidadMedida == "Litro" %}selected="selected"{% endif %}>Litro</option>
                 <option value="Galon"{% if inventorys.unidadMedida == "Galon" %}selected="selected"{% endif %}>Galon</option>
+                <option value="Pesos ($)"{% if inventorys.unidadMedida == "Pesos ($)" %}selected="selected"{% endif %}>Pesos ($)</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Existencia:</label>
-              <input type="text" name="existencia" value="{{ inventorys.existencia }}" class="form-control">
+              <label>Precio:</label>
+              <input type="number" name="precio" value="{{ inventorys.precio }}" class="form-control">
             </div>
             <div class="form-group">
               <label>Observacion:</label>
               <input type="text" name="observacion" value="{{ inventorys.observacion }}" class="form-control" placeholder="Opcional">
-          </div>
+            </div>
           </div>
           <!-- /.box-body -->
           <div class="box-footer">

@@ -53,7 +53,11 @@
                   <select class="form-control select-picker" name="idOperario{{i}}" required>
                     <option value="">Seleccione el operario</option>
                     {% for people in peoples %}
-                      <option value="{{ people.id }}">{{ people.nombre }} {{ people.apellido }}</option>
+                      {% if tarea.idOperario == people.id %} 
+                        <option value="{{ people.id }}" selected="selected">{{ people.nombre }} {{ people.apellido }}</option>
+                      {% else %}
+                        <option value="{{ people.id }}">{{ people.nombre }} {{ people.apellido }}</option>
+                      {% endif %}
                     {% endfor %}
                   </select>
                 </div>

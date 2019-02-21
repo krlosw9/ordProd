@@ -67,13 +67,21 @@ class CiudadController extends BaseController{
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			
+
 			$id = $postData['id'] ?? false;
 			if ($id) {
 				if($postData['boton']=='del'){
-					$city = new Ciudad();
-					$city->destroy($id);
-					$responseMessage = "Se elimino la ciudad";
+				  try{
+					  $city = new Ciudad();
+					  $city->destroy($id);
+					  $responseMessage = "Se elimino la ciudad";	
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, esta ciudad esta siendo usada.';
+					}
+				  }
 				}elseif ($postData['boton']=='upd') {
 					$quiereActualizar=true;
 				}

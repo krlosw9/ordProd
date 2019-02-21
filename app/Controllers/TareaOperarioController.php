@@ -17,7 +17,7 @@ class TareaOperarioController extends BaseController{
 
 	
 	public function postUpdDelTareaOperario($request){
-		$responseMessage = null; $refOrden=null;
+		$responseMessage = null; $refOrden=null; $idOrden=0;
 		$ruta = 'listTareaOperario.twig';
 
 		if($request->getMethod()=='POST'){

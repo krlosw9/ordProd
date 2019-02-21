@@ -29,6 +29,7 @@
             <th style="width: 10px">#</th>
             <th style="width: 100px">Nombre</th>
             <th style="width: 100px">Unidad/Medida</th>
+            <th style="width: 70px">Precio</th>
             <th style="width: 150px">Observacion</th>
           </tr>
           {% for inventory in inventorys %}
@@ -38,6 +39,7 @@
               </td>
               <td>{{ inventory.nombre }}</td>
               <td>{{ inventory.unidadMedida }}</td>
+              <td>${{ inventory.precio }}</td>
               <td>{{ inventory.observacion }}</td>
           </tr>
           {% endfor %}
