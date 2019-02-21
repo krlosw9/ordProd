@@ -500,7 +500,17 @@ $map->post('postQueryNomina', '/curso/rosterquery', [
         'auth' => true
 ]);
 
-
+//Rutas Reportes
+$map->get('getlistReportNominaIndividual', '/curso/reportrosterind', [
+        'controller' => 'App\Controllers\ReportesController',
+        'action' => 'getListNominaIndividual',
+        'auth' => true
+]);
+$map->post('postQueryReportNominaIndividual', '/curso/queryrosterind', [
+        'controller' => 'App\Controllers\ReportesController',
+        'action' => 'postQueryNominaIndividualAction',
+        'auth' => true
+]);
 
 
 

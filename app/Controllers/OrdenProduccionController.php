@@ -227,6 +227,7 @@ class OrdenProduccionController extends BaseController{
 						$tarea->idInfoOrdenProduccion=$ordenUltimoId;
 						$tarea->valorTarea=$postData['valorActividad'.$i];
 						$tarea->cantidadPares= $sumatoria;
+						$tarea->pagaCheck= 0;
 						$tarea->idUserRegister = $_SESSION['userId'];
 						$tarea->idUserUpdate = $_SESSION['userId'];
 						$tarea->save();

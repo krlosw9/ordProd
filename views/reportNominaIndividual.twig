@@ -1,0 +1,59 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+
+  <h1>
+    Nomina
+    <small>Por operario</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./reportrosterind">Nomina</a></li>
+    <li class="active">Por operario</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-9">
+      <!-- general form elements -->
+      <div class="box box-primary" >
+        <div class="row">
+          <div class='col-md-10'>
+            <div class='col-md-10'>
+              <h3><strong>{{ people.nombre }} {{ people.apellido }}</strong></h3>
+            </div>
+            <table class='table table-bordered' style='margin-left: 20px; margin-top: 5px; margin-right: 35px;'>
+              <tr>
+                <th style='width: 100px'>Actividad</th>
+                <th style='width: 100px'>Ref Orden</th>
+                <th style='width: 100px'>Valor Tarea</th>
+                <th style='width: 100px'>Cantidad de pares</th>
+                <th style='width: 100px'>Total Tarea</th>
+              </tr>
+              {% set totalNomina = 0 %}
+              {% for tarea in tareasNoPagas %}
+                <tr>
+                  <td> {{ tarea.nombre }} </td>
+                  <td> {{ tarea.referenciaOrd }} </td>
+                  <td> {{ tarea.valorTarea }} </td>
+                  <td> {{ tarea.cantidadPares }} </td>
+                  {% set totalTarea = tarea.valorTarea * tarea.cantidadPares %}
+                  <td> {{ totalTarea }} </td>
+                </tr>
+                {% set totalNomina = totalNomina+totalTarea %}
+              {% endfor %}
+            </table>
+              <div class='col-md-10'>
+                <strong>Nomina: ${{ totalNomina }}</strong>
+              </div>
+              <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+              {{ responseMessage }}
+            </div>
+         </div>
+       </div>
+      </div>
+
+
+{% endblock %}
