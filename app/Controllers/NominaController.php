@@ -36,65 +36,68 @@ class NominaController extends BaseController{
 
 
 	public function postQueryNominaAction($request){
-		$totalNomina = 0; $cantAprovados =1;
-		$referenciasAprovadas = '';
+		$responseMessage = null;
 		$postData = $request->getParsedBody();
-		$cantTickets = $postData['cantTickets'];
-		$idPersona = $postData['idPersona'];
-		$nombrePersona = $postData['nombre'];
-		$yaPagos=array(); $itera=0;
-		$idAprovados=array();
-		$sumado=[
-			0 => [
-				'id' => 0
-			]
-		];
 
-		$tareas = TareaOperario::Join("infoOrdenProduccion","tareaOperario.idInfoOrdenProduccion","=","infoOrdenProduccion.id")
-			->select('tareaOperario.*', 'infoOrdenProduccion.referenciaOrd')
-			->latest('id')->get();
-		for ($i=1; $i <= $cantTickets; $i++) { 
-			foreach ($tareas as $key => $value) {
-				if ($value->idOperario == $idPersona) {
-					if ($value->pagaCheck == 1) {
-						//Ingresan solo los que ya estan pagos
-						if ($postData['code'.$i] == $value->id) {
-							$yaPagos[$itera]['referenciaOrd'] = $value->referenciaOrd;
-							$itera++;
-						}
-					}else{
-						if ($postData['code'.$i] == $value->id) {
-						//ingresa el codigo igual a el de idTareaOperarioDB
-							foreach ($sumado as $valoresSumados) {
-								if ($postData['code'.$i] != $valoresSumados['id'] and $valoresSumados['id'] != 1) {
-									$totalNomina += $value->valorTarea * $value->cantidadPares;
-									$referenciasAprovadas .= $value->referenciaOrd.', ';
-									$idAprovados[$cantAprovados]['idTareaOperario'] = $value->id;
-									$sumado=[
-										0 => [
-											'id' => 1
-										]
-									];
-									$sumado[$i]['id'] = $value->id;
-									$cantAprovados++;
-								}
-							}
-						}
+
+		try{
+			$cantTickets = $postData['cantTickets'];
+			$idPersona = $postData['idPersona'];
+			$nombrePersona = $postData['nombre'];
+			$iterador=0; $totalTarea=0; $totalNomina = 0; $cantNoAprovados=0;
+			$referenciasAprovadas='';
+			$aprobados=array();
+			
+
+			$tareasNoPagas = TareaOperario::Join("infoOrdenProduccion","tareaOperario.idInfoOrdenProduccion","=","infoOrdenProduccion.id")
+			->Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
+			->select('tareaOperario.*', 'infoOrdenProduccion.referenciaOrd' , 'actividadTarea.nombre')
+			->where("pagaCheck","=",0)
+			//->where("idOperario","=",$idPersona)
+			->orderBy('id')->get();
+			
+			//$codeFiltrado elimina los codigos repetidos
+			$codeBruto = $postData['code'];
+			$codeFiltrado = array_unique($codeBruto);
+			
+			foreach ($codeFiltrado as $code) {
+				foreach ($tareasNoPagas as $tarea) {
+					if ($code == $tarea->id) {
+						$aprobados[$iterador]['idTarea'] = $tarea->id;
+						$aprobados[$iterador]['actividad'] = $tarea->nombre;
+						$aprobados[$iterador]['refOrden'] = $tarea->referenciaOrd;
+						$aprobados[$iterador]['valorPar'] = $tarea->valorTarea;
+						$aprobados[$iterador]['cantidadPares'] = $tarea->cantidadPares;
+						$totalTarea = $tarea->valorTarea * $tarea->cantidadPares;
+						$totalNomina += $totalTarea;
+						$referenciasAprovadas .= $tarea->referenciaOrd.', ';
+						$iterador++;
 					}
-				}//else { Este ticket no le pertenece }
+				}
+			}
+
+			if ($cantTickets != $iterador ) {
+				$cantNoAprovados = $cantTickets - $iterador;
+			}
+
+		}catch(\Exception $e){
+			$prevMessage = substr($e->getMessage(), 0, 15);
+			if ($prevMessage =="These rules mus") {
+				$responseMessage = 'Error, por favor contacta al administrador del software, este error es inusual, 3172891700';
+			}else{
+				$responseMessage = substr($e->getMessage(), 0, 50);
 			}
 		}
 
-		//Cuando termina el ciclo $cantAprovados termina con 1 mas entonces hay que restarle ese 1 mas
-		$cantAprovados = $cantAprovados - 1;
-
 		return $this->renderHTML('checkAddNomina.twig', [
 			'totalNomina' => $totalNomina,
-			'referenciasAprovadas' => $referenciasAprovadas,
+			'aprobados' => $aprobados,
 			'nombrePersona' => $nombrePersona,
 			'idPersona' => $idPersona,
-			'cantAprovados' => $cantAprovados,
-			'idAprovados' => $idAprovados
+			'referenciasAprovadas' => $referenciasAprovadas,
+			'cantNoAprovados' => $cantNoAprovados,
+			'cantAprovados' => $iterador,
+			'responseMessage' => $responseMessage
 		]);
 	}
 
@@ -127,40 +130,38 @@ class NominaController extends BaseController{
 
 				try{
 					$postData = $request->getParsedBody();
-					$iterador = $postData['iterador'] - 1;
 					$cantAprovados = $postData['cantAprovados'];
 					
-					if($iterador == $cantAprovados){
-						
-						if ($cantAprovados > 0) {
-							for ($i=1; $i <=$iterador ; $i++) { 
-								$tareaOperario = TareaOperario::find($postData['idTareaOperario'.$i]);
-								$tareaOperario->pagaCheck = 1;
-								$tareaOperario->idUserUpdate = $_SESSION['userId'];
-								$tareaOperario->save();
-								//echo " | idTarea:: ".$postData['idTareaOperario'.$i];
-							}
-							
-							$nomina = new Nomina();
-							$nomina->idPersona = $postData['idPersona'];
-							$nomina->referencias = $postData['referencias'];
-							$nomina->valor = $postData['totalNomina'];
-							$nomina->observacion = $postData['observacion'];
-							$nomina->idUserRegister = $_SESSION['userId'];
-							$nomina->idUserUpdate = $_SESSION['userId'];
-							$nomina->save();
-							
-							$responseMessage = 'Registrado';
-						}else{
-							$responseMessage = 'No tiene tickets aprovados por registrar';
+					if ($cantAprovados > 0) {
+
+						$idTareaOperario = $postData['idTareaOperario'];
+						foreach ($idTareaOperario as $idTarea ) {
+							$tareaOperario = TareaOperario::find($idTarea);
+							$tareaOperario->pagaCheck = 1;
+							$tareaOperario->idUserUpdate = $_SESSION['userId'];
+							$tareaOperario->save();
 						}
+
+						$nomina = new Nomina();
+						$nomina->idPersona = $postData['idPersona'];
+						$nomina->referencias = $postData['referencias'];
+						$nomina->valor = $postData['totalNomina'];
+						$nomina->observacion = $postData['observacion'];
+						$nomina->idUserRegister = $_SESSION['userId'];
+						$nomina->idUserUpdate = $_SESSION['userId'];
+						$nomina->save();
+						
+						$responseMessage = 'Registrado';
 					}else{
-						$responseMessage = 'Error, hay un problema al contar los tickets, contacta al administrador de software.!!';	
+						$responseMessage = 'No tiene tickets aprovados por registrar';
 					}
+					
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					if ($prevMessage =="These rules mus") {
-						$responseMessage = 'Error, por favor contacta al administrador del software, este error es inusual.';
+						$responseMessage = 'Error, por favor contacta al administrador del software, este error es inusual, 3172891700.';
+					}else{
+						$responseMessage = substr($e->getMessage(), 0, 50);
 					}
 				}
 			}

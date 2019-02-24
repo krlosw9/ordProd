@@ -7,7 +7,21 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ReportesController extends BaseController{
-	
+	//Lista todas la Hormas Ordenando por posicion
+	public function getListNominaIndividual(){
+		$responseMessage = null;
+		
+		$peoples = Personas::where("activoCheck","=",1)->orderBy('nombre')->get();
+
+		return $this->renderHTML('listReportNominaIndividual.twig', [
+			'peoples' => $peoples
+		]);
+		
+
+		//return $this->renderHTML('listHormas.twig');
+	}
+
+
 	//Consulta de nomina individual
 	public function postQueryNominaIndividualAction($request){
 		$responseMessage = null;
@@ -42,18 +56,30 @@ class ReportesController extends BaseController{
 		]);
 	}
 
-	//Lista todas la Hormas Ordenando por posicion
-	public function getListNominaIndividual(){
+	
+	//Consulta de nomina individual
+	public function getListNominaTotal(){
 		$responseMessage = null;
-		
-		$peoples = Personas::where("activoCheck","=",1)->orderBy('nombre')->get();
+		if($_SESSION['userId']){
+			try{
+				
+				 
+				$tareas = TareaOperario::Join("infoOrdenProduccion","tareaOperario.idInfoOrdenProduccion","=","infoOrdenProduccion.id")
+					->Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
+					->select('tareaOperario.*', 'infoOrdenProduccion.referenciaOrd' , 'actividadTarea.nombre')
+					->where("pagaCheck","=",0)
+					->latest('id')->get();
 
-		return $this->renderHTML('listReportNominaIndividual.twig', [
-			'peoples' => $peoples
+			}catch(\Exception $e){
+				//$responseMessage = substr($e->getMessage(), 0, 35);
+				$responseMessage = $e->getMessage();
+			}
+		}
+			
+		return $this->renderHTML('reportNominaTotal.twig',[
+				'responseMessage' => $responseMessage,
+				'tareas' => $tareas
 		]);
-		
-
-		//return $this->renderHTML('listHormas.twig');
 	}
 
 	
