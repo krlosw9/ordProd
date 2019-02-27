@@ -178,7 +178,7 @@ class ModeloController extends BaseController{
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function getUpdateModelo($request){
-		$imgName = null;
+		$imgName = null; $cambioImagen = false;
 		$responseMessage = null;
 				
 		if($request->getMethod()=='POST'){
@@ -199,6 +199,7 @@ class ModeloController extends BaseController{
 						$fileName = $fileImg->getClientFilename();
 						$imgName = $postData['referenciaMod'].$fileName;
 						$fileImg->moveTo("uploads/$imgName");
+						$cambioImagen = true;
 					}
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
@@ -211,7 +212,10 @@ class ModeloController extends BaseController{
 					$modelo->linea = $postData['linea'];
 					if ($imgName) {
 						$modelo->imagenUrl = $imgName;
+					}elseif ($cambioImagen == false) {
+						$modelo->imagenUrl = $postData['imagenUrl'];
 					}
+
 					$modelo->idUserUpdate = $_SESSION['userId'];
 					$modelo->save();
 

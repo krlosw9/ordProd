@@ -57,7 +57,7 @@
           <select class="form-control select-picker" name="?" required>
             <option value="">Seleccione el pedido de la orden a registrar</option>
             {% for pedido in pedidos %}
-              <option value="{{ pedido.id }}">{{ pedido.referencia }}</option>
+              <option value="{{ pedido.id }}">{{ pedido.referencia }} * {{ pedido.nombre }} {{ pedido.apellido }}</option>
             {% endfor %}
           </select>
         </div>

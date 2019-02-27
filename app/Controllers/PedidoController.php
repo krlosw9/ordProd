@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos, PedidoModelo};
+use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos, PedidoModelo, ActividadTarea};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -71,8 +71,9 @@ class PedidoController extends BaseController{
 
 	//Registra la Persona
 	public function postAddPedidoAction($request){
-		$sumatoria=0;
-		$sumatoriaPedido=0;
+		$sumatoria=0; $sumaActividades=0; $valorTroquelada=0;
+		$sumatoriaPedido=0; $nominaModelo=0; $nominaActividad=0;
+		$refPedido ='';
 		$materiales = array(); $j=0;
 		$cantidades = array();
 		$ruta = 'listPedido.twig';
@@ -113,6 +114,15 @@ class PedidoController extends BaseController{
 					$tallasUltimo = $querytallas->last();
 					$tallasUltimoId = $tallasUltimo->id+1;
 					$idTallas = $tallasUltimoId;
+
+					$queryActividades = ActividadTarea::all();
+					foreach ($queryActividades as $actividad) {
+						$sumaActividades += $actividad->valorPorPar;
+						if ($actividad->id == 7) {
+							$valorTroquelada = $actividad->valorPorPar;
+						}
+					}
+
 //todo lo que esta al lado izquierdo es de lo que depende el html y el html
 					echo "
 <!DOCTYPE html>
@@ -126,7 +136,7 @@ class PedidoController extends BaseController{
   <section>
 <h1>
     Consumo
-    <small>Pedido Ref# $refPedido</small>
+    <small>Pedido #: $refPedido</small>
   </h1>
   
 </section>
@@ -261,12 +271,15 @@ echo "
 						$responseMessage2=' Tallas NO registradas';
 					}
 					
+					$precioVenta = $postData['precioVenta'.$iterador];
+
 					$pedidoModelo = new PedidoModelo();
 					$pedidoModelo->idPedido = $idPedido;
 					$pedidoModelo->idModelo=$postData['idModelo'.$iterador];
 					$pedidoModelo->idTallas = $idTallas;
 					$pedidoModelo->cantidadPedMod=$sumatoria;
 					$pedidoModelo->cantRestPedMod=$sumatoria;
+					$pedidoModelo->precioVenta = $precioVenta;
 					$pedidoModelo->observacion = $postData['observacion'.$iterador];
 					$pedidoModelo->idUserRegister = $_SESSION['userId'];
 					$pedidoModelo->idUserUpdate = $_SESSION['userId'];
@@ -278,11 +291,12 @@ echo "
 					->where("materialModelos.idModeloInfo","=",$postData['idModelo'.$iterador])
 					->get();
 
-$totalValorEstimado=0;
+$totalValorEstimadoMaterial=0;
 foreach ($informes as $material ) {
 	$consumoPorMaterial = $material->consumoPorPar *$sumatoria;
 	$valorPorMaterial = $consumoPorMaterial*$material->precio;
-	$totalValorEstimado += $valorPorMaterial;
+	$totalValorEstimadoMaterial += $valorPorMaterial;
+	
 	echo "
 <tr>
   <td> $material->nombre </td>
@@ -292,8 +306,52 @@ foreach ($informes as $material ) {
 </tr>
 	";
 }
+
+$nominaModelo = $sumatoria*$sumaActividades;
+$totalValorEstimado = $totalValorEstimadoMaterial + $nominaModelo;
+$totalPrecioVenta = $sumatoria * $precioVenta;
+$ganancias = $totalPrecioVenta - $totalValorEstimado;
+
 echo "</table>
-<div>Total estimado: $ $totalValorEstimado</div><br>";
+<div class='row'>
+	  <div class='col-md-6'>
+		<table class='table table-bordered'>
+";
+
+foreach ($queryActividades as $actividad) {
+	$nameActividad = $actividad->nombre;
+	$nominaActividad = $actividad->valorPorPar * $sumatoria;
+
+	echo "
+	<tr>
+		<th>$nameActividad:</th> 
+		<td>$ $nominaActividad </td>
+	</tr>
+	  ";
+}
+echo "
+		</table>
+	</div>
+
+  <div class='col-md-12'>
+	<table class='table table-bordered'>
+	  <tr>
+	    <th style='width: 70px'>Nomina</th>
+	    <th style='width: 100px'>Total costo</th>
+	    <th style='width: 100px'>Precio Venta</th>
+	    <th style='width: 100px'>Ganancia estimada</th>
+	  </tr>
+	  <tr>
+		<td> $ $nominaModelo </td>
+		<td> $ $totalValorEstimado </td>
+		<td> $ $totalPrecioVenta </td>
+		<td> $ $ganancias </td>
+	  </tr>
+	</table>
+  </div>
+</div>
+<br>
+";
 
 					$idTallas ++;
 					$sumatoriaPedido += $sumatoria;
@@ -323,10 +381,10 @@ echo "</div>
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
-					$prevMessage = substr($e->getMessage(), 0, 15);
+					$prevMessage = substr($e->getMessage(), 0, 47);
 					
-					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation") {
+						$responseMessage = 'Error, el numero del pedido ya existe.';
 					}else{
 						$responseMessage = substr($e->getMessage(), 0, 50);
 					}

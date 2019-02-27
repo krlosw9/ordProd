@@ -255,7 +255,7 @@ class OrdenProduccionController extends BaseController{
 					if ($prevMessage =="All of the requ") {
 						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
 					}if ($prevMessage =="SQLSTATE[23000]") {
-						$responseMessage = 'Error, esa referencia ya existe.';
+						$responseMessage = 'Error, el numero de la orden ya existe.';
 					}else{
 						//$responseMessage = $e->getMessage();
 						$responseMessage = 'Error, '.substr($e->getMessage(), 0, 50);
@@ -452,8 +452,10 @@ foreach ($tareas as $tarea => $value) {
 	//Lista todas los modelos Ordenando por posicion
 	public function getListOrden(){
 		$responseMessage = null;
-		
-		$pedido = Pedido::latest('id')->get();
+		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
+		->select('pedido.*', 'clientesProvedores.nombre', 'clientesProvedores.apellido')
+		->latest('id')
+		->get();
 
 		$orden = InfoOrdenProduccion::Join("pedido","infoOrdenProduccion.idPedido","=","pedido.id")
 		->select('infoOrdenProduccion.*', 'pedido.referencia')

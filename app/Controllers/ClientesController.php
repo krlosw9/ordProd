@@ -95,7 +95,7 @@ class ClientesController extends BaseController{
 					$quiereActualizar=true;
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar un operario';
+				$responseMessage = 'Debe Seleccionar un cliente';
 			}
 		}
 		
