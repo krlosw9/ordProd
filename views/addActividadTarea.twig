@@ -26,15 +26,15 @@
           <div class="box-body">
             <div class="form-group">
               <label>Nombre:</label>
-              <input type="text" name="nombre" class="form-control" placeholder="Actividad que desempeña el operario" required>
+              <input type="text" name="nombre" class="form-control" placeholder="Actividad que desempeña el operario" maxlength="30" required>
           </div>
             <div class="form-group">
               <label>Valor por par:</label>
-              <input type="number" name="valorPorPar" class="form-control" placeholder="El valor debe ser superior a $1" required>
+              <input type="number" name="valorPorPar" class="form-control" placeholder="El valor debe ser superior a $1" min="1" max="100000" required>
           </div>
           <div class="form-group">
               <label>Posicion:</label>
-              <input type="number" name="posicion" class="form-control" placeholder="Posicion entre 1 al 20" required>
+              <input type="number" name="posicion" class="form-control" placeholder="Posicion entre 1 al 20" min="1" max="20" required>
           </div>
             <div class="form-group">
               <label>Observacion:</label>

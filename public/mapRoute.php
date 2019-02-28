@@ -142,6 +142,38 @@ $map->post('postCiudadUpdate', '/curso/cityupdate', [
         'auth' => true
 ]);
 
+//Rutas Linea
+$map->get('getAddLinea', '/curso/lineadd', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'getAddLineaAction',
+        'auth' => true
+]);
+$map->post('postAddLinea', '/curso/lineadd', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'postAddLineaAction',
+        'auth' => true
+]);
+$map->get('getListLinea', '/curso/linelist', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'getListLinea',
+        'auth' => true
+]);
+$map->post('postDelLinea', '/curso/linedel', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'postUpdDelLinea',
+        'auth' => true
+]);
+$map->get('getLineaUpdate', '/curso/lineupdate', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'getUpdateLinea',
+        'auth' => true
+]);
+$map->post('postLineaUpdate', '/curso/lineupdate', [
+        'controller' => 'App\Controllers\LineaController',
+        'action' => 'getUpdateLinea',
+        'auth' => true
+]);
+
 //Rutas Clientes
 $map->get('getAddClientes', '/curso/customeradd', [
         'controller' => 'App\Controllers\ClientesController',

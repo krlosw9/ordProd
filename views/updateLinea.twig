@@ -1,14 +1,16 @@
 {% extends "layout.twig" %}
 
 {% block content %}
-  <h1>
-    Ciudades
-    <small>Registro</small>
+
+
+<h1>
+    Linea
+    <small>Actualizacion</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./citylist">Ciudades</a></li>
-    <li class="active">Registro</li>
+    <li><a href="./linelist">Linea</a></li>
+    <li class="active">Actualizacion</li>
   </ol>
 </section>
 <section class="content">
@@ -18,24 +20,30 @@
       <!-- general form elements -->
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Registre la ciudad</h3>
+          <h3 class="box-title">Actualice la linea de calzado</h3>
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="cityadd" method="post" role="form">
+        <form action="./lineupdate" method="post" role="form">
           <div class="box-body">
             <div class="form-group">
+              <input type="hidden" name="id" value="{{ lines.id }}" class="form-control" placeholder="" required>
+            </div>
+            <div class="form-group col-md-11">
               <label>Nombre:</label>
-              <input type="text" name="nombre" class="form-control" placeholder="" maxlength="30" required>
+              <input type="text" name="nombreLinea" value="{{ lines.nombreLinea }}" class="form-control" placeholder="" maxlength="40" required>
             </div>
           </div>
           <!-- /.box-body -->
           <div class="box-footer">
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-primary">Actualizar</button>
           </div>
+
           <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
-          {{ responseMessage }}
-        </div>
+            {{ responseMessage }}
+          </div>
         </form>
       </div>
+
+
 {% endblock %}

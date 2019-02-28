@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza};
+use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -11,12 +11,14 @@ class ModeloController extends BaseController{
 		$shape = null; $inventory=null;
 
 		$shape = Hormas::orderBy('referencia')->get();
+		$line = Linea::orderBy('nombreLinea')->get();
 		$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
 
 		return $this->renderHTML('addModelo.twig',[
 				'shapes' => $shape,
+				'lines' => $line,
 				'inventorys' => $inventory,
 				'cantPiezas' => $cantPiezas
 		]);
@@ -109,7 +111,8 @@ class ModeloController extends BaseController{
 		//$modelo = ModelosInfo::orderBy('referencia')->get();
 
 		$modelo = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
-		->select('modelosInfo.*', 'hormas.referencia')
+		->Join("linea","modelosInfo.linea","=","linea.id")
+		->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
 		->latest('id')
 		->get();
 
@@ -125,7 +128,7 @@ class ModeloController extends BaseController{
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelModelo($request){
 		$shape = null; $part=null; $inventory=null; $material=null;
-		$responseMessage = null;
+		$responseMessage = null; $line=null;
 		$quiereActualizar = false;
 		$modelos = null;
 		$ruta='listModelo.twig';
@@ -161,16 +164,24 @@ class ModeloController extends BaseController{
 			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
 
 			$shape = Hormas::orderBy('referencia')->get();
+			$line = Linea::orderBy('nombreLinea')->get();
 			$inventory = InventarioMaterial::orderBy('nombre')->get();
 			$ruta='updateModelo.twig';
 		}else{
-			$modelos = ModelosInfo::orderBy('referenciaMod')->get();
+			//$modelos = ModelosInfo::orderBy('referenciaMod')->get();
+
+			$modelos = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
+			->Join("linea","modelosInfo.linea","=","linea.id")
+			->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
+			->latest('id')
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'modelos' => $modelos,
 			'materiales' => $material,
 			'idUpdate' => $id,
 			'shapes' => $shape,
+			'lines' => $line,
 			'inventorys' => $inventory,
 			'responseMessage' => $responseMessage
 		]);
@@ -230,6 +241,24 @@ class ModeloController extends BaseController{
 						$material->save();
 					}
 
+					//De esta forma se registran los 3 nuevos materiales y si consuPorPar queda vacio, no se registra
+					for ($iterador=1; $iterador <= $postData['cantPiezasNew']; $iterador++) { 
+						
+						$consumoPorPar=$postData['consumoPorParNew'.$iterador] ?? null;
+
+						if ($consumoPorPar) {
+							$material = new MaterialModelos();
+							$material->idModeloInfo=$idModelo;
+							$material->idPieza = 5;
+							$material->idInventarioMaterial = $postData['idInventarioMaterialNew'.$iterador];
+							$material->consumoPorPar = $consumoPorPar;
+							$material->observacion = $postData['observacionNew'.$iterador];
+							$material->idUserRegister = $_SESSION['userId'];
+							$material->idUserUpdate = $_SESSION['userId'];
+							$material->save();
+						}
+					}
+
 					$responseMessage = 'Actualizado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
@@ -244,7 +273,8 @@ class ModeloController extends BaseController{
 		}
 
 		$modelos = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
-		->select('modelosInfo.*', 'hormas.referencia')
+		->Join("linea","modelosInfo.linea","=","linea.id")
+		->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
 		->get();
 		return $this->renderHTML('listModelo.twig',[
 				'modelos' => $modelos,

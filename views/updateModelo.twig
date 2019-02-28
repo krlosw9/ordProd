@@ -46,18 +46,14 @@
             </div>
             <div class="form-group col-xs-6">
               <label>Linea:</label>
-              <select class="form-control select-picker" id="linea" name="linea">
-                <option value="Bota"{% if modelos.linea == "Bota"%}selected{% endif %}>Bota</option>
-                <option value="Botin"{% if modelos.linea == "Botin"%}selected{% endif %}>Botin</option>
-                <option value="Baleta"{% if modelos.linea == "Baleta"%}selected{% endif %}>Baleta</option>
-                <option value="Deportivo"{% if modelos.linea == "Deportivo"%}selected{% endif %}>Deportivo</option>
-                <option value="Espadrille"{% if modelos.linea == "Espadrille"%}selected{% endif %}>Espadrille</option>
-                <option value="Mocasin"{% if modelos.linea == "Mocasin"%}selected{% endif %}>Mocasin</option>
-                <option value="Oxfords"{% if modelos.linea == "Oxfords"%}selected{% endif %}>Oxfords</option>
-                <option value="Sandalia"{% if modelos.linea == "Sandalia"%}selected{% endif %}>Sandalia</option>
-                <option value="Tubular"{% if modelos.linea == "Tubular"%}selected{% endif %}>Tubular</option>
-                <option value="Zapatilla"{% if modelos.linea == "Zapatilla"%}selected{% endif %}>Tubular</option>
-                <option value="Zuecos"{% if modelos.linea == "Zuecos"%}selected{% endif %}>Zuecos</option>
+              <select class="form-control select-picker" id="linea" name="linea" required>
+                {% for line in lines %}
+                  {% if modelos.linea == line.id %} 
+                    <option value="{{ line.id }}" selected>{{ line.nombreLinea }}</option>
+                  {% else %}
+                    <option value="{{ line.id }}">{{ line.nombreLinea }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
@@ -80,14 +76,25 @@
                 
             </div>
             
-
+            <!--Trae los materiales ya registrados para update-->
             <div class="box-header">
             <div class="box-header">
-              <h3 class="box-title">Piezas del modelo</h3>
+              <h3 class="box-title">Piezas del modelo ya registradas</h3>
             </div>
               <div class="box-body">
-            {% set i = 0 %}
-            {% for material in materiales %}
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-4">
+                    <label>Material:</label>
+                  </div>
+                  <div class="col-xs-4">
+                    <label>Consumo/x/Par:</label>
+                  </div>
+                  <div class="col-xs-4">
+                    <label>Observacion:</label>
+                  </div>
+                </div>
+              {% set i = 0 %}
+              {% for material in materiales %}
               <input type="hidden" name="idMaterial{{i}}" value="{{ material.id }}" class="form-control" required>
               <div class="row" style="padding-top: 10px;">
                 <div class="col-xs-4">
@@ -113,6 +120,51 @@
             <input type="hidden" name="cantPiezas" value="{{ i }}" class="form-control" required>
             </div>
             </div>
+
+
+
+            <!--Crea nuevos materiales pero si los deja vacios no se agregan, este ciclo no trae informacion ya registrada como el anterior, su objetivo es que pueda agregar materiales, que olvido registrar antes-->
+            <div class="box-header">
+              <div class="box-header">
+                <h3 class="box-title">Piezas del modelo sin registrar</h3>
+              </div>
+              <div class="box-body">
+
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-4">
+                    <label>Material:</label>
+                  </div>
+                  <div class="col-xs-4">
+                    <label>Consumo/x/Par:</label>
+                  </div>
+                  <div class="col-xs-4">
+                    <label>Observacion:</label>
+                  </div>
+                </div>
+              {% set cantPiezas = 3 %}
+              {% for iterador in 1..cantPiezas %}
+              <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-4">
+                  <select class="form-control select-picker" name="idInventarioMaterialNew{{iterador}}">
+                    <option value="">Seleccione un Material</option>
+                  {% for inventory in inventorys %}
+                    <option value="{{ inventory.id }}">{{ inventory.nombre }} (x) {{ inventory.unidadMedida }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+                <div class="col-xs-4">
+                  <input type="text" class="form-control" name="consumoPorParNew{{iterador}}" placeholder="Si queda vacio, no se registra" min="0">
+                </div>
+                <div class="col-xs-4">
+                  <input type="text" name="observacionNew{{iterador}}" class="form-control">
+                </div>
+              </div>
+            {% endfor %}
+            <input type="hidden" name="cantPiezasNew" value="{{ cantPiezas }}" class="form-control" required>
+            </div>
+            </div>
+
+
           </div>
           <!-- /.box-body -->
           <div class="box-footer">
