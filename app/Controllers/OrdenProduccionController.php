@@ -8,6 +8,11 @@ use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class OrdenProduccionController extends BaseController{
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados y el maximo numero en paginacion
+	private $articulosPorPagina=20;
+	private $limitePaginacion=20;
+
+
 	public function getAddOrdenAction(){
 		$pedido = null; $actividad=null; 
 		$responseMessage = null; $models = null;
@@ -451,7 +456,30 @@ foreach ($tareas as $tarea => $value) {
 
 	//Lista todas los modelos Ordenando por posicion
 	public function getListOrden(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
+		
+		$numeroDeFilas= InfoOrdenProduccion::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+
 		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
 		->select('pedido.*', 'clientesProvedores.nombre', 'clientesProvedores.apellido')
 		->latest('id')
@@ -460,11 +488,14 @@ foreach ($tareas as $tarea => $value) {
 		$orden = InfoOrdenProduccion::Join("pedido","infoOrdenProduccion.idPedido","=","pedido.id")
 		->select('infoOrdenProduccion.*', 'pedido.referencia')
 		->latest('id')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
 		return $this->renderHTML('listOrden.twig', [
 			'ordens' => $orden,
-			'pedidos' => $pedido
+			'pedidos' => $pedido,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 		
 

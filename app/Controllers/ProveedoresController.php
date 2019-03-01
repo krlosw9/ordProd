@@ -7,6 +7,12 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ProveedoresController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
+
 	public function getAddProveedoresAction($request){
 		return $this->renderHTML('addProveedores.twig');
 	}
@@ -58,14 +64,42 @@ class ProveedoresController extends BaseController{
 
 	//Lista todas la Proveedores Ordenando por posicion
 	public function getListProveedores(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
 		
+
+		$numeroDeFilas = Proveedores::where("tipo","=",1)
+		->selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+
 		//Hace una query donde solo regresa los tipo 1(proveedores) y los ordena por el nombre
-		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
+		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 
 		return $this->renderHTML('listProveedores.twig', [
-			'providers' => $provider
+			'providers' => $provider,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 
@@ -97,7 +131,7 @@ class ProveedoresController extends BaseController{
 					$quiereActualizar=true;
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar un operario';
+				$responseMessage = 'Debe Seleccionar un proveedor';
 			}
 		}
 		
@@ -106,7 +140,11 @@ class ProveedoresController extends BaseController{
 			$providers = Proveedores::find($id);
 			$ruta='updateProveedores.twig';
 		}else{
-			$providers = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
+			
+			$iniciar=0;
+			$providers = Proveedores::where("tipo","=",1)->orderBy('nombre')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'providers' => $providers,
@@ -151,8 +189,10 @@ class ProveedoresController extends BaseController{
 			}
 		}
 
-		$providers = Proveedores::orderBy('nombre')->get();
-		$providers = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
+		$iniciar=0;
+		$providers = Proveedores::where("tipo","=",1)->orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 		return $this->renderHTML('listProveedores.twig',[
 				'providers' => $providers,
 				'responseMessage' => $responseMessage

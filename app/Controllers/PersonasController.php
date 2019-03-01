@@ -7,6 +7,12 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class PersonasController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
+
 	public function getAddPersonasAction($request){
 		return $this->renderHTML('addPersonas.twig');
 	}
@@ -55,12 +61,38 @@ class PersonasController extends BaseController{
 
 	//Lista todas la Personas Ordenando por posicion
 	public function getListPersonas(){
-		$responseMessage = null;
-		//$people = Personas::all();
-		$people = Personas::orderBy('nombre')->get();
+		$responseMessage = null; $iniciar=0;
+
+		$numeroDeFilas = Personas::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+		
+		$people = Personas::orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listPersonas.twig', [
-			'peoples' => $people
+			'peoples' => $people,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 
@@ -101,7 +133,10 @@ class PersonasController extends BaseController{
 			$peoples = Personas::find($id);
 			$ruta='updatePersonas.twig';
 		}else{
-			$peoples = Personas::orderBy('nombre')->get();
+			$iniciar=0;
+			$peoples = Personas::orderBy('nombre')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'peoples' => $peoples,
@@ -153,8 +188,10 @@ class PersonasController extends BaseController{
 				}
 			}
 		}
-
-		$peoples = Personas::orderBy('nombre')->get();
+		$iniciar=0;
+		$peoples = Personas::orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 		return $this->renderHTML('listPersonas.twig',[
 				'peoples' => $peoples,
 				'responseMessage' => $responseMessage

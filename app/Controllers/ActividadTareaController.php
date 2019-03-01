@@ -7,6 +7,11 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ActividadTareaController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
 	public function getAddActividadTareaAction($request){
 		return $this->renderHTML('addActividadTarea.twig');
 	}
@@ -57,10 +62,37 @@ class ActividadTareaController extends BaseController{
 
 	//Lista todas la Actividad-Tarea Ordenando por posicion
 	public function getListActividadTarea(){
-		$actOpes = ActividadTarea::orderBy('posicion')->latest('posicion')->get();
+		$iniciar=0;
+
+		$numeroDeFilas = ActividadTarea::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+		$actOpes = ActividadTarea::orderBy('posicion')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listActividadTarea.twig', [
-			'actOpes' => $actOpes
+			'actOpes' => $actOpes,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 
@@ -102,7 +134,10 @@ class ActividadTareaController extends BaseController{
 			$actOpes = ActividadTarea::find($id);
 			$ruta='updateActividadTarea.twig';
 		}else{
-			$actOpes = ActividadTarea::orderBy('posicion')->get();
+			$iniciar=0;
+			$actOpes = ActividadTarea::orderBy('posicion')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'actOpes' => $actOpes,
@@ -151,8 +186,10 @@ class ActividadTareaController extends BaseController{
 			}
 		
 		}
-
-		$actOpes = ActividadTarea::orderBy('posicion')->get();
+		$iniciar=0;
+		$actOpes = ActividadTarea::orderBy('posicion')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 		return $this->renderHTML('listActividadTarea.twig',[
 				'actOpes' => $actOpes,
 				'responseMessage' => $responseMessage

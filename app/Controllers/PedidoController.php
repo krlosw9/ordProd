@@ -8,6 +8,12 @@ use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
 
 class PedidoController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados y el maximo numero en paginacion
+	private $articulosPorPagina=20;
+	private $limitePaginacion=20;
+
+
 	public function getAddPedidoAction($request){
 		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
 		->select('pedido.*', 'clientesProvedores.nombre')
@@ -446,16 +452,41 @@ echo "</div>
 
 	//Lista todas la pedido Ordenando por posicion
 	public function getListPedido(){
+		$responseMessage = null; $iniciar=0;
 		
+		$numeroDeFilas = Pedido::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
 		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
 		->select('pedido.*', 'clientesProvedores.nombre')
 		->latest('id')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 		
 		$model = ModelosInfo::orderBy('referenciaMod')->get();
 
 		return $this->renderHTML('listPedido.twig', [
-			'pedidos'=> $pedido
+			'pedidos'=> $pedido,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 

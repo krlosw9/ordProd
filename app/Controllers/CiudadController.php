@@ -7,6 +7,11 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class CiudadController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
 	public function getAddCiudadAction($request){
 		return $this->renderHTML('addCiudad.twig');
 	}
@@ -49,12 +54,38 @@ class CiudadController extends BaseController{
 
 	//Lista todas la Ciudad Ordenando por posicion
 	public function getListCiudad(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
+
+		$numeroDeFilas = Ciudad::selectRaw('count(*) as query_count')
+		->first();
+
 		
-		$city = Ciudad::orderBy('nombre')->get();
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+		
+		$city = Ciudad::orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listCiudad.twig', [
-			'cities' => $city
+			'cities' => $city,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 
@@ -95,7 +126,10 @@ class CiudadController extends BaseController{
 			$cities = Ciudad::find($id);
 			$ruta='updateCiudad.twig';
 		}else{
-			$cities = Ciudad::orderBy('nombre')->get();
+			$iniciar=0;
+			$cities = Ciudad::orderBy('nombre')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'cities' => $cities,
@@ -134,8 +168,10 @@ class CiudadController extends BaseController{
 				}
 			}
 		}
-
-		$cities = Ciudad::orderBy('nombre')->get();
+		$iniciar=0;
+		$cities = Ciudad::orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 		return $this->renderHTML('listCiudad.twig',[
 				'cities' => $cities,
 				'responseMessage' => $responseMessage

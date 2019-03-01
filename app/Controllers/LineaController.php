@@ -7,6 +7,11 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class LineaController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
 	public function getAddLineaAction($request){
 		return $this->renderHTML('addLinea.twig');
 	}
@@ -49,12 +54,39 @@ class LineaController extends BaseController{
 
 	//Lista todas la linea Ordenando por posicion
 	public function getListLinea(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
 		
-		$line = Linea::orderBy('nombreLinea')->get();
+
+		$numeroDeFilas = Linea::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+
+
+		$line = Linea::orderBy('nombreLinea')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listLinea.twig', [
-			'lines' => $line
+			'lines' => $line,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
 
@@ -95,7 +127,10 @@ class LineaController extends BaseController{
 			$lines = Linea::find($id);
 			$ruta='updateLinea.twig';
 		}else{
-			$lines = Linea::orderBy('nombreLinea')->get();
+			$iniciar=0;
+			$lines = Linea::orderBy('nombreLinea')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
 		}
 		return $this->renderHTML($ruta, [
 			'lines' => $lines,
@@ -135,7 +170,10 @@ class LineaController extends BaseController{
 			}
 		}
 
-		$lines = Linea::orderBy('nombreLinea')->get();
+		$iniciar=0;
+		$lines = Linea::orderBy('nombreLinea')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 		return $this->renderHTML('listLinea.twig',[
 				'lines' => $lines,
 				'responseMessage' => $responseMessage

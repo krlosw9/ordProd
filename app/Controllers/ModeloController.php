@@ -7,6 +7,11 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ModeloController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
 	public function getAddModeloAction(){
 		$shape = null; $inventory=null;
 
@@ -34,7 +39,7 @@ class ModeloController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 12)->notEmpty());
+			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 10)->notEmpty());
 			
 			
 			if($_SESSION['userId']){
@@ -89,7 +94,9 @@ class ModeloController extends BaseController{
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+						$responseMessage = 'Error, la referencia debe tener de 1 a 10 digitos.';
+					}elseif ($prevMessage =="SQLSTATE[23000]") {
+						$responseMessage = 'Error, Las referencias deben ser diferentes y esta referencia ya existe';
 					}else{
 						//$responseMessage = $e->getMessage();
 						$responseMessage = substr($e->getMessage(), 0, 50);
@@ -97,31 +104,58 @@ class ModeloController extends BaseController{
 				}
 			}
 		}
+		$iniciar=0;
+		$modelo = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
+		->Join("linea","modelosInfo.linea","=","linea.id")
+		->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
+		->latest('id')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listModelo.twig',[
 				'responseMessage' => $responseMessage,
-				'cantPiezas' => $cantPiezas
+				'cantPiezas' => $cantPiezas,
+				'modelos' => $modelo
 		]);
 	}
 
 	//Lista todas los modelos Ordenando por posicion
 	public function getListModelo(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
 		
-		//$modelo = ModelosInfo::orderBy('referencia')->get();
+		$numeroDeFilas = ModelosInfo::selectRaw('count(*) as query_count')
+		->first();
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
 
 		$modelo = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
 		->Join("linea","modelosInfo.linea","=","linea.id")
 		->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
 		->latest('id')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
 		return $this->renderHTML('listModelo.twig', [
-			'modelos' => $modelo
+			'modelos' => $modelo,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 		
-
-		//return $this->renderHTML('listHormas.twig');
 	}
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
@@ -170,10 +204,12 @@ class ModeloController extends BaseController{
 		}else{
 			//$modelos = ModelosInfo::orderBy('referenciaMod')->get();
 
+			$iniciar=0;
 			$modelos = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
 			->Join("linea","modelosInfo.linea","=","linea.id")
 			->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
 			->latest('id')
+			->limit($this->articulosPorPagina)->offset($iniciar)
 			->get();
 		}
 		return $this->renderHTML($ruta, [
@@ -195,7 +231,7 @@ class ModeloController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 12)->notEmpty());
+			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 10)->notEmpty());
 
 			
 			if($_SESSION['userId']){
@@ -264,18 +300,25 @@ class ModeloController extends BaseController{
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+						$responseMessage = 'Error, la referencia debe tener de 1 a 10 digitos.';
+					}elseif ($prevMessage =="SQLSTATE[23000]") {
+						$responseMessage = 'Error, Las referencias deben ser diferentes y esta referencia ya existe';
 					}else{
-						$responseMessage = substr($e->getMessage(), 0, 50);
+						$responseMessage = substr($e->getMessage(), 0, 40);
 					}
 				}
 			}
 		}
 
+
+		$iniciar=0;
 		$modelos = ModelosInfo::Join("hormas","modelosInfo.idHorma","=","hormas.id")
 		->Join("linea","modelosInfo.linea","=","linea.id")
 		->select('modelosInfo.*', 'hormas.referencia', 'linea.nombreLinea')
+		->latest('id')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
+
 		return $this->renderHTML('listModelo.twig',[
 				'modelos' => $modelos,
 				'responseMessage' => $responseMessage

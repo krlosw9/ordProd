@@ -38,6 +38,19 @@
           </tr>
           {% endfor %}
         </table>
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            {% for i in 1..numeroDePaginas %}
+              {% if paginaActual == i %}
+                <li class="page-item active"><a class="page-link" href="./linelist?pag={{i}}">{{i}}</a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="./linelist?pag={{i}}">{{i}}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+        
         <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
           {{ responseMessage }}
         </div>

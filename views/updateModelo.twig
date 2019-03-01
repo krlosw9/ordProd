@@ -30,7 +30,7 @@
             </div>
             <div class="form-group col-xs-6">
               <label>Referencia:</label>
-              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" maxlength="12" value="{{modelos.referenciaMod}}" required>
+              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" maxlength="10" value="{{modelos.referenciaMod}}" required pattern="[A-Za-z0-9]+" title="Sin espacios ni signos, Solo Numeros y letras">
             </div>
             <div class="form-group col-xs-6">
               <label>Hormas:</label>

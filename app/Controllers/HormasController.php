@@ -7,6 +7,11 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class HormasController extends BaseController{
+	
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
 	public function getAddHormasAction($request){
 		$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();	
 
@@ -62,18 +67,39 @@ class HormasController extends BaseController{
 
 	//Lista todas la Hormas Ordenando por posicion
 	public function getListHormas(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
+
+		$numeroDeFilas = Hormas::selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
 		
 		$shape = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
 		->select('hormas.*', 'clientesProvedores.nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
 		return $this->renderHTML('listHormas.twig', [
-			'shapes' => $shape
+			'shapes' => $shape,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
-		
-
-		//return $this->renderHTML('listHormas.twig');
 	}
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
@@ -115,8 +141,11 @@ class HormasController extends BaseController{
 			$provider = Proveedores::where("tipo","=",1)->orderBy('nombre')->get();
 			$ruta='updateHormas.twig';
 		}else{
+			$iniciar=0;
+
 			$shapes = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
 			->select('hormas.*', 'clientesProvedores.nombre')
+			->limit($this->articulosPorPagina)->offset($iniciar)
 			->get();
 		}
 		return $this->renderHTML($ruta, [
@@ -165,11 +194,12 @@ class HormasController extends BaseController{
 			}
 		}
 
+		$iniciar=0;
+			
 		$shapes = Hormas::Join("clientesProvedores","hormas.idProveedor","=","clientesProvedores.id")
 		->select('hormas.*', 'clientesProvedores.nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
-
-
 
 		return $this->renderHTML('listHormas.twig',[
 				'shapes' => $shapes,

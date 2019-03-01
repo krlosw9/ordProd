@@ -7,6 +7,12 @@ use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class ClientesController extends BaseController{
+
+	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
+	private $articulosPorPagina=15;
+	private $limitePaginacion=20;
+
+
 	public function getAddClientesAction($request){
 		return $this->renderHTML('addClientes.twig');
 	}
@@ -58,14 +64,44 @@ class ClientesController extends BaseController{
 
 	//Lista todas la Clientes Ordenando por posicion
 	public function getListClientes(){
-		$responseMessage = null;
+		$responseMessage = null; $iniciar=0;
 		
-		$customer = Clientes::where("tipo","=",0)->orderBy('nombre')->get();
+		$numeroDeFilas = Clientes::where("tipo","=",0)
+		->selectRaw('count(*) as query_count')
+		->first();
+
+		
+		$totalFilasDb = $numeroDeFilas->query_count;
+		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
+		$numeroDePaginas = ceil($numeroDePaginas);
+
+		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
+		if ($numeroDePaginas > $this->limitePaginacion) {
+			$numeroDePaginas=$this->limitePaginacion;
+		}
+
+		$paginaActual = $_GET['pag'] ?? null;
+		if ($paginaActual) {
+			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
+				$paginaActual = 1;
+			}
+			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
+		}
+		
+		$customerQuery = Clientes::where("tipo","=",0)
+		->orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
 
 		return $this->renderHTML('listClientes.twig', [
-			'customers' => $customer
+			'customers' => $customerQuery,
+			'numeroDePaginas' => $numeroDePaginas,
+			'paginaActual' => $paginaActual
 		]);
 	}
+
+
+
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
@@ -104,7 +140,12 @@ class ClientesController extends BaseController{
 			$customers = Clientes::find($id);
 			$ruta='updateClientes.twig';
 		}else{
-			$customers = Clientes::where("tipo","=",0)->orderBy('nombre')->get();
+			$iniciar=0;
+			$customers = Clientes::where("tipo","=",0)
+			->orderBy('nombre')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
+
 		}
 		return $this->renderHTML($ruta, [
 			'customers' => $customers,
@@ -148,8 +189,13 @@ class ClientesController extends BaseController{
 				}
 			}
 		}
-
-		$customers = Clientes::where("tipo","=",0)->orderBy('nombre')->get();
+		
+		$iniciar=0;
+		$customers = Clientes::where("tipo","=",0)
+		->orderBy('nombre')
+		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
+		
 		return $this->renderHTML('listClientes.twig',[
 				'customers' => $customers,
 				'responseMessage' => $responseMessage
