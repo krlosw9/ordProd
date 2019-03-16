@@ -75,7 +75,7 @@ class OrdenProduccionController extends BaseController{
 
 
 
-	//Registra la Persona
+	//Registra la Orden 
 	public function postAddOrdenAction($request){
 		$registroExitoso=false;
 		$tallaInicio=0;
@@ -217,6 +217,7 @@ class OrdenProduccionController extends BaseController{
 					$order->id=$ordenUltimoId;
 					$order->referenciaOrd=$referenciaOrd;
 					$order->idPedido = $postData['idPedido'];
+					$order->idPedidoModelo = $postData['idPedidoModelo'];
 					$order->idTallas=$tallasUltimoId;
 					$order->observacion1 = $observacion1;
 					$order->fechaRegistro=$fechaRegistro;
@@ -479,16 +480,16 @@ foreach ($tareas as $tarea => $value) {
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-
-		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
-		->select('pedido.*', 'clientesProvedores.nombre', 'clientesProvedores.apellido')
-		->latest('id')
-		->get();
-
 		$orden = InfoOrdenProduccion::Join("pedido","infoOrdenProduccion.idPedido","=","pedido.id")
 		->select('infoOrdenProduccion.*', 'pedido.referencia')
 		->latest('id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
+		->get();
+
+		//esta consulta es para el select del registro de una nueva orden de produccion(Seleccione el pedido de la orden a registrar)
+		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
+		->select('pedido.*', 'clientesProvedores.nombre', 'clientesProvedores.apellido')
+		->latest('id')
 		->get();
 
 		return $this->renderHTML('listOrden.twig', [
@@ -497,9 +498,6 @@ foreach ($tareas as $tarea => $value) {
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual
 		]);
-		
-
-		//return $this->renderHTML('listHormas.twig');
 	}
 
 	

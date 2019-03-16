@@ -18,7 +18,7 @@ $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
 
 $map = $routerContainer->getMap();
 //Ruta raiz o index
-$map->get('index', '/curso/', [
+$map->get('index', '/order/', [
         'controller' => 'App\Controllers\IndexController',
         'action' => 'indexAction',
         'auth' => true
@@ -424,18 +424,18 @@ $map->get('getListPedido', '/curso/pedidolist', [
         'auth' => true
 ]);
 $map->post('postDelPedido', '/curso/pedidodel', [
-        'controller' => 'App\Controllers\PedidoController',
+        'controller' => 'App\Controllers\UpdatePedidoController',
         'action' => 'postUpdDelPedido',
         'auth' => true
 ]);
 $map->get('getPedidoUpdate', '/curso/pedidoupdate', [
-        'controller' => 'App\Controllers\PedidoController',
+        'controller' => 'App\Controllers\UpdatePedidoController',
         'action' => 'getUpdatePedido',
         'auth' => true
 ]);
 $map->post('postPedidoUpdate', '/curso/pedidoupdate', [
-        'controller' => 'App\Controllers\PedidoController',
-        'action' => 'postUpdatePedido',
+        'controller' => 'App\Controllers\UpdatePedidoController',
+        'action' => 'getUpdatePedido',
         'auth' => true
 ]);
 $map->get('getPdfPedido', '/curso/pedidopdf', [
@@ -532,7 +532,7 @@ $map->post('postQueryNomina', '/curso/rosterquery', [
         'auth' => true
 ]);
 
-//Rutas Reporte Nomina Individual
+//Rutas Reporte Nomina Individual 
 $map->get('getlistReportNominaIndividual', '/curso/reportrosterind', [
         'controller' => 'App\Controllers\ReportesController',
         'action' => 'getListNominaIndividual',
@@ -543,10 +543,23 @@ $map->post('postQueryReportNominaIndividual', '/curso/queryrosterind', [
         'action' => 'postQueryNominaIndividualAction',
         'auth' => true
 ]);
+
 //Ruta Reporte Nomina Total
 $map->get('getlistReportNominaTotal', '/curso/reportrosterall', [
         'controller' => 'App\Controllers\ReportesController',
         'action' => 'getListNominaTotal',
+        'auth' => true
+]);
+
+//Rutas Reporte Nomina Individual 
+$map->get('getlistReportPedidoEstado', '/curso/reportepedidoest', [
+        'controller' => 'App\Controllers\ReportesController',
+        'action' => 'getListPedidoEstado',
+        'auth' => true
+]);
+$map->post('postQueryReportPedidoEstado', '/curso/querypedidoest', [
+        'controller' => 'App\Controllers\ReportesController',
+        'action' => 'postQueryPedidoEstado',
         'auth' => true
 ]);
 
@@ -557,24 +570,24 @@ $map->get('getlistReportNominaTotal', '/curso/reportrosterall', [
 
 
 //Rutas que validan el login, dan acceso o denega acceso
-$map->get('loginForm', '/curso/login', [
+$map->get('loginForm', '/order/login', [
         'controller' => 'App\Controllers\AuthController',
         'action' => 'getLogin'
 ]);
-$map->post('auth', '/curso/auth', [
+$map->post('auth', '/order/auth', [
         'controller' => 'App\Controllers\AuthController',
         'action' => 'postLogin'
 ]);
-$map->get('admin', '/curso/admin', [
+$map->get('admin', '/order/admin', [
         'controller' => 'App\Controllers\AdminController',
         'action' => 'getIndex',
         'auth' => true
 ]);
-$map->get('logout', '/curso/logout', [
+$map->get('logout', '/order/logout', [
         'controller' => 'App\Controllers\AuthController',
         'action' => 'getLogout'
 ]);
-$map->get('noRoute', '/curso/noRoute', [
+$map->get('noRoute', '/order/noRoute', [
         'controller' => 'App\Controllers\NoRouteController',
         'action' => 'getNoRoute'
 ]);

@@ -39,7 +39,7 @@ class ModeloController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 10)->notEmpty());
+			$modeloValidator = v::key('referenciaMod', v::stringType()->noWhitespace()->length(1, 10)->notEmpty());
 			
 			
 			if($_SESSION['userId']){
@@ -67,6 +67,7 @@ class ModeloController extends BaseController{
 					$modelo->tallas = $postData['tallas'];
 					$modelo->linea = $postData['linea'];
 					$modelo->imagenUrl = $imgName;
+					$modelo->observacion = $postData['observacionMod'];
 					$modelo->idUserRegister = $_SESSION['userId'];
 					$modelo->idUserUpdate = $_SESSION['userId'];
 					$modelo->save();
@@ -79,7 +80,6 @@ class ModeloController extends BaseController{
 						if ($consumoPorPar) {
 							$material = new MaterialModelos();
 							$material->idModeloInfo=$modeloUltimoId;
-							$material->idPieza = 5;
 							$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
 							$material->consumoPorPar = $consumoPorPar;
 							$material->observacion = $postData['observacion'.$i];
@@ -94,7 +94,7 @@ class ModeloController extends BaseController{
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 10 digitos.';
+						$responseMessage = 'Error, la referencia no puede contener espacios en blanco.';
 					}elseif ($prevMessage =="SQLSTATE[23000]") {
 						$responseMessage = 'Error, Las referencias deben ser diferentes y esta referencia ya existe';
 					}else{
@@ -174,6 +174,11 @@ class ModeloController extends BaseController{
 			if ($id) {
 				if($postData['boton']=='del'){
 				  try{
+					$materiales = MaterialModelos::where("idModeloInfo","=",$id)->get();
+					foreach ($materiales as $material) {
+						$materialDel = new MaterialModelos();
+						$materialDel->destroy($material->id);
+					}
 					$modelo = new ModelosInfo();
 					$modelo->destroy($id);
 					$responseMessage = "Se elimino el modelo";
@@ -257,6 +262,7 @@ class ModeloController extends BaseController{
 					$modelo->idHorma = $postData['idHorma'];
 					$modelo->tallas = $postData['tallas'];
 					$modelo->linea = $postData['linea'];
+					$modelo->observacion = $postData['observacionMod'];
 					if ($imgName) {
 						$modelo->imagenUrl = $imgName;
 					}elseif ($cambioImagen == false) {
@@ -267,14 +273,19 @@ class ModeloController extends BaseController{
 					$modelo->save();
 
 					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
-						$material = MaterialModelos::find($postData['idMaterial'.$i]);
-						$material->idModeloInfo=$idModelo;
-						$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
-						$material->consumoPorPar = $postData['consumoPorPar'.$i];
-						$material->observacion = $postData['observacion'.$i];
-						$material->idUserRegister = $_SESSION['userId'];
-						$material->idUserUpdate = $_SESSION['userId'];
-						$material->save();
+						if ($postData['eliminarMaterial'.$i]==0) {
+							$material = MaterialModelos::find($postData['idMaterial'.$i]);
+							$material->idModeloInfo=$idModelo;
+							$material->idInventarioMaterial = $postData['idInventarioMaterial'.$i];
+							$material->consumoPorPar = $postData['consumoPorPar'.$i];
+							$material->observacion = $postData['observacion'.$i];
+							$material->idUserRegister = $_SESSION['userId'];
+							$material->idUserUpdate = $_SESSION['userId'];
+							$material->save();	
+						}elseif ($postData['eliminarMaterial'.$i]==1) {
+							$materialDel = new MaterialModelos();
+							$materialDel->destroy($postData['idMaterial'.$i]);
+						}
 					}
 
 					//De esta forma se registran los 3 nuevos materiales y si consuPorPar queda vacio, no se registra
@@ -285,7 +296,6 @@ class ModeloController extends BaseController{
 						if ($consumoPorPar) {
 							$material = new MaterialModelos();
 							$material->idModeloInfo=$idModelo;
-							$material->idPieza = 5;
 							$material->idInventarioMaterial = $postData['idInventarioMaterialNew'.$iterador];
 							$material->consumoPorPar = $consumoPorPar;
 							$material->observacion = $postData['observacionNew'.$iterador];

@@ -2,6 +2,321 @@
 
 {% block content %}
 
+<h1>
+    Orden de produccion
+    <small>Actualizacion</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./orderlist">Orden/Produccion</a></li>
+    <li class="active">Actualizacion</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Informacion de la orden</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="orderupdate" method="post" role="form" enctype="multipart/form-data">
+          <div class="box-body">
+            <div class="form-group">
+              <input type="hidden" name="idOrden" value="{{ ordens.id }}" class="form-control" required>
+            </div>
+            <div class="form-group col-xs-3">
+              <label for="">Fecha Registro:</label>
+              <div class="input-group date">
+                  <input name="fechaRegistro" type="date" class="form-control" data-placement="top" data-toggle="tooltip" value="{{ordens.fechaRegistro}}" required/>
+              </div>
+            </div>
+            <div class="form-group col-xs-3">
+              <label for="">Fecha Entrega:</label>
+              <div class="input-group date">
+                  <input name="fechaEntrega" type="date" class="form-control" data-placement="top" data-toggle="tooltip" value="{{ordens.fechaEntrega}}" required/>
+              </div>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Orden #:</label>
+              <input type="text" name="referenciaOrd" class="form-control" placeholder="Maximo 12 digitos" maxlength="12" required value="{{ordens.referenciaOrd}}" pattern="[A-Za-z0-9]+" title="Sin espacios ni signos, Solo Numeros y letras">
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Cliente:</label>
+              {% for pedido in pedidos %}
+                <input type="text" name="idcliente" value="{{ pedido.nombre }} {{ pedido.apellido }}" class="form-control" disabled>
+                <input type="hidden" name="cliente" value="{{ pedido.nombre }} {{ pedido.apellido }}" class="form-control">
+              {% endfor %}
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Pedido:</label>
+              {% for pedido in pedidos %}
+                <input type="text" name="pedido" value="{{ pedido.referencia }}" class="form-control" disabled>
+                <input type="hidden" name="idPedido" value="{{ pedido.id }}" class="form-control">
+                <input type="hidden" name="cantidadPedido" value="{{ pedido.cantRestante }}" class="form-control">
+              {% endfor %}
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Modelo:</label>
+              <input type="text" name="idmodelo" value="{{ model.referenciaMod }}" class="form-control" disabled>
+              <input type="hidden" name="modelo" value="{{ model.referenciaMod }}" class="form-control">
+              <input type="hidden" name="idPedidoModelo" value="{{ pedidoModelo.id }}" class="form-control">
+              <input type="hidden" name="modeloImg" value="{{ model.imagenUrl }}" class="form-control">
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Restantes:</label>
+              <input type="text" name="cant" value="{{ pedidoModelo.cantRestPedMod }}" class="form-control" disabled>
+              <input type="hidden" name="cantRestantePedModelo" value="{{ pedidoModelo.cantRestPedMod }}" class="form-control">
+            </div>
+            <input type="hidden" name="idTallas" value="{{ tallas.id }}">
+            {% if model.tallas == 1 %}
+              <input type="hidden" name="tipoTallas" value="1">
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-xs-2">
+                    <input type="number" name="35" class="form-control" min="0" placeholder="35" value="{{tallas.t35}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="36" class="form-control" min="0" placeholder="36" value="{{tallas.t36}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="37" class="form-control" min="0" placeholder="37" value="{{tallas.t37}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="38" class="form-control" min="0" placeholder="38" value="{{tallas.t38}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="39" class="form-control" min="0" placeholder="39" value="{{tallas.t39}}" required>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <input type="number" name="40" class="form-control" min="0" placeholder="40" value="{{tallas.t40}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="41" class="form-control" min="0" placeholder="41" value="{{tallas.t41}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="42" class="form-control" min="0" placeholder="42" value="{{tallas.t42}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="43" class="form-control" min="0" placeholder="43" value="{{tallas.t43}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="44" class="form-control" min="0" placeholder="44" value="{{tallas.t44}}" required>
+                  </div>
+                </div>
+              </div>
+            {% elseif model.tallas == 2 %}
+              <input type="hidden" name="tipoTallas" value="2">
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-xs-2">
+                    <input type="number" name="32" class="form-control" min="0" placeholder="32" value="{{tallas.t32}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="33" class="form-control" min="0" placeholder="33" value="{{tallas.t33}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="34" class="form-control" min="0" placeholder="34" value="{{tallas.t34}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="35" class="form-control" min="0" placeholder="35" value="{{tallas.t35}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="36" class="form-control" min="0" placeholder="36" value="{{tallas.t36}}" required>
+                  </div>
+                  
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <input type="number" name="37" class="form-control" min="0" placeholder="37" value="{{tallas.t37}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="38" class="form-control" min="0" placeholder="38" value="{{tallas.t38}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="39" class="form-control" min="0" placeholder="39" value="{{tallas.t39}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="40" class="form-control" min="0" placeholder="40" value="{{tallas.t40}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="41" class="form-control" min="0" placeholder="41" value="{{tallas.t41}}" required>
+                  </div>
+                </div>
+              </div>
+            {% elseif model.tallas == 3 %}
+              <input type="hidden" name="tipoTallas" value="3">
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-xs-2">
+                    <input type="number" name="26" class="form-control" min="0" placeholder="26" value="{{tallas.t26}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="27" class="form-control" min="0" placeholder="27" value="{{tallas.t27}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="28" class="form-control" min="0" placeholder="28" value="{{tallas.t28}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="29" class="form-control" min="0" placeholder="29" value="{{tallas.t29}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="30" class="form-control" min="0" placeholder="30" value="{{tallas.t30}}" required>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <input type="number" name="31" class="form-control" min="0" placeholder="31" value="{{tallas.t31}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="32" class="form-control" min="0" placeholder="32" value="{{tallas.t32}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="33" class="form-control" min="0" placeholder="33" value="{{tallas.t33}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="34" class="form-control" min="0" placeholder="34" value="{{tallas.t34}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="35" class="form-control" min="0" placeholder="35" value="{{tallas.t35}}" required>
+                  </div>
+                </div>
+              </div>
+            {% elseif model.tallas == 4 %}
+              <input type="hidden" name="tipoTallas" value="4">
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-xs-2">
+                    <input type="number" name="20" class="form-control" min="0" placeholder="20" value="{{tallas.t20}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="21" class="form-control" min="0" placeholder="21" value="{{tallas.t21}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="22" class="form-control" min="0" placeholder="22" value="{{tallas.t22}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="23" class="form-control" min="0" placeholder="23" value="{{tallas.t23}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="24" class="form-control" min="0" placeholder="24" value="{{tallas.t24}}" required>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <input type="number" name="25" class="form-control" min="0" placeholder="25" value="{{tallas.t25}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="26" class="form-control" min="0" placeholder="26" value="{{tallas.t26}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="27" class="form-control" min="0" placeholder="27" value="{{tallas.t27}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="28" class="form-control" min="0" placeholder="28" value="{{tallas.t28}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="29" class="form-control" min="0" placeholder="29" value="{{tallas.t29}}" required>
+                  </div>
+                </div>
+              </div>
+            {% elseif model.tallas == 5 %}
+              <input type="hidden" name="tipoTallas" value="5">
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-xs-2">
+                    <input type="number" name="15" class="form-control" min="0" placeholder="15" value="{{tallas.t15}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="16" class="form-control" min="0" placeholder="16" value="{{tallas.t16}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="17" class="form-control" min="0" placeholder="17" value="{{tallas.t17}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="18" class="form-control" min="0" placeholder="18" value="{{tallas.t18}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="19" class="form-control" min="0" placeholder="19" value="{{tallas.t19}}" required>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <input type="number" name="20" class="form-control" min="0" placeholder="20" value="{{tallas.t20}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="21" class="form-control" min="0" placeholder="21" value="{{tallas.t21}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="22" class="form-control" min="0" placeholder="22" value="{{tallas.t22}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="23" class="form-control" min="0" placeholder="23" value="{{tallas.t23}}" required>
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="number" name="24" class="form-control" min="0" placeholder="24" value="{{tallas.t24}}" required>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+                <input type="hidden" name="tipoTallas" value="0">
+                <h3><center>Tallas no definidas en el modelo</center></h3>
+            {% endif %}
+            
+            <div class="form-group col-xs-12">
+              <label>Observaciones:</label>
+              <input type="text" name="observacion1" value="{{ ordens.observacion1 }}" class="form-control" maxlength="250">
+            </div>
 
+            <div class="box-body">
+            
+            </div>
+            
+
+            <div class="box-header">
+            <div class="box-header">
+              <h3 class="box-title">Tareas orden de produccion</h3>
+            </div>
+              <div class="box-body">
+              <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-3">
+                  <label>Tarea:</label>
+                </div>
+                <div class="col-xs-6">
+                  <label>Valor (x) par:</label>
+                </div>
+              </div>
+              {% set i = 0 %}
+              {% for tarea in tareas %}
+              <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-3">
+                  <input type="text" class="form-control" name="nombreActividad" value="{{tarea.nombre}}" required disabled>
+                  <input type="hidden" name="idTarea{{i}}" value="{{tarea.id}}">
+                </div>
+                <div class="col-xs-6">
+                  <input type="number" class="form-control" name="valorTarea{{i}}" value="{{tarea.valorTarea}}" min="0" required>
+                </div>
+              </div>
+              {% set i = i+1 %}
+            {% endfor %}
+            <input type="hidden" name="cantActividades" value="{{i}}">
+            </div>
+            </div>
+          </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <center><button type="submit" class="btn btn-primary">Registrar</button></center>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        </form>
+      </div>
 
 {% endblock %}

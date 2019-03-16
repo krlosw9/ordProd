@@ -1,89 +1,91 @@
 <?php 
-
+ 
 namespace App\Controllers;
 
-use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos, PedidoModelo, ActividadTarea};
+use App\Models\{Pedido, PedidoModelo, ModelosInfo, Tallas, Clientes, Ciudad, ActividadTarea, MaterialModelos};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
-use Picqer\Barcode\BarcodeGeneratorHTML;
 
-class PedidoController extends BaseController{
+class UpdatePedidoController extends BaseController{
 	
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados y el maximo numero en paginacion
 	private $articulosPorPagina=20;
 	private $limitePaginacion=20;
 
+	public function postUpdDelPedido($request){
+		$responseMessage = null; $pedidoModelos=null; $models=null; $tallas=null;
+		$quiereActualizar = false; $citys=null; $customers=null; $pedidos=null;
+		$ruta='listPedido.twig';
 
-	public function getAddPedidoAction($request){
-		$iniciar=0;
-		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
-		->select('pedido.*', 'clientesProvedores.nombre')
-		->latest('id')
-		->limit($this->articulosPorPagina)->offset($iniciar)
-		->get();
-		
-		$model = ModelosInfo::orderBy('referenciaMod')->get();
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			
+			$id = $postData['id'] ?? false;
+			if ($id) {
+				if($postData['boton']=='del'){
+				  try{
+					$pedidoModelos = PedidoModelo::where("idPedido","=",$id)->get();
+					foreach ($pedidoModelos as $modelo) {
+						$modeloDel = new PedidoModelo();
+						$modeloDel->destroy($modelo->id);
+					}
 
-		return $this->renderHTML('listPedido.twig', [
-			'pedidos'=> $pedido
-		]);
-	}
-
-
-	public function getListAddPedidoAction($request){
-		
-		$cantModelos = $_GET['?'] ?? null;
-		$models = ModelosInfo::latest('referenciaMod')->get();
-
-
-		return $this->renderHTML('listAddPedido.twig',[
-				'cantModelos' => $cantModelos,
-				'models' => $models
-		]);
-	}
-
-	public function postListAddPedidoAction($request){
-		$model=null; $customer=null; $citys=null;
-		$customer = Clientes::where("tipo","=",0)->orderBy('nombre')->get();
-		$city = Ciudad::orderBy('nombre')->get();	
-
-		$cantModelos = $_POST['cantModelos'];
-
-		
-		$models = array();
-
-		for ($i=1; $i <= $cantModelos; $i++) { 
-			$divideCadena = explode(" ", $_POST['modelo'.$i]);
-			$idModelo=$divideCadena[0];
-			$referenciaMod=$divideCadena[1];
-			$tallas=$divideCadena[2];
-
-			$models += [
-			  $i => [
-			    'idModelo' => $idModelo,
-			    'referenciaMod' => $referenciaMod,
-			    'tallas' => $tallas
-			  ]
-			];
-
+					$pedido = new Pedido();
+					$pedido->destroy($id);
+					$responseMessage = "Se elimino el pedido";
+				  }catch(\Exception $e){
+				  	//$responseMessage = $e->getMessage();
+				  	$prevMessage = substr($e->getMessage(), 0, 53);
+					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
+						$responseMessage = 'Error, No se puede eliminar, este pedido esta siendo usado.';
+					}
+				  }
+				}elseif ($postData['boton']=='upd') {
+					$quiereActualizar=true;
+				}
+			}else{
+				$responseMessage = 'Debe Seleccionar un pedido';
+			}
 		}
 		
-		return $this->renderHTML('addPedido.twig',[
-				'models' => $models,
-				'customers' => $customer,
-				'citys' => $city
+		if ($quiereActualizar){
+			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
+			$pedidos = Pedido::find($id);
+			$models = PedidoModelo::Join("modelosInfo","pedidoModelo.idModelo","=","modelosInfo.id")
+			->select('pedidoModelo.*', 'modelosInfo.referenciaMod')
+			->where("idPedido","=",$id)->get();
+
+			$customers = Clientes::where("tipo","=",0)->orderBy('nombre')->get();
+			$citys = Ciudad::orderBy('nombre')->get();
+
+			$ruta='updatePedido.twig';
+		}else{
+			$iniciar=0;
+			$pedidos = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
+			->select('pedido.*', 'clientesProvedores.nombre')
+			->latest('id')
+			->limit($this->articulosPorPagina)->offset($iniciar)
+			->get();
+		}
+		return $this->renderHTML($ruta, [
+			'pedidos' => $pedidos,
+			'pedidoModelos' => $pedidoModelos,
+			'customers' => $customers,
+			'citys' => $citys,
+			'models' => $models,
+			'tallas' => $tallas,
+			'idUpdate' => $id,
+			'responseMessage' => $responseMessage
 		]);
 	}
 
 
-
-	//Registra la Persona
-	public function postAddPedidoAction($request){
+	//en esta accion se registra las modificaciones del registro
+	public function getUpdatePedido($request){
 		$cantidadPedMod=0; $sumaActividades=0;
 		$sumatoriaPedido=0; $nominaModelo=0; $nominaActividad=0;
 		$refPedido ='';
-		$materiales = array(); $j=0;
-		$cantidades = array();
+		$j=0;
 		$ruta = 'listPedido.twig';
 		
 		$responseMessage = null;
@@ -98,22 +100,18 @@ class PedidoController extends BaseController{
 				try{
 					$pedidoValidator->assert($postData);
 					$postData = $request->getParsedBody();
-					
-					$queryPedido = Pedido::all();
-					$pedidoUltimo = $queryPedido->last();
-					$idPedido = $pedidoUltimo->id+1;
 
-					$pedido = new Pedido();
-					$pedido->id = $idPedido;
+					$pedido = Pedido::find($postData['id']);
 					$pedido->referencia = $postData['referencia'];
 					$pedido->idCliente = $postData['idCliente'];
 					$pedido->idCiudad = $postData['idCiudad'];
 					$pedido->fechaPedido=$postData['fechaPedido'];
 					$pedido->fechaEntrega=$postData['fechaEntrega'];
 					$pedido->observacion = $postData['observacion'];
-					$pedido->idUserRegister = $_SESSION['userId'];
 					$pedido->idUserUpdate = $_SESSION['userId'];
 					$pedido->save();
+
+
 
 					$refPedido = $postData['referencia'];
 					$observacionGeneral = $postData['observacion'];
@@ -253,9 +251,7 @@ echo "
 </div>
 <br>
 ";
-					$pedidoModelo = new PedidoModelo();
-					$pedidoModelo->idPedido = $idPedido;
-					$pedidoModelo->idModelo=$postData['idModelo'.$iterador];
+					$pedidoModelo = PedidoModelo::find($postData['idPedidoModelo'.$iterador]);
 					$pedidoModelo->cantidadPedMod=$postData['cantidadPedMod'.$iterador];
 					$pedidoModelo->cantRestPedMod=$postData['cantidadPedMod'.$iterador];
 					$pedidoModelo->precioVenta = $precioVenta;
@@ -270,7 +266,7 @@ echo "
 
 					}//fin for()
 					
-					$updPedido = Pedido::find($idPedido);
+					$updPedido = Pedido::find($postData['id']);//este id es el id de pedido-> me dio pereza cambiarle de nombre :)
 					$updPedido->cantidad=$sumatoriaPedido;
 					$updPedido->cantRestante=$sumatoriaPedido;
 					$updPedido->save();
@@ -310,91 +306,15 @@ echo "</div>
 		
 			return $this->renderHTML($ruta ,[
 				'responseMessage' => $responseMessage,
-				'materiales' => $materiales,
-				'cantidades' => $cantidades,
 				'refPedido' => $refPedido,
 				'cantPares' => $cantidadPedMod
 			]);
-		
 	}
 
-	public function getPdf(){
-		$materiales=array();
-		$sumatoria = 10;
-
-		for ($iterador=4; $iterador <= 6 ; $iterador++) { 
-			$query = MaterialModelos::Join("inventarioMaterial","materialModelos.idInventarioMaterial","=","inventarioMaterial.id")
-			->select('materialModelos.*', 'inventarioMaterial.nombre', 'inventarioMaterial.unidadMedida', 'inventarioMaterial.precio')
-			->where("materialModelos.idModeloInfo","=",$iterador)
-			->get();
-			
-			foreach ($query as $value) {
-				$informe[$value->id]['nameMaterial'] = $value->nombre;
-				$informe[$value->id]['idModeloInfo'] = $value->idModeloInfo;
-				$informe[$value->id]['cantidad']= $sumatoria;
-				//$informe[$value->id]['consumo'] = $value->consumoPorPar;
-				
-			}
-
-			/*$informe = [
-				'idModelo' => $iterador,
-				'mate' => 'material'.$iterador,
-				'consumoPorPar' => 'consumo'.$iterador,
-				'unidadMedida' => 'unidadMedida'.$iterador
-			];*/
-
-			$sumatoria++;
-			/*$materiales[$iterador]['varios'] = $informe;
-			$materiales[$iterador]['cantPares'] = $sumatoria;*/
-		}
+	
 
 
 
-		return $this->renderHTML('pdfpedido.twig', [
-			'materiales'=> $informe
-		]);
-	}
-
-
-	//Lista todas la pedido Ordenando por posicion
-	public function getListPedido(){
-		$responseMessage = null; $iniciar=0;
-		
-		$numeroDeFilas = Pedido::selectRaw('count(*) as query_count')
-		->first();
-
-		
-		$totalFilasDb = $numeroDeFilas->query_count;
-		$numeroDePaginas = $totalFilasDb/$this->articulosPorPagina;
-		$numeroDePaginas = ceil($numeroDePaginas);
-
-		//No permite que haya muchos botones de paginar y de esa forma va a traer una cantidad limitada de registro, no queremos que se pagine hasta el infinito, porque tambien puede ser molesto.
-		if ($numeroDePaginas > $this->limitePaginacion) {
-			$numeroDePaginas=$this->limitePaginacion;
-		}
-
-		$paginaActual = $_GET['pag'] ?? null;
-		if ($paginaActual) {
-			if ($paginaActual > $numeroDePaginas or $paginaActual < 1) {
-				$paginaActual = 1;
-			}
-			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
-		}
-
-		$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
-		->select('pedido.*', 'clientesProvedores.nombre')
-		->latest('id')
-		->limit($this->articulosPorPagina)->offset($iniciar)
-		->get();
-		
-		$model = ModelosInfo::orderBy('referenciaMod')->get();
-
-		return $this->renderHTML('listPedido.twig', [
-			'pedidos'=> $pedido,
-			'numeroDePaginas' => $numeroDePaginas,
-			'paginaActual' => $paginaActual
-		]);
-	}
 
 
 }

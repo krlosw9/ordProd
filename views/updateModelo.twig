@@ -4,12 +4,12 @@
 
 <h1>
     Modelo
-    <small>Registro</small>
+    <small>Actualizacion</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
     <li><a href="./modellist">Modelo</a></li>
-    <li class="active">Registro</li>
+    <li class="active">Actualizacion</li>
   </ol>
 </section>
 <section class="content">
@@ -30,7 +30,7 @@
             </div>
             <div class="form-group col-xs-6">
               <label>Referencia:</label>
-              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" maxlength="10" value="{{modelos.referenciaMod}}" required pattern="[A-Za-z0-9]+" title="Sin espacios ni signos, Solo Numeros y letras">
+              <input type="text" name="referenciaMod" class="form-control" placeholder="Maximo 12 digitos" maxlength="10" value="{{modelos.referenciaMod}}" required>
             </div>
             <div class="form-group col-xs-6">
               <label>Hormas:</label>
@@ -66,11 +66,15 @@
                 <option value="5"{% if modelos.tallas == 5 %}selected{% endif %}>15-20</option>
               </select>
             </div>
-            <div class="form-group col-xs-12">
+            <div class="form-group col-xs-6">
               <label>Imagen:</label>
               <input type="file" name="fileImg" class="form-control">
             </div>
             <input type="hidden" name="imagenUrl" value="{{ modelos.imagenUrl }}" required>
+            <div class="form-group col-xs-6">
+              <label>Observacion Modelo:</label>
+              <input type="text" name="observacionMod" class="form-control" placeholder="Opcional, maximo 250 caracteres" maxlength="250" value="{{modelos.observacion}}">
+            </div>
             <div class="box-body">
               
                 
@@ -83,13 +87,16 @@
             </div>
               <div class="box-body">
                 <div class="row" style="padding-top: 10px;">
+                  <div class="col-xs-2">
+                    <label>Eliminar:</label>
+                  </div>
                   <div class="col-xs-4">
                     <label>Material:</label>
                   </div>
-                  <div class="col-xs-4">
+                  <div class="col-xs-3">
                     <label>Consumo/x/Par:</label>
                   </div>
-                  <div class="col-xs-4">
+                  <div class="col-xs-3">
                     <label>Observacion:</label>
                   </div>
                 </div>
@@ -97,6 +104,12 @@
               {% for material in materiales %}
               <input type="hidden" name="idMaterial{{i}}" value="{{ material.id }}" class="form-control" required>
               <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-2">
+                  <select class="form-control select-picker" name="eliminarMaterial{{i}}">
+                    <option value="0" selected>No</option>
+                    <option value="1">Si</option>
+                </select>
+                </div>
                 <div class="col-xs-4">
                   <select class="form-control select-picker" id="idInventarioMaterial" name="idInventarioMaterial{{i}}">
                   {% for inventory in inventorys %}
@@ -108,10 +121,10 @@
                   {% endfor %}
                 </select>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-3">
                   <input type="text" class="form-control" name="consumoPorPar{{i}}" value="{{material.consumoPorPar}}" min="0" required>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-3">
                   <input type="text" name="observacion{{i}}" class="form-control" value="{{material.observacion}}">
                 </div>
               </div>

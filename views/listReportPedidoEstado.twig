@@ -1,15 +1,15 @@
-{% extends "layout.twig" %} 
+{% extends "layout.twig" %}
 
 {% block content %}
 
   <h1>
-    Pedido
-    <small>Listado</small>
+    Consulta
+    <small>Estado del pedido</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./pedidolist">Pedido</a></li>
-    <li class="active">Listado</li>
+    <li><a href="./reportepedidoest">Consulta</a></li>
+    <li class="active">Estado de pedido</li>
   </ol>
 </section>
 <section class="content">
@@ -18,11 +18,11 @@
     <div class="col-xs-12">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Listado de pedidos</h3>
+        <h3 class="box-title">Seleccione un pedido y dele verificar</h3>
       </div>
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="pedidodel" target="_blank" method="post" role="form">
+       <form action="querypedidoest" method="post" role="form">
         <table class="table table-bordered" >
           <tr>
             <th style="width: 10px">#</th>
@@ -66,24 +66,13 @@
           {{ responseMessage }}
         </div>
         <div class="box-footer">
-          <button type="submit" name="boton" value="del" class="btn btn-primary">Eliminar</button>
-          <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
+          <button type="submit" class="btn btn-primary">Verificar</button>
         </div>
        </form>
-       <div class="box-footer">
-       <form action="pedidolistadd" target="_blank" method="get">
-        <div class="col-xs-5">
-          <input type="number" class="form-control" name="?" min="1" placeholder="Cuantos modelos tiene este pedido?: " required>
-        </div>
-        <button type="submit" class="btn btn-primary">Nuevo</button>
-       </form>
-       
-       </div>
       </div>
       <!-- /.box-body -->
       </div>
     </div>
 
-    
 
 {% endblock %}

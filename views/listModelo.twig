@@ -29,6 +29,7 @@
             <th style="width: 100px">Referencia</th>
             <th style="width: 100px">Horma</th>
             <th style="width: 100px">Linea</th>
+            <th style="width: 100px">Observacion</th>
           </tr>
           {% for modelo in modelos %}
           <tr>
@@ -38,6 +39,7 @@
               <td>{{ modelo.referenciaMod }}</td>
               <td>{{ modelo.referencia }}</td>
               <td>{{ modelo.nombreLinea }}</td>
+              <td>{{ modelo.observacion }}</td>
           </tr>
           {% endfor %}
         </table>
@@ -60,7 +62,7 @@
           {{ responseMessage }}
         </div>
         <div class="box-footer">
-          <button type="submit" name="boton" value="del" class="btn btn-primary" disabled>Eliminar</button>
+          <button type="submit" name="boton" value="del" class="btn btn-primary" >Eliminar</button>
           <button type="submit" name="boton" value="upd" class="btn btn-primary">Actualizar</button>
         </div>
        </form>

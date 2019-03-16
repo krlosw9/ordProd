@@ -147,6 +147,7 @@ class NominaController extends BaseController{
 						$nomina->referencias = $postData['referencias'];
 						$nomina->valor = $postData['totalNomina'];
 						$nomina->observacion = $postData['observacion'];
+						$nomina->liquidada = 0;
 						$nomina->idUserRegister = $_SESSION['userId'];
 						$nomina->idUserUpdate = $_SESSION['userId'];
 						$nomina->save();

@@ -33,7 +33,7 @@
               <select class="form-control select-picker" name="modelo{{i}}" required>
               <option value="">Seleccione el Modelo</option>
               {% for model in models %}
-                <option value="{{ model.id }} {{ model.referenciaMod }} {{ model.tallas }}">{{ model.referenciaMod }}</option>
+                <option value="{{ model.id }} {{ model.referenciaMod }} {{ model.tallas }}">{{ model.referenciaMod }}  >  {{ model.observacion }}</option>
               {% endfor %}
               </select>
             </div>
