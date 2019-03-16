@@ -236,7 +236,7 @@ class ModeloController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$modeloValidator = v::key('referenciaMod', v::stringType()->length(1, 10)->notEmpty());
+			$modeloValidator = v::key('referenciaMod', v::stringType()->noWhitespace()->length(1, 10)->notEmpty());
 
 			
 			if($_SESSION['userId']){
@@ -310,7 +310,7 @@ class ModeloController extends BaseController{
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 10 digitos.';
+						$responseMessage = 'Error, la referencia no puede contener espacios en blanco.';
 					}elseif ($prevMessage =="SQLSTATE[23000]") {
 						$responseMessage = 'Error, Las referencias deben ser diferentes y esta referencia ya existe';
 					}else{
