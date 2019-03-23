@@ -47,25 +47,22 @@
               </select>
             </div>
             <div class="form-group col-xs-6">
-              <label>Tallas:</label>
-              <select class="form-control select-picker" id="tallas" name="tallas">
-                <option value="1" selected="selected">37-44</option>
-                <option value="2">33-41</option>
-                <option value="3">27-33</option>
-                <option value="4">21-26</option>
-                <option value="5">15-20</option>
-              </select>
-            </div>
-            <div class="form-group col-xs-6">
               <label>Imagen:</label>
               <input type="file" name="fileImg" class="form-control" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12">
               <label>Observacion Modelo:</label>
               <input type="text" name="observacionMod" class="form-control" placeholder="Opcional, maximo 250 caracteres" maxlength="250">
             </div>
             <div class="box-body">
-              
+            {% for talla in tallas %}
+              <div class="col-xs-1" style="transform: scale(1.3);">
+                <input type="hidden" name="idTalla[]" value="{{talla.id}}">
+                <label>{{talla.nombreTalla}}</label>
+                <input type="checkbox" name="{{talla.id}}">
+              </div>
+            {% endfor %}  
+
                 
             </div>
             

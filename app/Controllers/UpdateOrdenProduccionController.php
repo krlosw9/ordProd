@@ -2,7 +2,7 @@
  
 namespace App\Controllers;
 
-use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo, Proveedores};
+use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo, Proveedores, Talla, TallasOrden, TallasModelo};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -15,8 +15,8 @@ class UpdateOrdenProduccionController extends BaseController{
 
 	public function postUpdDelOrden($request){
 		$responseMessage = null; $orden=null; $tareas=null; $cantidadParesTarea=0;
-		$quiereActualizar = false; $model=null; $pedidoModelo=null;
-		$tallas = null; $pedido=null;
+		$quiereActualizar = false; $model=null; $pedidoModelo=null; $hayOperario = false;
+		$tallas = null; $pedido=null; $tallasOrden=null;
 		$ruta='listOrden.twig';
 
 		if($request->getMethod()=='POST'){
@@ -26,35 +26,52 @@ class UpdateOrdenProduccionController extends BaseController{
 			if ($id) {
 				if($postData['boton']=='del'){
 				  try{
-				  	$tareas = TareaOperario::where("idInfoOrdenProduccion","=",$id)->get();
-				  	$tareaDel = new TareaOperario();
-				  	foreach ($tareas as $tarea) {				  		
-						$tareaDel->destroy($tarea->id);
-						$cantidadParesTarea=$tarea->cantidadPares;
+				  	//En esta consulta y en el foreach verifica si tiene operarios asignados a las tareas de esta orden de produccion si ya tiene operario asignado no lo elimina
+				  	$tareaOperario = TareaOperario::where("idInfoOrdenProduccion","=",$id)->get();
+				  	foreach ($tareaOperario as $tarea) {
+				  		if ($tarea->idOperario) {
+				  			$hayOperario=true;
+				  		}
 				  	}
-				  	$orden = InfoOrdenProduccion::find($id);
 
-					$orderDel = new InfoOrdenProduccion();
-					$orderDel->destroy($id);
-					
-					$tallaDel = new Tallas();
-					$tallaDel->destroy($orden->idTallas);
+				  	if ($hayOperario == false) {
+						
+					  	$tareas = TareaOperario::where("idInfoOrdenProduccion","=",$id)->get();
+					  	$tareaDel = new TareaOperario();
+					  	foreach ($tareas as $tarea) {				  		
+							$tareaDel->destroy($tarea->id);
+							$cantidadParesTarea=$tarea->cantidadPares;
+					  	}
+					  	$orden = InfoOrdenProduccion::find($id);
 
-					/* Al eliminar la orden de produccion, se debe actualizar la cantidad en el pedido y pedidoModelo sumandole la cantidad de pares que tenia esa ordenProduccion (la cantidad de pares se saca de la tarea) */
-					$idPedidoModelo = $orden->idPedidoModelo ?? null;
-					if ($idPedidoModelo) {
-						$pedidoModelo = PedidoModelo::find($idPedidoModelo);
-						$newCantRestPedMod = $pedidoModelo->cantRestPedMod +$cantidadParesTarea;
-						$pedidoModelo->cantRestPedMod = $newCantRestPedMod;
-						$pedidoModelo->save();
+					  	$tallasOrden = TallasOrden::where("idInfoOrden","=",$id)->get();
+						$tallaDel = new TallasOrden();
+						foreach ($tallasOrden as $tallaOrd) {
+							$tallaDel->destroy($tallaOrd->id);
+						}
 
-						$pedido = Pedido::find($pedidoModelo->idPedido);
-						$newCantRestPedido = $pedido->cantRestante +$cantidadParesTarea;
-						$pedido->cantRestante = $newCantRestPedido;
-						$pedido->save();	
-					}
+						$orderDel = new InfoOrdenProduccion();
+						$orderDel->destroy($id);
 
-					$responseMessage = "Se elimino la Orden";
+						// Al eliminar la orden de produccion, se debe actualizar la cantidad en el pedido y pedidoModelo sumandole la cantidad de pares que tenia esa ordenProduccion (la cantidad de pares se saca de la tarea) 
+						$idPedidoModelo = $orden->idPedidoModelo ?? null;
+						if ($idPedidoModelo) {
+							$pedidoModelo = PedidoModelo::find($idPedidoModelo);
+							$newCantRestPedMod = $pedidoModelo->cantRestPedMod +$cantidadParesTarea;
+							$pedidoModelo->cantRestPedMod = $newCantRestPedMod;
+							$pedidoModelo->save();
+
+							$pedido = Pedido::find($pedidoModelo->idPedido);
+							$newCantRestPedido = $pedido->cantRestante +$cantidadParesTarea;
+							$pedido->cantRestante = $newCantRestPedido;
+							$pedido->save();	
+						}
+	
+						$responseMessage = "Se elimino la Orden";				  		
+				  	}else{
+				  		$responseMessage = "Error, No se puede eliminar, esta orden de produccion ya tiene operarios asignados";
+				  	}
+
 				  }catch(\Exception $e){
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 53);
@@ -72,14 +89,12 @@ class UpdateOrdenProduccionController extends BaseController{
 		
 		if ($quiereActualizar){
 			try{
-				//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
+				//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml 
 				$orden = InfoOrdenProduccion::find($id);
 				$tareas = TareaOperario::Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
 				->select('tareaOperario.*', 'actividadTarea.nombre', 'actividadTarea.posicion')
 				->where("idInfoOrdenProduccion","=",$id)
 				->latest('posicion')->get();
-
-				$tallas = Tallas::find($orden->idTallas);
 
 				$idPedidoModelo = $orden->idPedidoModelo ?? null;
 				
@@ -93,6 +108,13 @@ class UpdateOrdenProduccionController extends BaseController{
 
 					$model = ModelosInfo::find($pedidoModelo->idModelo);
 				}
+
+				$tallas = TallasModelo::Join("talla","tallasModelo.idtalla","=","talla.id")
+				->select('tallasModelo.*', 'talla.nombreTalla')
+				->where("tallasModelo.idModeloInf","=",$pedidoModelo->idModelo)
+				->orderBy('nombreTalla')
+				->get();
+				$tallasOrden = TallasOrden::where("idInfoOrden","=",$id)->orderBy('idTalla')->get();
 
 				$ruta='updateOrden.twig';
 			}catch(\Exception $e){
@@ -113,6 +135,7 @@ class UpdateOrdenProduccionController extends BaseController{
 			'pedidos' => $pedido,
 			'model' => $model,
 			'tallas' => $tallas,
+			'tallasOrden' => $tallasOrden,
 			'idUpdate' => $id,
 			'responseMessage' => $responseMessage
 		]);
@@ -124,7 +147,7 @@ class UpdateOrdenProduccionController extends BaseController{
 		$registroExitoso=false;
 		$tallaInicio=0;
 		$tallaFin=0;
-		$responseMessage = null;
+		$responseMessage = null; $sumatoria=0;
 		$provider = null;
 		$imgName = null;
 		$cantPiezas=$_GET['numPart'] ?? null;
@@ -139,92 +162,6 @@ class UpdateOrdenProduccionController extends BaseController{
 				try{
 					$ordenValidator->assert($postData);
 					$postData = $request->getParsedBody();
-
-					$tallas = Tallas::find($postData['idTallas']);
-					if ($postData['tipoTallas']==1) {
-						$tallaInicio=35;
-						$tallaFin=44;
-				  		$tallas->t35 = $postData['35'];	
-				  		$tallas->t36 = $postData['36'];
-				  		$tallas->t37 = $postData['37'];
-				  		$tallas->t38 = $postData['38'];
-				  		$tallas->t39 = $postData['39'];
-				  		$tallas->t40 = $postData['40'];
-				  		$tallas->t41 = $postData['41'];
-				  		$tallas->t42 = $postData['42'];
-				  		$tallas->t43 = $postData['43'];
-				  		$tallas->t44 = $postData['44'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41']+$postData['42']+$postData['43']+$postData['44'];
-					}elseif ($postData['tipoTallas']==2) {
-						$tallaInicio=32;
-						$tallaFin=41;
-				  		$tallas->t32 = $postData['32'];	
-				  		$tallas->t33 = $postData['33'];
-				  		$tallas->t34 = $postData['34'];
-				  		$tallas->t35 = $postData['35'];
-				  		$tallas->t36 = $postData['36'];
-				  		$tallas->t37 = $postData['37'];
-				  		$tallas->t38 = $postData['38'];
-				  		$tallas->t39 = $postData['39'];
-				  		$tallas->t40 = $postData['40'];
-				  		$tallas->t41 = $postData['41'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['32']+$postData['33']+$postData['34']+$postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41'];
-					}elseif ($postData['tipoTallas']==3) {
-						$tallaInicio=26;
-						$tallaFin=35;
-				  		$tallas->t26 = $postData['26'];	
-				  		$tallas->t27 = $postData['27'];
-				  		$tallas->t28 = $postData['28'];
-				  		$tallas->t29 = $postData['29'];
-				  		$tallas->t30 = $postData['30'];
-				  		$tallas->t31 = $postData['31'];
-				  		$tallas->t32 = $postData['32'];
-				  		$tallas->t33 = $postData['33'];
-				  		$tallas->t34 = $postData['34'];
-				  		$tallas->t35 = $postData['35'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['26']+$postData['27']+$postData['28']+$postData['29']+$postData['30']+$postData['31']+$postData['32']+$postData['33']+$postData['34']+$postData['35'];
-					}elseif ($postData['tipoTallas']==4) {
-						$tallaInicio=20;
-						$tallaFin=29;
-				  		$tallas->t20 = $postData['20'];	
-				  		$tallas->t21 = $postData['21'];
-				  		$tallas->t22 = $postData['22'];
-				  		$tallas->t23 = $postData['23'];
-				  		$tallas->t24 = $postData['24'];
-				  		$tallas->t25 = $postData['25'];
-				  		$tallas->t26 = $postData['26'];
-				  		$tallas->t27 = $postData['27'];
-				  		$tallas->t28 = $postData['28'];
-				  		$tallas->t29 = $postData['29'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24']+$postData['25']+$postData['26']+$postData['27']+$postData['28']+$postData['29'];
-					}elseif ($postData['tipoTallas']==5) {
-						$tallaInicio=15;
-						$tallaFin=24;
-				  		$tallas->t15 = $postData['15'];
-				  		$tallas->t16 = $postData['16'];
-				  		$tallas->t17 = $postData['17'];
-				  		$tallas->t18 = $postData['18'];
-				  		$tallas->t19 = $postData['19'];
-				  		$tallas->t20 = $postData['20'];
-				  		$tallas->t21 = $postData['21'];
-				  		$tallas->t22 = $postData['22'];
-				  		$tallas->t23 = $postData['23'];
-				  		$tallas->t24 = $postData['24'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['15']+$postData['16']+$postData['17']+$postData['18']+$postData['19']+$postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24'];
-					}else{
-						$responseMessage2=' Tallas NO registradas';
-					}
-
 					
 					$referenciaOrd=$postData['referenciaOrd'];
 					$fechaRegistro=$postData['fechaRegistro'];
@@ -241,7 +178,7 @@ class UpdateOrdenProduccionController extends BaseController{
 					$prevCantParesTarea = $ultimaTarea->cantidadPares;
 
 
-					/* registra InfoOrdenProduccion */
+					/* actualiza InfoOrdenProduccion */
 					$order = InfoOrdenProduccion::find($idOrden);
 					$order->referenciaOrd=$referenciaOrd;
 					$order->observacion1 = $observacion1;
@@ -250,6 +187,51 @@ class UpdateOrdenProduccionController extends BaseController{
 					$order->idUserUpdate = $_SESSION['userId'];
 					$order->save();
 
+					//Actualiza las tallas de la orden de produccion
+					$arrayIdTalla = $postData['idTalla'] ?? null;
+
+					foreach ($arrayIdTalla as $talla) {
+						
+						$idTallasOrden = $postData['idTallasOrden'.$talla] ?? null;
+
+						if ($postData[$talla]) {
+							$valorTalla = $postData[$talla]; 
+						}else{
+							$valorTalla = 0;
+						}
+						
+						if ($idTallasOrden) {
+							try{
+								$tallaOrdenUpd = TallasOrden::find($idTallasOrden);
+								$tallaOrdenUpd->cantPares=$valorTalla;
+								$tallaOrdenUpd->idUserUpdate = $_SESSION['userId'];
+								$tallaOrdenUpd->save();
+								
+								$sumatoria += $valorTalla;
+							}catch(\Exception $e){
+								//$responseMessage = $e->getMessage();
+								$responseMessage = substr($e->getMessage(), 0, 53);
+							}
+						}else{
+							if ($valorTalla != 0) {
+								try{
+									$tallaOrdenNew = new TallasOrden();
+									$tallaOrdenNew->idInfoOrden = $idOrden;
+									$tallaOrdenNew->idTalla = $talla;
+									$tallaOrdenNew->cantPares=$valorTalla;
+									$tallaOrdenNew->idUserRegister=$_SESSION['userId'];
+									$tallaOrdenNew->idUserUpdate=$_SESSION['userId'];
+									$tallaOrdenNew->save();
+
+									$sumatoria += $valorTalla;
+								}catch(\Exception $e){
+									//$responseMessage = $e->getMessage();
+									$responseMessage = substr($e->getMessage(), 0, 53);
+								}
+								
+							}
+						}
+					}
 					
 					for($i=0;$i<$postData['cantActividades'];$i++){
 						$tarea = TareaOperario::find($postData['idTarea'.$i]);
@@ -278,7 +260,7 @@ class UpdateOrdenProduccionController extends BaseController{
 					$pedidoModelo->save();
 
 					$registroExitoso=true;
-					$responseMessage = 'Registrado';
+					$responseMessage .= 'Registrado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
@@ -340,7 +322,7 @@ echo
     
     <!-- info row -->
     <div class='row invoice-info'>
-      <div class='col-md-12 invoice-col' style='font-size: 20px;'>
+      <div class='col-md-12 invoice-col' style='font-size: 25px;'>
         <strong>Cliente:</strong> $cliente<br>
       </div>
       <div class='col-md-5 invoice-col' style='font-size: 18px;'>
@@ -364,12 +346,16 @@ echo
           <table border='1'>
   <thead>
     <tr>";
-for ($i=$tallaInicio; $i <= $tallaFin ; $i++) { 
-	echo "
-
-      <th> $i </th>
-      ";	
-}
+    foreach ($arrayIdTalla as $talla) {
+		if ($postData['nombreTalla'.$talla]) {
+			$nombreTalla = $postData['nombreTalla'.$talla] ;
+		}else{
+			$nombreTalla = null;
+		}
+		echo "
+	    	<th> $nombreTalla </th>
+	     ";					
+	}
 
     echo "
     <th> : </th>
@@ -378,12 +364,17 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
   </thead>
   <tbody>
     <tr>"; 
+	foreach ($arrayIdTalla as $talla) {					
+		if ($postData[$talla]) {
+			$cantParesTalla = $postData[$talla];	
+		}else{
+			$cantParesTalla=0;
+		}
 
-for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
-	echo "<td>";
-	echo $postData[$i];
-	echo "</td>";
-}
+		echo "
+	    	<th> $cantParesTalla </th>
+	     ";
+	}
     echo "
       <td> : </td>
       <td> $sumatoria </td>
@@ -403,7 +394,7 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
     </div>
   </div>
   <div class='row'>
-    <div class='col-md-11' style='border: 1px black solid; word-wrap: break-word; height: 120px;'>$observacion1
+    <div class='col-md-11' style='border: 1px black solid; word-wrap: break-word; height: 147px; font-size: 20px;'>$observacion1
     </div>
   </div>
 <div class='col-md-5 invoice-col' style='font-size: 30px;'>

@@ -2,55 +2,48 @@
 
 namespace App\Controllers;
 
-use App\Models\ActividadTarea;
+use App\Models\Talla;
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class ActividadTareaController extends BaseController{
+class TallaController extends BaseController{
 	
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
 	private $articulosPorPagina=15;
 	private $limitePaginacion=20;
 
-	public function getAddActividadTareaAction($request){
-		return $this->renderHTML('addActividadTarea.twig');
+	public function getAddTallaAction($request){
+		return $this->renderHTML('addTalla.twig');
 	}
 
-	//Registra la Actividad-Tarea
-	public function postAddActividadTareaAction($request){
+	//Registra la Talla
+	public function postAddTallaAction($request){
 		$responseMessage = null;
 			
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$actividadTareaValidator = v::key('nombre', v::stringType()->length(1, 30)->notEmpty())
-					->key('valorPorPar', v::numeric()->positive()->between(0, 100000))
-					->key('posicion', v::numeric()->positive()->between(1, 20));
+			$tallaValidator = v::key('nombreTalla', v::stringType()->length(1, 3)->noWhitespace()->notEmpty());
 			if($_SESSION['userId']){
 				try{
-					$actividadTareaValidator->assert($postData);
+					$tallaValidator->assert($postData);
 					$postData = $request->getParsedBody();
-					
-					$actOpe = new ActividadTarea();
-					$actOpe->nombre = $postData['nombre'];
-					$actOpe->valorPorPar = $postData['valorPorPar'];
-					$actOpe->posicion = $postData['posicion'];
-					$actOpe->observacion = $postData['observacion'];
-					$actOpe->idUserRegister = $_SESSION['userId'];
-					$actOpe->idUserUpdate = $_SESSION['userId'];
-					$actOpe->save();
+					$size = new Talla();
+					$size->nombreTalla = $postData['nombreTalla'];
+					$size->idUserRegister = $_SESSION['userId'];
+					$size->idUserUpdate = $_SESSION['userId'];
+					$size->save();
 					
 					$responseMessage = 'Registrado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
-					if ($prevMessage =="These rules mus") {
-
-						$responseMessage = 'Error, el valor por par debe ser superior a $1 y la posicion debe ser entre 1 y 20.';
+					if ($prevMessage =="All of the requ") {
+						$responseMessage = 'Error, la talla debe ser superior a 0 he inferior a 50.';
 					}elseif ($prevMessage =="SQLSTATE[23000]") {
-						$responseMessage = 'Error, la posicion que coloco ya esta registrada (No puede haber dos posiciones iguales).';
+						$responseMessage = 'Error, la talla que coloco ya esta registrada (No puede haber dos tallas iguales).';
 					}else{
 						//$responseMessage = $e->getMessage();
-						$responseMessage = substr($e->getMessage(), 0, 50);
+						$responseMessage = substr($e->getMessage(), 0, 45);
 					}
 				}
 			}
@@ -58,16 +51,16 @@ class ActividadTareaController extends BaseController{
 		
 
 		//Retorna a la pagina de registro con un mensaje $responseMessage
-		return $this->renderHTML('addActividadTarea.twig',[
+		return $this->renderHTML('addTalla.twig',[
 				'responseMessage' => $responseMessage
 			]);
 	}
 
-	//Lista todas la Actividad-Tarea Ordenando por posicion
-	public function getListActividadTarea(){
+	//Lista todas la Talla Ordenando por nombre
+	public function getListTalla(){
 		$iniciar=0;
 
-		$numeroDeFilas = ActividadTarea::selectRaw('count(*) as query_count')
+		$numeroDeFilas = Talla::selectRaw('count(*) as query_count')
 		->first();
 
 		
@@ -88,12 +81,12 @@ class ActividadTareaController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$actOpes = ActividadTarea::orderBy('posicion')
+		$size = Talla::orderBy('nombreTalla')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
-		return $this->renderHTML('listActividadTarea.twig', [
-			'actOpes' => $actOpes,
+		return $this->renderHTML('listTalla.twig', [
+			'size' => $size,
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual
 		]);
@@ -101,10 +94,10 @@ class ActividadTareaController extends BaseController{
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelActividadTarea($request){
+	public function postUpdDelTalla($request){
 		$responseMessage = null;
 		$quiereActualizar = false;
-		$ruta='listActividadTarea.twig';
+		$ruta='listTalla.twig';
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -113,14 +106,17 @@ class ActividadTareaController extends BaseController{
 			if ($id) {
 				if($postData['boton']=='del'){
 				  try{
-					$actOpe = new ActividadTarea();
-					$actOpe->destroy($id);
-					$responseMessage = "Se elimino la actividad";
+					$size = new Talla();
+					$size->destroy($id);
+					$responseMessage = "Se elimino la talla";
 				  }catch(\Exception $e){
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 53);
 					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
-						$responseMessage = 'Error, No se puede eliminar, esta actividad esta siendo usada.';
+						$responseMessage = 'Error, No se puede eliminar, esta talla esta siendo usada.';
+					}else{
+						//$responseMessage = $e->getMessage();
+						$responseMessage = substr($e->getMessage(), 0, 25);
 					}
 				  }
 
@@ -128,73 +124,70 @@ class ActividadTareaController extends BaseController{
 					$quiereActualizar=true;
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar una actividad';
+				$responseMessage = 'Debe Seleccionar una talla';
 			}
 		}
 		
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$actOpes = ActividadTarea::find($id);
-			$ruta='updateActividadTarea.twig';
+			$size = Talla::find($id);
+			$ruta='updateTalla.twig';
 		}else{
 			$iniciar=0;
-			$actOpes = ActividadTarea::orderBy('posicion')
+			$size = Talla::orderBy('nombreTalla')
 			->limit($this->articulosPorPagina)->offset($iniciar)
 			->get();
 		}
 		return $this->renderHTML($ruta, [
-			'actOpes' => $actOpes,
+			'size' => $size,
 			'idUpdate' => $id,
 			'responseMessage' => $responseMessage
 		]);
 	}
 
 	//en esta accion se registra las modificaciones del registro
-	public function getUpdateActividadTarea($request){
+	public function getUpdateTalla($request){
 
 		$responseMessage = null;
 				
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$actividadTareaValidator = v::key('nombre', v::stringType()->notEmpty())
-					->key('valorPorPar', v::numeric()->positive()->between(0, 100000))
-					->key('posicion', v::numeric()->positive()->between(1, 20));
+			$tallaValidator = v::key('nombreTalla', v::stringType()->notEmpty());
 
 			
 			if($_SESSION['userId']){
 				try{
-					$actividadTareaValidator->assert($postData);
+					$tallaValidator->assert($postData);
 					$postData = $request->getParsedBody();
 					
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$actOpe = ActividadTarea::find($postData['id']);
-					$actOpe->nombre = $postData['nombre'];
-					$actOpe->valorPorPar = $postData['valorPorPar'];
-					$actOpe->posicion = $postData['posicion'];
-					$actOpe->observacion = $postData['observacion'];
-					$actOpe->idUserUpdate = $_SESSION['userId'];
-					$actOpe->save();
+					$size = Talla::find($postData['id']);
+					$size->nombreTalla = $postData['nombreTalla'];
+					$size->idUserUpdate = $_SESSION['userId'];
+					$size->save();
 					
 					$responseMessage = 'Actualizado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
-					if ($prevMessage =="These rules mus") {
-
-						$responseMessage = 'Error, el valor por par debe ser superior a $1 y la posicion debe ser entre 1 y 20.';
+					if ($prevMessage =="All of the requ") {
+						$responseMessage = 'Error, la talla debe ser superior a 0 he inferior a 50.';
 					}elseif ($prevMessage =="SQLSTATE[23000]") {
-						$responseMessage = 'Error, la posicion que coloco ya esta registrada (No puede haber dos posiciones iguales).';
+						$responseMessage = 'Error, la talla que coloco ya esta registrada (No puede haber dos tallas iguales).';
+					}else{
+						//$responseMessage = $e->getMessage();
+						$responseMessage = substr($e->getMessage(), 0, 45);
 					}
 				}
 			}
 		
 		}
 		$iniciar=0;
-		$actOpes = ActividadTarea::orderBy('posicion')
+		$size = Talla::orderBy('nombreTalla')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
-		return $this->renderHTML('listActividadTarea.twig',[
-				'actOpes' => $actOpes,
+		return $this->renderHTML('listTalla.twig',[
+				'size' => $size,
 				'responseMessage' => $responseMessage
 			]);
 	}

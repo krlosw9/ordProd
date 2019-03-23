@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea};
+use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea, Talla, TallasModelo, PedidoModelo};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -18,6 +18,7 @@ class ModeloController extends BaseController{
 		$shape = Hormas::orderBy('referencia')->get();
 		$line = Linea::orderBy('nombreLinea')->get();
 		$inventory = InventarioMaterial::orderBy('nombre')->get();
+		$tallas = Talla::orderBy('nombreTalla')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
 
@@ -25,6 +26,7 @@ class ModeloController extends BaseController{
 				'shapes' => $shape,
 				'lines' => $line,
 				'inventorys' => $inventory,
+				'tallas' => $tallas,
 				'cantPiezas' => $cantPiezas
 		]);
 	}
@@ -64,13 +66,29 @@ class ModeloController extends BaseController{
 					$modelo->id = $modeloUltimoId;
 					$modelo->referenciaMod=$postData['referenciaMod'];
 					$modelo->idHorma = $postData['idHorma'];
-					$modelo->tallas = $postData['tallas'];
 					$modelo->linea = $postData['linea'];
 					$modelo->imagenUrl = $imgName;
 					$modelo->observacion = $postData['observacionMod'];
 					$modelo->idUserRegister = $_SESSION['userId'];
 					$modelo->idUserUpdate = $_SESSION['userId'];
 					$modelo->save();
+
+
+					//Registra las tallas de la orden de produccion
+					$arrayIdTalla = $postData['idTalla'] ?? null;
+
+					foreach ($arrayIdTalla as $talla) {
+						
+						$checkTalla = $postData[$talla] ?? null;
+						if ($checkTalla) {
+							$tallas = new TallasModelo();
+							$tallas->idModeloInf = $modeloUltimoId;
+							$tallas->idTalla = $talla;
+							$tallas->idUserRegister=$_SESSION['userId'];
+							$tallas->idUserUpdate=$_SESSION['userId'];
+							$tallas->save();
+						}
+					}
 
 					
 					for ($i=1; $i <= $postData['cantPiezas']; $i++) { 
@@ -161,7 +179,7 @@ class ModeloController extends BaseController{
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelModelo($request){
-		$shape = null; $part=null; $inventory=null; $material=null;
+		$shape = null; $part=null; $inventory=null; $material=null; $tallas=null; $tallasModelo=null;
 		$responseMessage = null; $line=null;
 		$quiereActualizar = false;
 		$modelos = null;
@@ -174,19 +192,38 @@ class ModeloController extends BaseController{
 			if ($id) {
 				if($postData['boton']=='del'){
 				  try{
-					$materiales = MaterialModelos::where("idModeloInfo","=",$id)->get();
-					foreach ($materiales as $material) {
-						$materialDel = new MaterialModelos();
-						$materialDel->destroy($material->id);
-					}
-					$modelo = new ModelosInfo();
-					$modelo->destroy($id);
-					$responseMessage = "Se elimino el modelo";
+				  	$pedidoModelo = PedidoModelo::where("idModelo","=",$id)->get();
+				  	$hayPedidoModelo = $pedidoModelo->last();
+				  	
+				  	if (!$hayPedidoModelo) {
+				  		//Si no  hay PedidoModelo se puede eliminar el modelo y eso es porque antes me eliminaba las tallasModelo y los materialesModelos y luego daba la excepcion de que no se podia eliminar porque habia una relacion en pedidoModelo
+
+					  	$tallasModelo = TallasModelo::where("idModeloInf","=",$id)->get();
+						foreach ($tallasModelo as $tallaMod) {
+							$tallaDel = new TallasModelo();
+							$tallaDel->destroy($tallaMod->id);
+						}
+						$materiales = MaterialModelos::where("idModeloInfo","=",$id)->get();
+						foreach ($materiales as $material) {
+							$materialDel = new MaterialModelos();
+							$materialDel->destroy($material->id);
+						}
+						$modelo = new ModelosInfo();
+						$modelo->destroy($id);
+						$responseMessage = "Se elimino el modelo";
+
+				  	}else{
+				  		//Si hay un pedidoModelo Intenta eliminar el modelo para que eso de la excepcion y de la excepcion de el $responseMessage
+						$modelo = new ModelosInfo();
+						$modelo->destroy($id);
+						$responseMessage = "Se elimino el modelo";										  		
+				  	}
+
 				  }catch(\Exception $e){
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 53);
 					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
-						$responseMessage = 'Error, No se puede eliminar, este modelo esta siendo usado.';
+						$responseMessage = 'Error, No se puede eliminar, este modelo esta siendo usado en algun pedido.';
 					}
 				  }
 				}elseif ($postData['boton']=='upd') {
@@ -202,6 +239,8 @@ class ModeloController extends BaseController{
 			$modelos = ModelosInfo::find($id);
 			$material = MaterialModelos::where("idModeloInfo","=",$id)->get();
 
+			$tallas = Talla::orderBy('nombreTalla')->get();
+			$tallasModelo = TallasModelo::where("idModeloInf","=",$id)->orderBy('idTalla')->get();
 			$shape = Hormas::orderBy('referencia')->get();
 			$line = Linea::orderBy('nombreLinea')->get();
 			$inventory = InventarioMaterial::orderBy('nombre')->get();
@@ -220,6 +259,8 @@ class ModeloController extends BaseController{
 		return $this->renderHTML($ruta, [
 			'modelos' => $modelos,
 			'materiales' => $material,
+			'tallas' => $tallas,
+			'tallasModelo' => $tallasModelo,
 			'idUpdate' => $id,
 			'shapes' => $shape,
 			'lines' => $line,
@@ -260,7 +301,6 @@ class ModeloController extends BaseController{
 					
 					$modelo->referenciaMod=$postData['referenciaMod'];
 					$modelo->idHorma = $postData['idHorma'];
-					$modelo->tallas = $postData['tallas'];
 					$modelo->linea = $postData['linea'];
 					$modelo->observacion = $postData['observacionMod'];
 					if ($imgName) {
@@ -271,6 +311,39 @@ class ModeloController extends BaseController{
 
 					$modelo->idUserUpdate = $_SESSION['userId'];
 					$modelo->save();
+
+
+					//Actualiza las tallas de la orden de produccion
+					$arrayIdTalla = $postData['idTalla'] ?? null;
+
+					foreach ($arrayIdTalla as $talla) {
+						
+						$checkTalla = $postData[$talla] ?? null;
+						$idTallasModelo = $postData['idTallasModelo'.$talla] ?? null;
+						
+						if ($idTallasModelo) {
+							if ($checkTalla == null) {
+								try{
+									$tallaModeloDel = new TallasModelo();
+									$tallaModeloDel->destroy($idTallasModelo);
+								}catch(\Exception $e){
+									//$responseMessage = $e->getMessage();
+									$responseMessage = substr($e->getMessage(), 0, 53);
+								}
+							}
+						}else{
+							if ($checkTalla) {
+								$tallas = new TallasModelo();
+								$tallas->idModeloInf = $idModelo;
+								$tallas->idTalla = $talla;
+								$tallas->idUserRegister=$_SESSION['userId'];
+								$tallas->idUserUpdate=$_SESSION['userId'];
+								$tallas->save();
+								
+							}
+						}
+					}
+
 
 					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
 						if ($postData['eliminarMaterial'.$i]==0) {
@@ -305,7 +378,7 @@ class ModeloController extends BaseController{
 						}
 					}
 
-					$responseMessage = 'Actualizado';
+					$responseMessage .= 'Actualizado';
 				}catch(\Exception $e){
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					

@@ -145,7 +145,7 @@ class CompraController extends BaseController{
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 53);
 					if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation: 1451") {
-						$responseMessage = 'Error, No se puede eliminar, este cliente esta siendo usada.';
+						$responseMessage = 'Error, No se puede eliminar, esta compra esta siendo usada.';
 					}
 				  }
 				}elseif ($postData['boton']=='upd') {

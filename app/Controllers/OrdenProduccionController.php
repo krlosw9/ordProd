@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo};
+use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo, TallasModelo, TallasOrden};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -23,7 +23,7 @@ class OrdenProduccionController extends BaseController{
 		//$inventory = InventarioMaterial::orderBy('nombre')->get();
 
 		$idPedido=$_GET['?'] ?? null;
-		$idPedidoModelo=$_GET['i'] ?? null;
+		$idPedidoModelo=$_GET['i'] ?? null; 
 		if ($idPedidoModelo) {
 
 			$pedido = Pedido::Join("clientesProvedores","pedido.idCliente","=","clientesProvedores.id")
@@ -34,6 +34,17 @@ class OrdenProduccionController extends BaseController{
 			$models = PedidoModelo::Join("modelosInfo","pedidoModelo.idModelo","=","modelosInfo.id")
 			->select('pedidoModelo.*', 'modelosInfo.referenciaMod', 'modelosInfo.tallas', 'modelosInfo.imagenUrl')
 			->where("pedidoModelo.id","=",$idPedidoModelo)
+			->get();
+
+			
+			$lastestModel = $models->last() ?? null;
+			$idModelo = $lastestModel->idModelo ?? null;
+			
+
+			$tallas = TallasModelo::Join("talla","tallasModelo.idtalla","=","talla.id")
+			->select('tallasModelo.*', 'talla.nombreTalla')
+			->where("tallasModelo.idModeloInf","=",$idModelo)
+			->orderBy('nombreTalla')
 			->get();
 
 			$actividad = ActividadTarea::latest('posicion')->get();
@@ -53,6 +64,7 @@ class OrdenProduccionController extends BaseController{
 				'pedidos' => $pedido,
 				'actividads' => $actividad,
 				'models' => $models,
+				'tallas' => $tallas,
 				'responseMessage' => $responseMessage
 		]);
 	}
@@ -77,7 +89,7 @@ class OrdenProduccionController extends BaseController{
 
 	//Registra la Orden 
 	public function postAddOrdenAction($request){
-		$registroExitoso=false;
+		$registroExitoso=false; $sumatoria=0;
 		$tallaInicio=0;
 		$tallaFin=0;
 		$responseMessage = null;
@@ -88,7 +100,7 @@ class OrdenProduccionController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$ordenValidator = v::key('referenciaOrd', v::stringType()->length(1, 12)->notEmpty());
+			$ordenValidator = v::key('referenciaOrd', v::stringType()->length(1, 12)->noWhitespace()->notEmpty());
 			
 			
 			if($_SESSION['userId']){
@@ -96,109 +108,6 @@ class OrdenProduccionController extends BaseController{
 					$ordenValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
-					$querytallas = Tallas::all();
-					$tallasUltimo = $querytallas->last();
-					$tallasUltimoId = $tallasUltimo->id+1;
-
-
-					if ($postData['tipoTallas']==1) {
-						$tallaInicio=35;
-						$tallaFin=44;
-						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;
-				  		$tallas->t35 = $postData['35'];	
-				  		$tallas->t36 = $postData['36'];
-				  		$tallas->t37 = $postData['37'];
-				  		$tallas->t38 = $postData['38'];
-				  		$tallas->t39 = $postData['39'];
-				  		$tallas->t40 = $postData['40'];
-				  		$tallas->t41 = $postData['41'];
-				  		$tallas->t42 = $postData['42'];
-				  		$tallas->t43 = $postData['43'];
-				  		$tallas->t44 = $postData['44'];
-				  		$tallas->idUserRegister=$_SESSION['userId'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41']+$postData['42']+$postData['43']+$postData['44'];
-					}elseif ($postData['tipoTallas']==2) {
-						$tallaInicio=32;
-						$tallaFin=41;
-						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;  
-				  		$tallas->t32 = $postData['32'];	
-				  		$tallas->t33 = $postData['33'];
-				  		$tallas->t34 = $postData['34'];
-				  		$tallas->t35 = $postData['35'];
-				  		$tallas->t36 = $postData['36'];
-				  		$tallas->t37 = $postData['37'];
-				  		$tallas->t38 = $postData['38'];
-				  		$tallas->t39 = $postData['39'];
-				  		$tallas->t40 = $postData['40'];
-				  		$tallas->t41 = $postData['41'];
-				  		$tallas->idUserRegister=$_SESSION['userId'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['32']+$postData['33']+$postData['34']+$postData['35']+$postData['36']+$postData['37']+$postData['38']+$postData['39']+$postData['40']+$postData['41'];
-					}elseif ($postData['tipoTallas']==3) {
-						$tallaInicio=26;
-						$tallaFin=35;
-						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;  
-				  		$tallas->t26 = $postData['26'];	
-				  		$tallas->t27 = $postData['27'];
-				  		$tallas->t28 = $postData['28'];
-				  		$tallas->t29 = $postData['29'];
-				  		$tallas->t30 = $postData['30'];
-				  		$tallas->t31 = $postData['31'];
-				  		$tallas->t32 = $postData['32'];
-				  		$tallas->t33 = $postData['33'];
-				  		$tallas->t34 = $postData['34'];
-				  		$tallas->t35 = $postData['35'];
-				  		$tallas->idUserRegister=$_SESSION['userId'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['26']+$postData['27']+$postData['28']+$postData['29']+$postData['30']+$postData['31']+$postData['32']+$postData['33']+$postData['34']+$postData['35'];
-					}elseif ($postData['tipoTallas']==4) {
-						$tallaInicio=20;
-						$tallaFin=29;
-						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;  
-				  		$tallas->t20 = $postData['20'];	
-				  		$tallas->t21 = $postData['21'];
-				  		$tallas->t22 = $postData['22'];
-				  		$tallas->t23 = $postData['23'];
-				  		$tallas->t24 = $postData['24'];
-				  		$tallas->t25 = $postData['25'];
-				  		$tallas->t26 = $postData['26'];
-				  		$tallas->t27 = $postData['27'];
-				  		$tallas->t28 = $postData['28'];
-				  		$tallas->t29 = $postData['29'];
-				  		$tallas->idUserRegister=$_SESSION['userId'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24']+$postData['25']+$postData['26']+$postData['27']+$postData['28']+$postData['29'];
-					}elseif ($postData['tipoTallas']==5) {
-						$tallaInicio=15;
-						$tallaFin=24;
-						$tallas = new Tallas();
-				  		$tallas->id = $tallasUltimoId;  
-				  		$tallas->t15 = $postData['15'];
-				  		$tallas->t16 = $postData['16'];
-				  		$tallas->t17 = $postData['17'];
-				  		$tallas->t18 = $postData['18'];
-				  		$tallas->t19 = $postData['19'];
-				  		$tallas->t20 = $postData['20'];
-				  		$tallas->t21 = $postData['21'];
-				  		$tallas->t22 = $postData['22'];
-				  		$tallas->t23 = $postData['23'];
-				  		$tallas->t24 = $postData['24'];
-				  		$tallas->idUserRegister=$_SESSION['userId'];
-						$tallas->idUserUpdate=$_SESSION['userId'];
-						$tallas->save();
-						$sumatoria= $postData['15']+$postData['16']+$postData['17']+$postData['18']+$postData['19']+$postData['20']+$postData['21']+$postData['22']+$postData['23']+$postData['24'];
-					}else{
-						$responseMessage2=' Tallas NO registradas';
-					}
 					/* Consulta el ultimo id de InfoOrdenProduccion */
 					$queryorden = InfoOrdenProduccion::all();
 					$ordenUltimo = $queryorden->last();
@@ -218,7 +127,6 @@ class OrdenProduccionController extends BaseController{
 					$order->referenciaOrd=$referenciaOrd;
 					$order->idPedido = $postData['idPedido'];
 					$order->idPedidoModelo = $postData['idPedidoModelo'];
-					$order->idTallas=$tallasUltimoId;
 					$order->observacion1 = $observacion1;
 					$order->fechaRegistro=$fechaRegistro;
 					$order->fechaEntrega=$fechaEntrega;
@@ -226,6 +134,27 @@ class OrdenProduccionController extends BaseController{
 					$order->idUserUpdate = $_SESSION['userId'];
 					$order->save();
 
+					//Registra las tallas de la orden de produccion
+					$arrayIdTalla = $postData['idTalla'] ?? null;
+
+					foreach ($arrayIdTalla as $talla) {
+						
+						if ($postData[$talla]) {
+							$cantParesTalla = $postData[$talla];	
+						}else{
+							$cantParesTalla=0;
+						}
+						
+						$tallas = new TallasOrden();
+						$tallas->idInfoOrden = $ordenUltimoId;
+						$tallas->idTalla = $talla;
+						$tallas->cantPares = $cantParesTalla;
+						$tallas->idUserRegister=$_SESSION['userId'];
+						$tallas->idUserUpdate=$_SESSION['userId'];
+						$tallas->save();
+
+						$sumatoria += $cantParesTalla;
+					}
 					
 					for($i=0;$i<$postData['cantActividades'];$i++){
 						$tarea = new TareaOperario();
@@ -259,7 +188,7 @@ class OrdenProduccionController extends BaseController{
 					$prevMessage = substr($e->getMessage(), 0, 15);
 					
 					if ($prevMessage =="All of the requ") {
-						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos.';
+						$responseMessage = 'Error, la referencia debe tener de 1 a 12 digitos y no debe tener espacios en blanco.';
 					}if ($prevMessage =="SQLSTATE[23000]") {
 						$responseMessage = 'Error, el numero de la orden ya existe.';
 					}else{
@@ -316,7 +245,7 @@ echo
     
     <!-- info row -->
     <div class='row invoice-info'>
-      <div class='col-md-12 invoice-col' style='font-size: 20px;'>
+      <div class='col-md-12 invoice-col' style='font-size: 25px;'>
         <strong>Cliente:</strong> $cliente<br>
       </div>
       <div class='col-md-5 invoice-col' style='font-size: 18px;'>
@@ -340,12 +269,16 @@ echo
           <table border='1'>
   <thead>
     <tr>";
-for ($i=$tallaInicio; $i <= $tallaFin ; $i++) { 
-	echo "
-
-      <th> $i </th>
-      ";	
-}
+    foreach ($arrayIdTalla as $talla) {
+		if ($postData['nombreTalla'.$talla]) {
+			$nombreTalla = $postData['nombreTalla'.$talla] ;
+		}else{
+			$nombreTalla = null;
+		}
+		echo "
+	    	<th> $nombreTalla </th>
+	     ";					
+	}
 
     echo "
     <th> : </th>
@@ -354,12 +287,17 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
   </thead>
   <tbody>
     <tr>"; 
+	foreach ($arrayIdTalla as $talla) {					
+		if ($postData[$talla]) {
+			$cantParesTalla = $postData[$talla];	
+		}else{
+			$cantParesTalla=0;
+		}
 
-for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
-	echo "<td>";
-	echo $postData[$i];
-	echo "</td>";
-}
+		echo "
+	    	<th> $cantParesTalla </th>
+	     ";
+	}
     echo "
       <td> : </td>
       <td> $sumatoria </td>
@@ -379,7 +317,7 @@ for ($i=$tallaInicio; $i <= $tallaFin ; $i++) {
     </div>
   </div>
   <div class='row'>
-    <div class='col-md-11' style='border: 1px black solid; word-wrap: break-word; height: 120px;'>$observacion1
+    <div class='col-md-11' style='border: 1px black solid; word-wrap: break-word; height: 147px; font-size: 20px;'>$observacion1
     </div>
   </div>
 <div class='col-md-5 invoice-col' style='font-size: 30px;'>
