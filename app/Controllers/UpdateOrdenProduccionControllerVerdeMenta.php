@@ -402,6 +402,24 @@ echo
 </div>
 	<!-- Inicio de los Tickets -->
     <div class='row'>
+    <div class='col-md-12'>
+  ---------------------------------------------------------------------------------
+  </div>
+  <div class='col-md-12' style='font-size: 22px; height: 100px; padding-top: 10px; padding-left: 7px; padding-right: 10px;'>
+    <div class='row'>
+      <div class='col-md-4'>
+        <strong>Orden:</strong> 0<br>
+        <strong>Mod:</strong> 0
+      </div>
+      <div class='col-md-4' style='padding-top: 20px;'>
+        $code2
+      </div>
+      <div class='col-md-4' style='font-size: 20px;'>
+        <strong>VACIO</strong><br>
+        <p style='font-size: 16px;'>0 x 0 = $ 0 </p>
+      </div>
+    </div>
+  </div>
     "; 
 
 foreach ($tareas as $tarea => $value) {
