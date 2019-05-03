@@ -16,8 +16,16 @@ class BaseController{
 	}
 
 	public function renderHTML($fileName, $data = []){
+		$userName = $_SESSION['userName'] ?? null;
+		$userRol = $_SESSION['userRol'] ?? null;
+		$companyName = $_SESSION['companyName'] ?? null;
+
+		$this->templateEngine->addGlobal('userName', $userName);
+		$this->templateEngine->addGlobal('userRol', $userRol);
+		$this->templateEngine->addGlobal('companyName', $companyName);
+
 		return new HtmlResponse($this->templateEngine->render($fileName, $data));
 	}
 }
-
+ 
 ?>

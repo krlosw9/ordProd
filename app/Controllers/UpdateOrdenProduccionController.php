@@ -151,6 +151,7 @@ class UpdateOrdenProduccionController extends BaseController{
 		$provider = null;
 		$imgName = null;
 		$cantPiezas=$_GET['numPart'] ?? null;
+		$nombreEmpresa = $_SESSION['companyName'];
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -313,7 +314,7 @@ echo
     <div class='row'>
       <div class='col-md-12'>
         <h2 class='page-header'>
-          <i class='fa fa-globe'></i>..Verde Menta,
+          <i class='fa fa-globe'></i> $nombreEmpresa,
           <small class='pull-right'>Orden: #$referenciaOrd</small>
         </h2>
       </div>

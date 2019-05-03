@@ -36,6 +36,7 @@ class ActividadTareaController extends BaseController{
 					$actOpe->valorPorPar = $postData['valorPorPar'];
 					$actOpe->posicion = $postData['posicion'];
 					$actOpe->observacion = $postData['observacion'];
+					$actOpe->activoCheck = 1;
 					$actOpe->idUserRegister = $_SESSION['userId'];
 					$actOpe->idUserUpdate = $_SESSION['userId'];
 					$actOpe->save();
@@ -173,6 +174,13 @@ class ActividadTareaController extends BaseController{
 					$actOpe->valorPorPar = $postData['valorPorPar'];
 					$actOpe->posicion = $postData['posicion'];
 					$actOpe->observacion = $postData['observacion'];
+					//Si el check esta ON envia un 1 si no 0
+					$activoCheck = $postData['activoCheck'] ?? false;
+					if ($activoCheck) {
+						$actOpe->activoCheck = 1;
+					}else{
+						$actOpe->activoCheck = 0;
+					}
 					$actOpe->idUserUpdate = $_SESSION['userId'];
 					$actOpe->save();
 					

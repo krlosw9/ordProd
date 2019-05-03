@@ -1,5 +1,5 @@
 <?php 
-
+ 
 namespace App\Controllers;
 
 use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea, Talla, TallasModelo, PedidoModelo};

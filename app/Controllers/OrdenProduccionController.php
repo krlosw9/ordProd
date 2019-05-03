@@ -16,7 +16,7 @@ class OrdenProduccionController extends BaseController{
 	public function getAddOrdenAction(){
 		$pedido = null; $actividad=null; 
 		$responseMessage = null; $models = null;
-		$ruta = 'addOrden.twig';
+		$ruta = 'addOrden.twig'; $tallas=null;
 
 		//$shape = Hormas::orderBy('referencia')->get();
 		//$part = Pieza::orderBy('nombre')->get();
@@ -47,7 +47,7 @@ class OrdenProduccionController extends BaseController{
 			->orderBy('nombreTalla')
 			->get();
 
-			$actividad = ActividadTarea::latest('posicion')->get();
+			$actividad = ActividadTarea::where("activoCheck","=",1)->latest('posicion')->get();
 		
 		}else{
 			$responseMessage = 'Debe seleccionar un modelo';
@@ -96,6 +96,7 @@ class OrdenProduccionController extends BaseController{
 		$provider = null;
 		$imgName = null;
 		$cantPiezas=$_GET['numPart'] ?? null;
+		$nombreEmpresa = $_SESSION['companyName'];
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -199,6 +200,7 @@ class OrdenProduccionController extends BaseController{
 			}
 		}
 		if ($registroExitoso==true) {
+
 			$idModelo=null;
 			$Bar = new BarcodeGeneratorHTML();
 			$code2 = $Bar->getBarcode(99,$Bar::TYPE_CODE_128);
@@ -236,7 +238,7 @@ echo
     <div class='row'>
       <div class='col-md-12'>
         <h2 class='page-header'>
-          <i class='fa fa-globe'></i>..Verde Menta,
+          <i class='fa fa-globe'></i>$nombreEmpresa,
           <small class='pull-right'>Orden: #$referenciaOrd</small>
         </h2>
       </div>
