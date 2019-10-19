@@ -24,8 +24,8 @@ class AuthController extends BaseController{
 				$_SESSION['userId'] = $user->id;
 				$_SESSION['userName'] = $user->nombreUsuario;
 				$_SESSION['userRol'] = $user->rol;
-				$_SESSION['companyName'] = 'Mupi Shoes';
-				return new RedirectResponse('admin');
+				$_SESSION['companyName'] = 'Cheduar';
+				return new RedirectResponse('./');
 			}else{
 				$responseMessage = 'Usuario y Contraseña incorrecto';
 			}

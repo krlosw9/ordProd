@@ -4,14 +4,108 @@
   
 </section>
 <section class="content">
+
   <div class="row">
     <!-- left column -->
     <div class="col-xs-12">
       <!-- general form elements -->
+      <div class="row">
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>{{ valorX }}</h3>
+
+              <p>Ordenes registradas</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-pie-graph"></i>
+            </div>
+            <a href="#" class="small-box-footer">Más Información <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>53<sup style="font-size: 20px"></sup></h3>
+
+              <p>Clientes registrados</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-person-add"></i>
+            </div>
+            <a href="#" class="small-box-footer">Más Información <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3>44</h3>
+
+              <p>Pedidos registrados</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="#" class="small-box-footer">Más Información <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3>65</h3>
+
+              <p>Modelos registrados</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-bag"></i>
+            </div>
+            <a href="#" class="small-box-footer">Más Información <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
+      <div class="row" style="text-align:center;">
+	      <div class="col-xs-12 col-sm-12 col-md-12">
+	      	<h3 style="text-align:center;">Pares de zapatos por año</h3>
+	        <div id="morrisLine1" style="height: 250px;"></div>
+	      </div>
+      </div>
+      
 
 
       <div class="col-xs-12">
-        <img id="profile-picture" src="./uploads/VerdeMenta.jpeg" alt="Logo" width='630' height='350'>
+        <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
       </div>
       
+{% endblock %}
+{% block javascripts %}
+  <script type="text/javascript">
+    new Morris.Line({
+      element: 'morrisLine1',
+      data: [
+        { month: '2005', a: 100, b: 90 },
+        { month: '2006', a: 75,  b: 65 },
+        { month: '2007', a: 50,  b: 40 },
+        { month: '2008', a: 75,  b: 65 },
+        { month: '2009', a: 50,  b: 40 },
+      ],
+      xkey: 'month',
+      ykeys: ['a', 'b'],
+      labels: ['Accidentes', 'Incidentes'],
+      barColors: ['#5058AB', '#14A0C1'],
+      gridTextSize: 11,
+      hideHover: 'auto',
+      resize: true
+    });
+    
+  </script>
 {% endblock %}

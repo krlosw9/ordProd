@@ -9,7 +9,7 @@ class AdminController extends BaseController{
 
 		
 
-		return $this->renderHTML('listActividadTarea.twig');
+		return $this->renderHTML('index.twig');
 
 	}
 }
