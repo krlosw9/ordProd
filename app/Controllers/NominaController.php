@@ -174,6 +174,72 @@ class NominaController extends BaseController{
 		]);
 	}
 
+
+
+//Nomina de operario ya asignado a la tareaOperario
+	public function postListNominaPorOperarioYaAsignado($request){
+		$responseMessage = null; 
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			if($_SESSION['userId']){
+				try{
+					$postData = $request->getParsedBody();
+					
+					$idPersona = $postData['idPersona'];
+					
+					$tareasNoPagas = TareaOperario::Join("infoOrdenProduccion","tareaOperario.idInfoOrdenProduccion","=","infoOrdenProduccion.id")
+					->Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
+					->select('tareaOperario.*', 'infoOrdenProduccion.referenciaOrd' , 'actividadTarea.nombre')
+					->where("pagaCheck","=",0)
+					->where("idOperario","=",$idPersona)
+					->latest('id')->get();
+
+					$people = Personas::find($idPersona);
+
+				}catch(\Exception $e){
+					$responseMessage = substr($e->getMessage(), 0, 35);
+					//$responseMessage = $e->getMessage();
+				}
+			}
+		}
+			
+		return $this->renderHTML('NominaPorOperarioAsignado.twig',[
+				'responseMessage' => $responseMessage,
+				'tareasNoPagas' => $tareasNoPagas,
+				'people' => $people
+		]);
+	}
+
+	public function postPagarNomina($request){
+		$responseMessage = null;
+		
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			
+			if($_SESSION['userId']){
+
+				//try{
+					$postData = $request->getParsedBody();
+					
+					$arrayTareasPorPagar = $postData['idTareas'];
+					foreach ($arrayTareasPorPagar as $tarea) {
+						echo $tarea ." ";
+						echo $postData["$tarea"];
+						echo "<BR>";
+
+					}
+					
+			}
+		}
+
+		
+		
+		return $this->renderHTML('NominaPorOperarioAsignado.twig',[
+			'responseMessage' => $responseMessage
+	]);
+	}
+
+
 }
 
 ?>

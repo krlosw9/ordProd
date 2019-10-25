@@ -565,6 +565,20 @@ $map->post('postQueryNomina', '/order/rosterquery', [
         'auth' => true
 ]);
 
+//Rutas Reporte Nomina de operario ya asignado 
+$map->post('postListpayroll', '/order/payrollList', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'postListNominaPorOperarioYaAsignado',
+        'auth' => true
+]);
+
+$map->post('postPayroll', '/order/payroll', [
+        'controller' => 'App\Controllers\NominaController',
+        'action' => 'postPagarNomina',
+        'auth' => true
+]);
+
+
 //Rutas Reporte Nomina Individual 
 $map->get('getlistReportNominaIndividual', '/order/reportrosterind', [
         'controller' => 'App\Controllers\ReportesController',
