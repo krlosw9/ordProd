@@ -278,7 +278,7 @@ class UpdateOrdenProduccionController extends BaseController{
 		if ($registroExitoso==true) {
 			$idModelo=null;
 			$Bar = new BarcodeGeneratorHTML();
-			$code2 = $Bar->getBarcode(99,$Bar::TYPE_CODE_128);
+			$code2 = $Bar->getBarcode(99,$Bar::TYPE_CODE_93);
 		
 			$modelo = ModelosInfo::where("referenciaMod","=",$modeloRef)->select('id')->get();
 
@@ -423,7 +423,7 @@ echo
     "; 
 
 foreach ($tareas as $tarea => $value) {
-	$code = $Bar->getBarcode($value->id,$Bar::TYPE_CODE_128);
+	$code = $Bar->getBarcode($value->id,$Bar::TYPE_CODE_93);
 	$sumaTarea = $value->valorTarea * $sumatoria;
 	echo "
   <div class='col-md-12'>
