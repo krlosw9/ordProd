@@ -579,6 +579,7 @@ $map->post('postPayroll', '/order/payroll', [
 ]);
 
 
+
 //Rutas Reporte Nomina Individual 
 $map->get('getlistReportNominaIndividual', '/order/reportrosterind', [
         'controller' => 'App\Controllers\ReportesController',

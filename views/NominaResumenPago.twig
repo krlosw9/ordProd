@@ -1,0 +1,50 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+
+  <h1>
+    Nomina
+    <small>Por operario</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./rosterlist">Consulta</a></li>
+    <li class="active">Nomina por operario</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12 col-sm-12 col-md-12">
+      <!-- general form elements -->
+      <div class="box box-primary" >
+        <div class="row">
+          <div class='col-xs-12 col-sm-12 col-md-12' style="padding-left: 30px;">
+            <div class="row">
+            <div class='col-xs-12 col-sm-12 col-md-12'>
+              <h3><strong>{{ people.nombre }} {{ people.apellido }}</strong></h3>
+            </div>
+            </div>
+
+            <div class='col-xs-12 col-sm-12 col-md-12'>
+              <strong>Cantidad de tareas: ${{ cantidadTicketsAprobados }}</strong>
+            </div>
+            <div class='col-xs-12 col-sm-12 col-md-12'>
+              <strong>Nomina: ${{ totalNomina }}</strong>
+            </div>
+            <div class="row">
+            <div class='col-xs-12 col-sm-12 col-md-12'>
+              </br>
+              <a type="button" class="btn btn-default" href="./rosterlist">Iniciar</a>
+            </div>
+            </div> 
+              <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+              {{ responseMessage }}
+            </div>
+         </div>
+       </div>
+      </div>
+
+
+{% endblock %}
