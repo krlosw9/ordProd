@@ -49,14 +49,14 @@ class ModeloController extends BaseController{
 					$modeloValidator->assert($postData);
 					$postData = $request->getParsedBody();
 					
-					$files = $request->getUploadedFiles();
+					/*$files = $request->getUploadedFiles();
 					$fileImg = $files['fileImg'];
 					
 					if($fileImg->getError() == UPLOAD_ERR_OK){
 						$fileName = $fileImg->getClientFilename();
 						$imgName = $postData['referenciaMod'].$fileName;
 						$fileImg->moveTo("uploads/$imgName");
-					}
+					}*/
 
 					$idModelo = ModelosInfo::all();
 					$modeloUltimo = $idModelo->last();
@@ -67,7 +67,7 @@ class ModeloController extends BaseController{
 					$modelo->referenciaMod=$postData['referenciaMod'];
 					$modelo->idHorma = $postData['idHorma'];
 					$modelo->linea = $postData['linea'];
-					$modelo->imagenUrl = $imgName;
+					//$modelo->imagenUrl = $imgName;
 					$modelo->observacion = $postData['observacionMod'];
 					$modelo->idUserRegister = $_SESSION['userId'];
 					$modelo->idUserUpdate = $_SESSION['userId'];
@@ -285,7 +285,7 @@ class ModeloController extends BaseController{
 					$modeloValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
-					$files = $request->getUploadedFiles();
+					/*$files = $request->getUploadedFiles();
 					$fileImg = $files['fileImg'];
 					
 					if($fileImg->getError() == UPLOAD_ERR_OK){
@@ -293,7 +293,7 @@ class ModeloController extends BaseController{
 						$imgName = $postData['referenciaMod'].$fileName;
 						$fileImg->moveTo("uploads/$imgName");
 						$cambioImagen = true;
-					}
+					}*/
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en actOpe y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 					$idModelo = $postData['id'];
@@ -303,11 +303,11 @@ class ModeloController extends BaseController{
 					$modelo->idHorma = $postData['idHorma'];
 					$modelo->linea = $postData['linea'];
 					$modelo->observacion = $postData['observacionMod'];
-					if ($imgName) {
+					/*if ($imgName) {
 						$modelo->imagenUrl = $imgName;
 					}elseif ($cambioImagen == false) {
 						$modelo->imagenUrl = $postData['imagenUrl'];
-					}
+					}*/
 
 					$modelo->idUserUpdate = $_SESSION['userId'];
 					$modelo->save();

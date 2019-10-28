@@ -59,11 +59,11 @@
 
             
 
-            <div class="form-group col-xs-6">
+            <!--<div class="form-group col-xs-6">
               <label>Imagen:</label>
               <input type="file" name="fileImg" class="form-control">
-            </div>
-            <input type="hidden" name="imagenUrl" value="{{ modelos.imagenUrl }}" required>
+            </div>-->
+            <!--<input type="hidden" name="imagenUrl" value="{{ modelos.imagenUrl }}" required>-->
             <div class="form-group col-xs-12">
               <label>Observacion Modelo:</label>
               <input type="text" name="observacionMod" class="form-control" placeholder="Opcional, maximo 250 caracteres" maxlength="250" value="{{modelos.observacion}}">
@@ -83,7 +83,7 @@
                   {% endif %}
                 {% endfor %}        
               {% if checkeada == false %} 
-                <input type="checkbox" name="{{talla.id}}" checked>
+                <input type="checkbox" name="{{talla.id}}">
               {% endif %}
               </div>
             {% endfor %}  
