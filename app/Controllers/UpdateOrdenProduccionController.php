@@ -404,7 +404,7 @@ foreach ($tareas as $tarea => $value) {
 	$sumaTarea = $value->valorTarea * $sumatoria;
 	echo "
   <div class='col-md-12'>
-  ------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------
   </div>
   <div class='col-md-12' style='font-size: 22px; height: 100px; padding-top: 10px; padding-left: 7px; padding-right: 10px;'>
     <div class='row'>
