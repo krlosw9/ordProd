@@ -256,8 +256,11 @@ echo
 			<div class='col-md-6 invoice-col' style='font-size: 18px;'>
 					<strong>Entrega:</strong> $fechaEntrega<br>
 			</div>
-			<div class='col-md-6 invoice-col' style='font-size: 18px;'>
+			<div class='col-md-4 invoice-col' style='font-size: 18px;'>
           <strong>Modelo:</strong> $modeloRef<br>
+			</div>
+			<div class='col-md-6 invoice-col' style='font-size: 18px;'>
+          <strong>Pedido:</strong> $pedido->referencia<br>
       </div>
 
 
