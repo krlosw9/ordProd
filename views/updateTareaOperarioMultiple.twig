@@ -23,7 +23,7 @@
         <div class="box-header with-border">
           <h3 class="box-title">Asígnele el operario a cada actividad de esta tarea</h3>
         </div>
-        <!-- /.box-header -->
+        <!-- /.box-header --> 
         <!-- form start -->
         <form action="./tareaupdate" method="post" role="form">
           <div class="box-body">
@@ -50,7 +50,7 @@
                   <input type="text" name="nombreActTarea{{i}}" value="{{ tarea.nombre }}" class="form-control" required disabled>
                 </div>
                 <div class="col-xs-6">
-                  <select class="form-control select-picker" name="idOperario{{i}}" required>
+                  <select class="form-control select-picker" name="idOperario{{i}}">
                     <option value="">Seleccione el operario</option>
                     {% for people in peoples %}
                       {% if tarea.idOperario == people.id %} 
