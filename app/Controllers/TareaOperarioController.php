@@ -80,11 +80,17 @@ class TareaOperarioController extends BaseController{
 					  $tarea->idUserUpdate = $_SESSION['userId'];
 					  $tarea->save();
 					}elseif ($postData['multiple'] == 1) {
+						
 						for ($i=0; $i < $postData['cantTareas'] ; $i++) { 
-						  $tarea=TareaOperario::find($postData['id'.$i]);
-						  $tarea->idOperario = $postData['idOperario'.$i];
-						  $tarea->idUserUpdate = $_SESSION['userId'];
-						  $tarea->save();
+							$idTarea = $postData['id'.$i] ?? null;
+							$idOperario = $postData['idOperario'.$i] ?? null;
+							
+							if ($idOperario){
+								$tarea=TareaOperario::find($idTarea);
+								$tarea->idOperario = $idOperario;
+								$tarea->idUserUpdate = $_SESSION['userId'];
+								$tarea->save();
+							}
 						}
 					}
 					
