@@ -53,6 +53,10 @@ class OrdenProduccionController extends BaseController{
 			->where("actividadTareaModelo.idModeloInf","=",$idModelo)
 			->latest('actividadTarea.posicion')
 			->get();
+
+			if($actividad->isEmpty()){
+				$actividad = ActividadTarea::where("activoCheck","=",1)->latest('posicion')->get();
+			}
 		
 		}else{
 			$responseMessage = 'Debe seleccionar un modelo';
