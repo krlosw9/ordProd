@@ -2,7 +2,7 @@
  
 namespace App\Controllers;
 
-use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea, Talla, TallasModelo, PedidoModelo};
+use App\Models\{ModelosInfo, MaterialModelos,InventarioMaterial, Hormas, Pieza, Linea, Talla, TallasModelo, PedidoModelo, ActividadTarea, ActividadTareaModelo};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -18,6 +18,7 @@ class ModeloController extends BaseController{
 		$shape = Hormas::orderBy('referencia')->get();
 		$line = Linea::orderBy('nombreLinea')->get();
 		$inventory = InventarioMaterial::orderBy('nombre')->get();
+		$actividadTarea = ActividadTarea::latest('posicion')->get();
 		$tallas = Talla::orderBy('nombreTalla')->get();
 
 		$cantPiezas=$_GET['numPart'] ?? null;
@@ -26,12 +27,13 @@ class ModeloController extends BaseController{
 				'shapes' => $shape,
 				'lines' => $line,
 				'inventorys' => $inventory,
+				'actividadTarea' => $actividadTarea,
 				'tallas' => $tallas,
 				'cantPiezas' => $cantPiezas
 		]);
 	}
 
-	//Registra la Persona
+	//Registra el modelo
 	public function postAddModeloAction($request){
 		$responseMessage = null;
 		$provider = null;
@@ -104,6 +106,22 @@ class ModeloController extends BaseController{
 							$material->idUserRegister = $_SESSION['userId'];
 							$material->idUserUpdate = $_SESSION['userId'];
 							$material->save();
+						}
+					}
+
+					//Registra las tallas de la orden de produccion
+					$arrayIdActividadTarea = $postData['idActividadTarea'] ?? null;
+					foreach ($arrayIdActividadTarea as $idActividad) {
+						
+						$valorPorPar = $postData["valorPorPar".$idActividad] ?? null;
+						if ($valorPorPar) {
+							$actividadTarea = new ActividadTareaModelo();
+							$actividadTarea->idModeloInf = $modeloUltimoId;
+							$actividadTarea->idActividadTarea = $idActividad;
+							$actividadTarea->valorPorPar = $valorPorPar;
+							$actividadTarea->idUserRegister=$_SESSION['userId'];
+							$actividadTarea->idUserUpdate=$_SESSION['userId'];
+							$actividadTarea->save();
 						}
 					}
 

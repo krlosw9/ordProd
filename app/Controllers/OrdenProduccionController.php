@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, Tallas,TareaOperario, MaterialModelos, PedidoModelo, TallasModelo, TallasOrden};
+use App\Models\{InfoOrdenProduccion, Pedido, ModelosInfo, ActividadTarea, ActividadTareaModelo, Tallas,TareaOperario, MaterialModelos, PedidoModelo, TallasModelo, TallasOrden};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -47,7 +47,12 @@ class OrdenProduccionController extends BaseController{
 			->orderBy('nombreTalla')
 			->get();
 
-			$actividad = ActividadTarea::where("activoCheck","=",1)->latest('posicion')->get();
+			$actividad = ActividadTareaModelo::Join("actividadTarea","actividadTareaModelo.idActividadTarea","=","actividadTarea.id")
+			->select('actividadTareaModelo.idModeloInf','actividadTareaModelo.idActividadTarea','actividadTareaModelo.valorPorPar', 'actividadTarea.id', 'actividadTarea.nombre', 'actividadTarea.activoCheck', 'actividadTarea.posicion')
+			->where("actividadTarea.activoCheck","=",1)
+			->where("actividadTareaModelo.idModeloInf","=",$idModelo)
+			->latest('actividadTarea.posicion')
+			->get();
 		
 		}else{
 			$responseMessage = 'Debe seleccionar un modelo';

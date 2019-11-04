@@ -68,12 +68,14 @@
             
 
             <div class="box-header">
+            <div class="row" style="padding-top: 10px; border-top: 1px dotted;">
+            <!--Este div solo crea una linea para separar las tallas y las piezas del modelo-->
+            </div>
             <div class="box-header">
               <h3 class="box-title">Piezas del modelo</h3>
             </div>
-              <div class="box-body">
+            <div class="box-body">
               <div class="row" style="padding-top: 10px;">
-                
                 <div class="col-xs-4">
                   <label>Material:</label>
                 </div>
@@ -85,6 +87,7 @@
                 </div>
               </div>
               <input type="hidden" name="cantPiezas" value="{{cantPiezas}}">
+          
             {% for i in 1..cantPiezas %}
               <div class="row" style="padding-top: 10px;">
                 <div class="col-xs-4">
@@ -103,13 +106,53 @@
                 </div>
               </div>
             {% endfor %}
+            
             </div>
             </div>
-          </div>
+
+            
+            <div  style="padding-top: 10px; border-top: 1px dotted;">
+              <!--Este div solo crea una linea para separar las tallas y las piezas del modelo-->
+            </div>
+            <div class="box-header">
+              <div class="box-header">
+                <h3 class="box-title">Valor por par según su actividad</h3>
+              </div>
+              <div class="box-body">
+              <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-6 col-sm-2 col-md-2">
+                  <label>Actividad:</label>
+                </div>
+                <div class="col-xs-6 col-sm-4 col-md-3">
+                  <label>Valor/x/Par:</label>
+                </div>
+              </div>
+              <input type="hidden" name="cantPiezas" value="{{cantPiezas}}">
+          
+            {% for actividad in actividadTarea %}
+              <div class="row" style="padding-top: 10px;">
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                  <p>{{ actividad.nombre }}</p>
+                  <input type="hidden" name="idActividadTarea[]" value="{{actividad.id}}" required>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-3">
+                  <input type="number" class="form-control" name="valorPorPar{{actividad.id}}" value="{{actividad.valorPorPar}}" placeholder="Solo numeros" required>
+                </div>
+                
+              </div>
+            {% endfor %}
+            
+            </div>
+
+            </div>
+            
+            </div>
+          
           <!-- /.box-body -->
           <div class="box-footer">
             <center><button type="submit" class="btn btn-primary">Registrar</button></center>
           </div>
+          
 
           <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
           {{ responseMessage }}
