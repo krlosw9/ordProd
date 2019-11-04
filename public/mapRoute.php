@@ -2,7 +2,7 @@
 
 ini_set('display_errors',1);
 ini_set('display_starup_error',1);
-error_reporting(E_ERROR | E_PARSE); 
+//error_reporting(E_ERROR | E_PARSE); Quitar este comentario cuando este en produccion..!!
 
 //require_once '../vendor/autoload.php';
 use Aura\Router\RouterContainer;
