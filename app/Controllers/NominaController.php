@@ -134,10 +134,16 @@ class NominaController extends BaseController{
 					
 					if ($cantAprovados > 0) {
 
+						/* Consulta el ultimo id de Nomina */
+						$queryNomina = Nomina::all();
+						$nominaUltimo = $queryNomina->last();
+						$nominaUltimoId = $nominaUltimo->id+1;
+
 						$idTareaOperario = $postData['idTareaOperario'];
 						foreach ($idTareaOperario as $idTarea ) {
 							$tareaOperario = TareaOperario::find($idTarea);
 							$tareaOperario->pagaCheck = 1;
+							$tareaOperario->idNomina = $nominaUltimoId;
 							$tareaOperario->idUserUpdate = $_SESSION['userId'];
 							$tareaOperario->save();
 						}
