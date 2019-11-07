@@ -14,7 +14,7 @@
           <!-- small box -->
           <div class="small-box bg-aqua">
             <div class="inner">
-              <h3>{{ valorX }}</h3>
+              <h3>{{ cantOrdenes }}</h3>
 
               <p>Ordenes registradas</p>
             </div>
@@ -29,7 +29,7 @@
           <!-- small box -->
           <div class="small-box bg-green">
             <div class="inner">
-              <h3>53<sup style="font-size: 20px"></sup></h3>
+              <h3>{{ cantClientes }}<sup style="font-size: 20px"></sup></h3>
 
               <p>Clientes registrados</p>
             </div>
@@ -44,7 +44,7 @@
           <!-- small box -->
           <div class="small-box bg-yellow">
             <div class="inner">
-              <h3>44</h3>
+              <h3>{{cantPedidos}}</h3>
 
               <p>Pedidos registrados</p>
             </div>
@@ -59,7 +59,7 @@
           <!-- small box -->
           <div class="small-box bg-red">
             <div class="inner">
-              <h3>65</h3>
+              <h3>{{cantModelos}}</h3>
 
               <p>Modelos registrados</p>
             </div>
@@ -89,18 +89,24 @@
 {% endblock %}
 {% block javascripts %}
   <script type="text/javascript">
+  
+    // Fecha javascript
+    var fecha = new Date();
+    var year = fecha.getFullYear();
+    
     new Morris.Line({
       element: 'morrisLine1',
       data: [
-        { month: '2005', a: 100, b: 90 },
-        { month: '2006', a: 75,  b: 65 },
-        { month: '2007', a: 50,  b: 40 },
-        { month: '2008', a: 75,  b: 65 },
-        { month: '2009', a: 50,  b: 40 },
+        { month: year+'-01', a: 100 },
+        { month: '2019-02', a: 75 },
+        { month: '2019-03', a: 50 },
+        { month: '2019-04', a: 75 },
+        { month: '2019-05', a: 50 },
+        { month: '2019-05', a: 50 },
       ],
       xkey: 'month',
-      ykeys: ['a', 'b'],
-      labels: ['Accidentes', 'Incidentes'],
+      ykeys: ['a'],
+      labels: ['Pares vendidos'],
       barColors: ['#5058AB', '#14A0C1'],
       gridTextSize: 11,
       hideHover: 'auto',
