@@ -109,7 +109,7 @@ class ModeloController extends BaseController{
 						}
 					}
 
-					//Registra las tallas de la orden de produccion
+					//Registra los precios de la actividad en este modelo
 					$arrayIdActividadTarea = $postData['idActividadTarea'] ?? null;
 					foreach ($arrayIdActividadTarea as $idActividad) {
 						
@@ -198,7 +198,7 @@ class ModeloController extends BaseController{
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelModelo($request){
 		$shape = null; $part=null; $inventory=null; $material=null; $tallas=null; $tallasModelo=null;
-		$responseMessage = null; $line=null;
+		$responseMessage = null; $line=null; $actividadTarea=null; $actividadTareaModelo=null;
 		$quiereActualizar = false;
 		$modelos = null;
 		$ruta='listModelo.twig';
@@ -214,7 +214,10 @@ class ModeloController extends BaseController{
 				  	$hayPedidoModelo = $pedidoModelo->last();
 				  	
 				  	if (!$hayPedidoModelo) {
-				  		//Si no  hay PedidoModelo se puede eliminar el modelo y eso es porque antes me eliminaba las tallasModelo y los materialesModelos y luego daba la excepcion de que no se podia eliminar porque habia una relacion en pedidoModelo
+							/*Si no  hay PedidoModelo se puede eliminar el modelo y eso es porque 
+							antes me eliminaba las tallasModelo y los materialesModelos y luego 
+							daba la excepcion de que no se podia eliminar porque habia una 
+							relacion en pedidoModelo*/
 
 					  	$tallasModelo = TallasModelo::where("idModeloInf","=",$id)->get();
 						foreach ($tallasModelo as $tallaMod) {
@@ -226,12 +229,20 @@ class ModeloController extends BaseController{
 							$materialDel = new MaterialModelos();
 							$materialDel->destroy($material->id);
 						}
+
+						$actividadTareaModelo = ActividadTareaModelo::where("idModeloInf","=",$id)->get();
+						foreach ($actividadTareaModelo as $actividadTarea) {
+							$actividadTareaDel = new ActividadTareaModelo();
+							$actividadTareaDel->destroy($actividadTarea->id);
+						}
+
 						$modelo = new ModelosInfo();
 						$modelo->destroy($id);
 						$responseMessage = "Se elimino el modelo";
 
 				  	}else{
-				  		//Si hay un pedidoModelo Intenta eliminar el modelo para que eso de la excepcion y de la excepcion de el $responseMessage
+							/*Si hay un pedidoModelo Intenta eliminar el modelo para que eso de la excepcion 
+							y de la excepcion de el $responseMessage*/
 						$modelo = new ModelosInfo();
 						$modelo->destroy($id);
 						$responseMessage = "Se elimino el modelo";										  		
@@ -262,6 +273,9 @@ class ModeloController extends BaseController{
 			$shape = Hormas::orderBy('referencia')->get();
 			$line = Linea::orderBy('nombreLinea')->get();
 			$inventory = InventarioMaterial::orderBy('nombre')->get();
+			$actividadTarea = ActividadTarea::latest('posicion')->get();
+			$actividadTareaModelo = ActividadTareaModelo::where("idModeloInf","=",$id)->orderBy('id')->get();
+			
 			$ruta='updateModelo.twig';
 		}else{
 			//$modelos = ModelosInfo::orderBy('referenciaMod')->get();
@@ -283,6 +297,8 @@ class ModeloController extends BaseController{
 			'shapes' => $shape,
 			'lines' => $line,
 			'inventorys' => $inventory,
+			'actividadTarea' => $actividadTarea,
+			'actividadTareaModelo' => $actividadTareaModelo,
 			'responseMessage' => $responseMessage
 		]);
 	}
@@ -362,8 +378,8 @@ class ModeloController extends BaseController{
 						}
 					}
 
-
-					for ($i=0; $i < $postData['cantPiezas']; $i++) { 
+					$cantPiezasExistentes = $postData['cantPiezas'] ?? null;
+					for ($i=0; $i < $cantPiezasExistentes; $i++) { 
 						if ($postData['eliminarMaterial'.$i]==0) {
 							$material = MaterialModelos::find($postData['idMaterial'.$i]);
 							$material->idModeloInfo=$idModelo;
@@ -393,6 +409,31 @@ class ModeloController extends BaseController{
 							$material->idUserRegister = $_SESSION['userId'];
 							$material->idUserUpdate = $_SESSION['userId'];
 							$material->save();
+						}
+					}
+
+					//actualiza o registra los precios de la actividad en este modelo
+					$arrayIdActividadTarea = $postData['idActividadTarea'] ?? null;
+					foreach ($arrayIdActividadTarea as $idActividad) {
+						
+						$valorPorPar = $postData["valorPorPar".$idActividad] ?? null;
+						$idActividadTareaModeloExistente = $postData["idActividadTareaModeloExistente".$idActividad] ?? null;
+						if ($valorPorPar) {
+							if($idActividadTareaModeloExistente){
+								$actividadTarea = ActividadTareaModelo::find($idActividadTareaModeloExistente);
+								//$actividadTarea->idModeloInf = $idModelo;
+								//$actividadTarea->idActividadTarea = $idActividad;
+								$actividadTarea->valorPorPar = $valorPorPar;
+								$actividadTarea->idUserUpdate=$_SESSION['userId'];
+								$actividadTarea->save();
+							}else{
+								$actividadTarea = new ActividadTareaModelo();
+								$actividadTarea->idModeloInf = $idModelo;
+								$actividadTarea->idActividadTarea = $idActividad;
+								$actividadTarea->valorPorPar = $valorPorPar;
+								$actividadTarea->idUserUpdate=$_SESSION['userId'];
+								$actividadTarea->save();
+							}
 						}
 					}
 

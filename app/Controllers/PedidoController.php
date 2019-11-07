@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos, PedidoModelo, ActividadTarea};
+use App\Models\{Pedido, ModelosInfo, Clientes, Ciudad, Tallas, MaterialModelos, PedidoModelo, ActividadTarea, ActividadTareaModelo};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 use Picqer\Barcode\BarcodeGeneratorHTML;
@@ -118,11 +118,6 @@ class PedidoController extends BaseController{
 					$refPedido = $postData['referencia'];
 					$observacionGeneral = $postData['observacion'];
 
-					$queryActividades = ActividadTarea::all();
-					foreach ($queryActividades as $actividad) {
-						$sumaActividades += $actividad->valorPorPar;
-					}
-
 //todo lo que esta al lado izquierdo es de lo que depende el html y el html
 					echo "
 <!DOCTYPE html>
@@ -158,6 +153,21 @@ class PedidoController extends BaseController{
 					";
 					
 					for ($iterador=0; $iterador < $postData['iterador']; $iterador++) { 
+
+$queryActividades = ActividadTareaModelo::Join("actividadTarea","actividadTareaModelo.idActividadTarea","=","actividadTarea.id")
+	->select('actividadTareaModelo.idModeloInf','actividadTareaModelo.idActividadTarea','actividadTareaModelo.valorPorPar', 'actividadTarea.id', 'actividadTarea.nombre', 'actividadTarea.activoCheck', 'actividadTarea.posicion')
+	->where("actividadTarea.activoCheck","=",1)
+	->where("actividadTareaModelo.idModeloInf","=", $postData['idModelo'.$iterador])
+	->latest('actividadTarea.posicion')
+	->get();
+
+if($queryActividades->isEmpty()){
+	$queryActividades = ActividadTarea::where("activoCheck","=",1)->latest('posicion')->get();
+}
+
+foreach ($queryActividades as $actividad) {
+	$sumaActividades += $actividad->valorPorPar;
+}
 
 $refModelo = $postData['refModelo'.$iterador];
 $observacionModelo = $postData['observacion'.$iterador];			
