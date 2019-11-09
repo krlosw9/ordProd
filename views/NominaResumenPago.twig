@@ -1,4 +1,4 @@
-{% extends "layout.twig" %}
+{% extends "layout.twig" %} 
 
 {% block content %}
 
@@ -23,8 +23,35 @@
           <div class='col-xs-12 col-sm-12 col-md-12' style="padding-left: 30px;">
             <div class="row">
             <div class='col-xs-12 col-sm-12 col-md-12'>
-              <h3><strong>{{ people.nombre }} {{ people.apellido }}</strong></h3>
+              <h3><strong>{{ people.nombre }} {{ people.apellido }} Ya se realizo el pago en el sistema</strong></h3>
             </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class='table table-striped table-sm'>
+                <tr>
+                  <th style='width: 150px'>Actividad</th>
+                  <th style='width: 100px'>Ref Orden</th>
+                  <th style='width: 100px'>Valor x Par</th>
+                  <th style='width: 100px'>Pares</th>
+                  <th style='width: 100px'>Total Tarea</th>
+                </tr>
+                {% set totalNomina = 0 %}
+                {% set cantidadTickets = 0 %}
+                {% for tarea in tareasNomina %}
+                  <tr>
+                    <td> {{ tarea.nombre }} </td>
+                    <td> {{ tarea.referenciaOrd }} </td>
+                    <td> {{ tarea.valorTarea }} </td>
+                    <td> {{ tarea.cantidadPares }} </td>
+                    {% set totalTarea = tarea.valorTarea * tarea.cantidadPares %}
+                    <td> {{ totalTarea }} </td>
+                    <input type="hidden" name="totalTarea{{ tarea.id }}" value="{{ totalTarea }}">
+                  </tr>
+                  {% set totalNomina = totalNomina+totalTarea %}
+                  {% set cantidadTickets = cantidadTickets+1 %}
+                {% endfor %}
+              </table>
             </div>
 
             <div class='col-xs-12 col-sm-12 col-md-12'>
@@ -34,11 +61,12 @@
               <strong>Nomina: ${{ totalNomina }}</strong>
             </div>
             <div class="row">
-            <div class='col-xs-12 col-sm-12 col-md-12'>
-              </br>
-              <a type="button" class="btn btn-default" href="./rosterlist">Iniciar</a>
+              <div class='col-xs-12 col-sm-12 col-md-12'>
+                </br>
+                <a type="button" class="btn btn-default" href="./rosterlist">Iniciar</a>
+              </div>
             </div>
-            </div> 
+              
               <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
               {{ responseMessage }}
             </div>

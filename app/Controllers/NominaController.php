@@ -149,6 +149,7 @@ class NominaController extends BaseController{
 						}
 
 						$nomina = new Nomina();
+						$nomina->id = $nominaUltimoId;
 						$nomina->idPersona = $postData['idPersona'];
 						$nomina->referencias = $postData['referencias'];
 						$nomina->valor = $postData['totalNomina'];
@@ -218,7 +219,8 @@ class NominaController extends BaseController{
 
 	public function postPagarNomina($request){
 		$responseMessage = null; $totalNomina=0; $cantidadTicketsAprobados=0; $algunTicketAprobado=false;
-		
+		$arrayTareasPorPagar=null; $people=null; $tareasNomina=null;
+
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
@@ -234,37 +236,55 @@ class NominaController extends BaseController{
 
 
 					$arrayTareasPorPagar = $postData['idTareas'] ?? null;
-					foreach ($arrayTareasPorPagar as $tarea) {
-						$postTotalTarea = $postData['totalTarea'.$tarea] ?? null;
-						$postCheck = $postData['check'.$tarea] ?? null;
-						if ($postCheck == 'on') {
-							/*Edita cada tarea seleccionada para el pago y la coloca como tarea Paga (pagaCheck=1)
-							y Le coloca el idNomina*/
-							$tareaOperario = TareaOperario::find($tarea);
-							$tareaOperario->pagaCheck = 1;
-							$tareaOperario->idNomina = $nominaUltimoId;
-							$tareaOperario->idUserUpdate = $_SESSION['userId'];
-							$tareaOperario->save();
 
-							$algunTicketAprobado=true;
+					if($arrayTareasPorPagar){
+						foreach ($arrayTareasPorPagar as $tarea) {
+							$postTotalTarea = $postData['totalTarea'.$tarea] ?? null;
+							$postCheck = $postData['check'.$tarea] ?? null;
+							if ($postCheck == 'on') {
+								/*Edita cada tarea seleccionada para el pago y la coloca como tarea Paga (pagaCheck=1)
+								y Le coloca el idNomina*/
+								$tareaOperario = TareaOperario::find($tarea);
+								$tareaOperario->pagaCheck = 1;
+								$tareaOperario->idNomina = $nominaUltimoId;
+								$tareaOperario->idUserUpdate = $_SESSION['userId'];
+								$tareaOperario->save();
 
-							$totalNomina += $postTotalTarea;
-							$cantidadTicketsAprobados++;
+								$algunTicketAprobado=true;
+
+								$totalNomina += $postTotalTarea;
+								$cantidadTicketsAprobados++;
+							}
+							$idPersona = $postData['idPersona'] ?? null;
+							$people = Personas::find($idPersona);
 						}
+					}else{
 						$idPersona = $postData['idPersona'] ?? null;
-						$people = Personas::find($idPersona);
+						if($idPersona){
+							$people = Personas::find($idPersona);
+							$responseMessage = "$people->nombre No tiene tareas asignadas";
+						}else{
+							$responseMessage = "Este operario No tiene tareas asignadas";
+						}
 					}
 
 					/*Crea la nomina y le coloca el valor total ademas 
 					Marca el valor liquidada en 0 para saber que aun no se a liquidado*/ 
 					if($algunTicketAprobado){
 						$nomina = new Nomina();
+						$nomina->id=$nominaUltimoId;
 						$nomina->idPersona=$idPersona;
 						$nomina->valor=$totalNomina;
 						$nomina->liquidada=0;
 						$nomina->iduserregister = $_SESSION['userId'];
 						$nomina->iduserupdate = $_SESSION['userId'];
 						$nomina->save();
+
+						$tareasNomina = TareaOperario::Join("infoOrdenProduccion","tareaOperario.idInfoOrdenProduccion","=","infoOrdenProduccion.id")
+						->Join("actividadTarea","tareaOperario.idActTarea","=","actividadTarea.id")
+						->select('tareaOperario.*', 'infoOrdenProduccion.referenciaOrd' , 'actividadTarea.nombre')
+						->where("idNomina","=",$nominaUltimoId)
+						->orderBy('id')->get();
 					}
 
 				}catch(\Exception $e){
@@ -277,6 +297,7 @@ class NominaController extends BaseController{
 		
 		return $this->renderHTML('NominaResumenPago.twig',[
 			'responseMessage' => $responseMessage,
+			'tareasNomina' => $tareasNomina,
 			'people' => $people,
 			'totalNomina' => $totalNomina,
 			'cantidadTicketsAprobados' => $cantidadTicketsAprobados
